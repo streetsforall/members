@@ -36,9 +36,8 @@ export default async function handler(
     // Update database
     if (validMember) {
       // Add user to members list or update their membership
+      // Notify user email of donation receipt (Optional)
     }
-
-    // Notify user email of donation receipt (Optional)
 
     res.status(200).json({ message: "Webhook data received" });
   } else {

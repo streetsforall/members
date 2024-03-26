@@ -192,7 +192,7 @@ describe("parseDonationData", () => {
       ...donationData,
       contribution: {
         ...donationData.contribution,
-        status: "rejected",
+        status: "declined",
       },
     };
 
