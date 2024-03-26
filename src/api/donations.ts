@@ -22,8 +22,6 @@ export default async function handler(
     return;
   }
 
-  console.log(username, password, expectedUsername, expectedPassword);
-
   if (req.method === "POST") {
     const donationData = req.body;
 
