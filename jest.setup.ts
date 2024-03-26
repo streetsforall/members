@@ -1,2 +1,2 @@
-process.env.WEBHOOK_USERNAME = 'username';
-process.env.WEBHOOK_PASSWORD = 'password';
+process.env.ACTBLUE_USERNAME = "username";
+process.env.ACTBLUE_PASSWORD = "password";

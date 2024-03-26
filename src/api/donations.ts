@@ -14,8 +14,8 @@ export default async function handler(
 
   const [username, password] = atob(auth.split(" ")[1]).split(":");
 
-  const expectedUsername = process.env.WEBHOOK_USERNAME;
-  const expectedPassword = process.env.WEBHOOK_PASSWORD;
+  const expectedUsername = process.env.ACTBLUE_USERNAME;
+  const expectedPassword = process.env.ACTBLUE_PASSWORD;
 
   if (username !== expectedUsername || password !== expectedPassword) {
     res.status(401).json({ message: "Unauthorized" });
