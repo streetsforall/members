@@ -5,7 +5,6 @@ export default async function audit() {
     `${process.env.AB_CLIENT_UUID}:${process.env.AB_CLIENT_SECRET}`
   ).toString("base64");
 
-  // Create the CSV with ActBlue API
   let createResponseBody;
   try {
     createResponseBody = await csvModule.create(auth);

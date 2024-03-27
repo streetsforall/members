@@ -40,3 +40,9 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 ## .env.local
 You will need to set up a .env.local file. Reach out to Max Fung for more info.
+
+## References
+https://secure.actblue.com/docs/csv_api
+https://secure.actblue.com/docs/custom_integrations
+https://vercel.com/guides/how-to-setup-cron-jobs-on-vercel
+https://vercel.com/guides/using-databases-with-vercel
