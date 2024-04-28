@@ -45,12 +45,14 @@ export default async function audit() {
     }
   }
 
-  const users = dbHelp.retrieveMembers()
-  console.log(users)
+  const members = dbHelp.retrieveMembers()
 
-  // Process the CSV and update your members
-  // ...
+  // print out all members in our database 
+  console.log(members)
 
+  // print out all donations in the csv 
   console.log(csv)
+
+  // need to add functions to audit members 
 
 }
