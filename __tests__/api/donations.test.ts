@@ -1,5 +1,5 @@
-import handler, { parseDonationData } from "@/api/donations";
-import { DonationData } from "@/api/donations.types";
+import handler, { parseDonationData } from "@/pages/api/donations";
+import { DonationData } from "@/pages/api/donations.types";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const donationData = {

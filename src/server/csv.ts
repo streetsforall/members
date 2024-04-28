@@ -47,8 +47,10 @@ export async function getUrl(createResponseBody: any, auth: string) {
 
     const getResponseBody = await getResponse.json();
     downloadUrl = getResponseBody.download_url;
+    console.log(downloadUrl)
 
     if (!downloadUrl) {
+      console.log('trying to resolve CSV')
       // Wait for a second before the next request
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
@@ -70,14 +72,18 @@ export async function download(downloadUrl: any) {
 }
 
 function getDateRange() {
+
+  //date range must be 6 months or less
+
   const today = new Date();
-  const oneYearAgo = new Date();
+  const six_months = new Date();
 
-  oneYearAgo.setFullYear(today.getFullYear() - 1);
+  six_months.setMonth(today.getMonth() - 6);
+  // six_months.setFullYear(today.getFullYear() - 1);
 
-  const dateRangeStart = `${oneYearAgo.getFullYear()}-${String(
-    oneYearAgo.getMonth() + 1
-  ).padStart(2, "0")}-${String(oneYearAgo.getDate()).padStart(2, "0")}`;
+  const dateRangeStart = `${six_months.getFullYear()}-${String(
+    six_months.getMonth() + 1
+  ).padStart(2, "0")}-${String(six_months.getDate()).padStart(2, "0")}`;
   const dateRangeEnd = `${today.getFullYear()}-${String(
     today.getMonth() + 1
   ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;

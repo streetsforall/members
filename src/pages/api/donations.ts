@@ -1,6 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { DonationData } from "./donations.types";
 
+// change if i'm  misunderstanding
+// this is the endpoint that fires when Actblue calls our API
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
