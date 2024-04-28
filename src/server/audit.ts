@@ -1,5 +1,6 @@
 import * as csvModule from "./csv";
 import sql from './db.ts'
+import * as dbHelp from './dbHelpers.ts'
 
 export default async function audit() {
   const auth = Buffer.from(
@@ -44,20 +45,12 @@ export default async function audit() {
     }
   }
 
+  const users = dbHelp.retrieveMembers()
+  console.log(users)
+
   // Process the CSV and update your members
   // ...
 
   console.log(csv)
 
-  async function getUsersOver(age) {
-    const users = await sql`
-      select
-        name,
-        age
-      from users
-      where age > ${ age }
-    `
-    // users = Result [{ name: "Walter", age: 80 }, { name: 'Murray', age: 68 }, ...]
-    return users
-  }
 }
