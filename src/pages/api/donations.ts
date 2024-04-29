@@ -22,7 +22,7 @@ export default async function handler(
   const expectedPassword = process.env.AB_WEBHOOK_PASSWORD;
 
   if (username !== expectedUsername || password !== expectedPassword) {
-    res.status(401).json({ message: "Unauthorized" });
+    res.status(401).json({ message: "Incorrect credentials" });
     return;
   }
 

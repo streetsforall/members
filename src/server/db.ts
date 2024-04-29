@@ -5,7 +5,8 @@ const sql = postgres('', {
   port: process.env.DO_PORT as unknown as number,
   database: process.env.DO_DB,
   username: process.env.DO_USERNAME,
-  password: process.env.DO_PASSWORD
+  password: process.env.DO_PASSWORD,
+  ssl: require
 })
 export default sql
 
