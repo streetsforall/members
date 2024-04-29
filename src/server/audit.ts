@@ -1,6 +1,5 @@
 import * as csvModule from "./csv";
-import sql from './db.ts'
-import * as dbHelp from './dbHelpers.ts'
+import * as dbHelp from './dbHelpers'
 
 const fs = require("fs");
 const { parse } = require("csv-parse");

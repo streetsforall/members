@@ -1,4 +1,4 @@
-import sql from './db.ts'
+import sql from './db'
 
 export async function retrieveMembers() {
 
