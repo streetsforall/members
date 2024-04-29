@@ -6,7 +6,8 @@ export async function retrieveMembers() {
       SELECT
         first_name,
         last_name,
-        email
+        email,
+        active
       FROM members
     `
     console.log(users)
@@ -17,11 +18,10 @@ export async function retrieveMembers() {
   export async function setMember(first_name:string, last_name:string, email:string, active:boolean) {
 
     const users = await sql`
-      INSERT INTO members (email, active)
-        values(${first_name}, ${last_name}, ${email}, ${active})
+      INSERT INTO members (first_name, last_name, email, active)
+        VALUES(${first_name}, ${last_name}, ${email}, ${active})
         ON CONFLICT (email) 
 	      DO UPDATE SET active = ${active}
-        members.active;
     `
     console.log(users)
     return users

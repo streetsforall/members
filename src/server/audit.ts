@@ -65,6 +65,9 @@ export default async function audit() {
   // print out all donations in the csv 
   console.log(csv)
 
+  const testing = dbHelp.setMember('test','testlast', 'email@gmail.com', true)
+  console.log(testing)
+
   // read csv
   fs.createReadStream(csv)
     .pipe(parse({ delimiter: ",", from_line: 2 }))
