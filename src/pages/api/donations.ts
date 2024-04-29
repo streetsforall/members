@@ -40,9 +40,9 @@ export default async function handler(
     // Update database
     if (validMember) {
       dbHelp.setMember(
-        donationData.firstname, 
-        donationData.lastname, 
-        donationData.email, 
+        donationData.donor.firstname, 
+        donationData.donor.lastname, 
+        donationData.donor.email, 
         true, 
         )
       // Add user to members list or update their membership
