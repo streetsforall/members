@@ -68,10 +68,10 @@ export default async function audit() {
   // read csv
   fs.createReadStream(csv)
     .pipe(parse({ delimiter: ",", from_line: 2 }))
-    .on("data", function (row) {
+    .on("data", function (row:any) {
       console.log(row);
     })
-    .on("error", function (error) {
+    .on("error", function (error:any) {
       console.log(error.message);
     })
     .on("end", function () {

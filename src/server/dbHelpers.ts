@@ -14,7 +14,7 @@ export async function retrieveMembers() {
   }
 
 
-  export async function setMember(first_name, last_name, email, active) {
+  export async function setMember(first_name:string, last_name:string, email:string, active:boolean) {
 
     const users = await sql`
       INSERT INTO members (email, active)
