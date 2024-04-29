@@ -2,6 +2,9 @@ import * as csvModule from "./csv";
 import sql from './db.ts'
 import * as dbHelp from './dbHelpers.ts'
 
+const fs = require("fs");
+const { parse } = require("csv-parse");
+
 export default async function audit() {
   const auth = Buffer.from(
     `${process.env.AB_CLIENT_UUID}:${process.env.AB_CLIENT_SECRET}`
@@ -45,7 +48,17 @@ export default async function audit() {
     }
   }
 
-  const members = dbHelp.retrieveMembers()
+  let members;
+  try {
+    members = await dbHelp.retrieveMembers();
+  } catch (error: any) {
+    if (error instanceof Error) {
+      throw new Error(`Error downloading CSV: ${error.message}`);
+    } else {
+      throw new Error("Unknown error downloading CSV");
+    }
+  }
+
 
   // print out all members in our database 
   console.log(members)
@@ -53,6 +66,18 @@ export default async function audit() {
   // print out all donations in the csv 
   console.log(csv)
 
-  // need to add functions to audit members 
+  // read csv
+  fs.createReadStream(csv)
+    .pipe(parse({ delimiter: ",", from_line: 2 }))
+    .on("data", function (row) {
+      console.log(row);
+    })
+    .on("error", function (error) {
+      console.log(error.message);
+    })
+    .on("end", function () {
+      console.log("finished");
+    });
+
 
 }
