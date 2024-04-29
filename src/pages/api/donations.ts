@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { DonationData } from "./donations.types";
+import * as dbHelp from '../../server/dbHelpers.ts'
 
 // change if i'm  misunderstanding
 // this is the endpoint that fires when Actblue calls our API
@@ -38,6 +39,12 @@ export default async function handler(
 
     // Update database
     if (validMember) {
+      dbHelp.setMember(
+        donationData.firstname, 
+        donationData.lastname, 
+        donationData.email, 
+        true, 
+        )
       // Add user to members list or update their membership
       // Notify user email of donation receipt (Optional)
     }

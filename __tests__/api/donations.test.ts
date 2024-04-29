@@ -82,8 +82,8 @@ const donationData = {
 describe("Test /api/donations endpoint", () => {
   let req: Partial<NextApiRequest>;
   let res: Partial<NextApiResponse>;
-  let username = "username";
-  let password = "password";
+  let username = "member_bot";
+  let password = "xo2Ln4ty";
 
   beforeEach(() => {
     req = {

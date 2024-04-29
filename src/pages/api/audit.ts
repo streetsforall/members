@@ -50,7 +50,6 @@ export default async function handler(
     }
   } else {
     res.setHeader("Allow", ["POST"]);
-
     // sneaking function in here to test by loading url
     // remove before building app
     await audit();
