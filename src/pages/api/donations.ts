@@ -37,7 +37,7 @@ export default async function handler(
     const { email, donationTime, validMember } =
       parseDonationData(donationData);
 
-    // Update database
+    // Update database with member
     if (validMember) {
       dbHelp.setMember(
         donationData.donor.firstname, 
@@ -45,7 +45,6 @@ export default async function handler(
         donationData.donor.email, 
         true, 
         )
-      // Add user to members list or update their membership
       // Notify user email of donation receipt (Optional)
     }
 
@@ -67,8 +66,11 @@ export function parseDonationData(donationData: DonationData) {
   );
 
   const validMember =
+  
+    // for now, membership requires payment to be recurring and over $12
     totalAmount >= MINIMUM_VALID_DONATION &&
-    donationData.contribution.status === "approved";
+    donationData.contribution.status === "approved" &&
+    donationData.contribution.isRecurring === true
 
   return { email, donationTime, validMember };
 }
