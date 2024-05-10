@@ -79,7 +79,6 @@ function getDateRange() {
   const six_months = new Date();
 
   six_months.setMonth(today.getMonth() - 6);
-  // six_months.setFullYear(today.getFullYear() - 1);
 
   const dateRangeStart = `${six_months.getFullYear()}-${String(
     six_months.getMonth() + 1
