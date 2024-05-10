@@ -16,6 +16,8 @@
 # production
 /build
 
+donations.csv
+
 # misc
 .DS_Store
 .env
