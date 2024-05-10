@@ -34,7 +34,7 @@ export default async function handler(
       return;
     }
 
-    const { email, donationTime, validMember } =
+    const { email, donationTime, validMember, tier, last_amount } =
       parseDonationData(donationData);
 
     // Update database with member
@@ -44,6 +44,9 @@ export default async function handler(
         donationData.donor.lastname, 
         donationData.donor.email, 
         true, 
+        tier,
+        last_amount
+
         )
       // Notify user email of donation receipt (Optional)
     }
@@ -65,12 +68,29 @@ export function parseDonationData(donationData: DonationData) {
     0
   );
 
-  const validMember =
+  console.log(totalAmount)
+
+  var validMember =
   
-    // for now, membership requires payment to be recurring and over $12
+    // for now, membership requires payment to be recurring and >= $12
     totalAmount >= MINIMUM_VALID_DONATION &&
     donationData.contribution.status === "approved" &&
     donationData.contribution.isRecurring === true
 
-  return { email, donationTime, validMember };
+  var tier = 0
+
+  if (totalAmount >= 50) {
+    var tier = 3
+  } else  if (totalAmount >= 25) {
+    var tier = 2
+  } else if (totalAmount >= 12) {
+    var tier = 1
+  } else {
+    validMember = false;
+  }
+
+  var last_amount = totalAmount
+
+
+  return { email, donationTime, validMember, tier, last_amount};
 }

@@ -12,30 +12,13 @@ export default async function handler(
     return;
   }
 
-// change if i'm  misunderstanding
-// this is the endpoint that fires when Actblue calls our API
-
   const base64Credentials = authorization.split(" ")[1];
   const [username, password] = Buffer.from(base64Credentials, "base64")
     .toString("utf-8")
     .split(":");
 
-
   // CRON will be a different set up,
   // likely Digital Ocean timed function or Zapier webhook
-
-  // const CRON_ID = process.env.CRON_ID;
-  // const CRON_SECRET = process.env.CRON_SECRET;
-
-  // if (
-  //   !CRON_ID ||
-  //   !CRON_SECRET ||
-  //   username !== CRON_ID ||
-  //   password !== CRON_SECRET
-  // ) {
-  //   res.status(403).end("Forbidden");
-  //   return;
-  // }
 
   if (req.method === "POST") {
     try {

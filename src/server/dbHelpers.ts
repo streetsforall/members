@@ -2,6 +2,10 @@ import sql from './db'
 
 export async function retrieveMembers() {
 
+  // this retrieves all members
+  // don't really need to keep it, 
+  // was just testing DB connection
+
     const users = await sql`
       SELECT
         first_name,
@@ -15,18 +19,18 @@ export async function retrieveMembers() {
   }
 
 
-  export async function setMember(first_name:string, last_name:string, email:string, active:boolean) {
+  export async function setMember(first_name:string, last_name:string, email:string, active:boolean, tier:number, last_amount:number) {
  
     // this will create a new member or
-    // if email field matches a member in our database 
+    // if email field matches an email in our database 
     // it will update the 'active' field
 
-    console.log(first_name, last_name, email, active)
+    console.log(first_name, last_name, email, active, tier, last_amount)
     const users = await sql`
-      INSERT INTO members (first_name, last_name, email, active)
-        VALUES(${first_name}, ${last_name}, ${email}, ${active})
+      INSERT INTO members (first_name, last_name, email, active, tier, last_amount)
+        VALUES(${first_name}, ${last_name}, ${email}, ${active}, ${tier}, ${last_amount})
         ON CONFLICT (email) 
-	      DO UPDATE SET active = ${active}
+	      DO UPDATE SET active = ${active}, tier = ${tier}, last_amount = ${last_amount}
     `
     console.log(users)
     return users
