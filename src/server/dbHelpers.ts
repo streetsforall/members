@@ -2,10 +2,6 @@ import sql from './db'
 
 export async function retrieveMembers() {
 
-  // this retrieves all members
-  // don't really need to keep it, 
-  // was just testing DB connection
-
     const users = await sql`
       SELECT
         first_name,
@@ -17,6 +13,7 @@ export async function retrieveMembers() {
     console.log(users)
     return users
   }
+
 
 
   export async function setMember(first_name:string, last_name:string, email:string, active:boolean, tier:number, last_amount:number) {
