@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import audit from "../../server/audit";
 import * as dbHelp from '../../server/dbHelpers'
-import NextCors from 'nextjs-cors';
 
 
 
