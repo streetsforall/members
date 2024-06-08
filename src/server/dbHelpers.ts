@@ -25,6 +25,7 @@ export async function retrieveMembers() {
     const date = (new Date()).toLocaleString("en-US")
 
     console.log(first_name, last_name, email, active, tier, last_amount, date)
+    
     const users = await sql`
       INSERT INTO members (first_name, last_name, email, active, tier, last_amount)
         VALUES(${first_name}, ${last_name}, ${email}, ${active}, ${tier}, ${last_amount}, ${date})
