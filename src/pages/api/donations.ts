@@ -57,8 +57,6 @@ export default async function handler(
   }
 }
 
-const MINIMUM_VALID_DONATION = 12;
-
 export function parseDonationData(donationData: DonationData) {
   const email = donationData.donor.email;
   const donationTime = donationData.contribution.createdAt;
@@ -73,7 +71,7 @@ export function parseDonationData(donationData: DonationData) {
   var validMember =
   
     // for now, membership requires payment to be recurring and >= $12
-    totalAmount >= MINIMUM_VALID_DONATION &&
+    totalAmount >= 12 &&
     donationData.contribution.status === "approved" &&
     donationData.contribution.isRecurring === true
 
