@@ -1,12 +1,16 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import audit from "../../server/audit";
 import * as dbHelp from '../../server/dbHelpers'
+import NextCors from 'nextjs-cors';
+
+
+
+// returns number of active members
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-
   
   if (req.method === "GET") {
     try {
