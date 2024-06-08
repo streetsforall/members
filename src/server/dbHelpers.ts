@@ -22,10 +22,12 @@ export async function retrieveMembers() {
     // if email field matches an email in our database 
     // it will update the 'active' field
 
-    console.log(first_name, last_name, email, active, tier, last_amount)
+    const date = (new Date()).toLocaleString("en-US")
+
+    console.log(first_name, last_name, email, active, tier, last_amount, date)
     const users = await sql`
       INSERT INTO members (first_name, last_name, email, active, tier, last_amount)
-        VALUES(${first_name}, ${last_name}, ${email}, ${active}, ${tier}, ${last_amount})
+        VALUES(${first_name}, ${last_name}, ${email}, ${active}, ${tier}, ${last_amount}, ${date})
         ON CONFLICT (email) 
 	      DO UPDATE SET active = ${active}, tier = ${tier}, last_amount = ${last_amount}
     `
