@@ -48,6 +48,12 @@ export default async function handler(
         last_amount
 
         )
+
+      console.log(donationData.customFields)
+      const shirt_size = donationData.customFields.shirt_size
+      console.log(shirt_size)
+
+        
       // Notify user email of donation receipt (Optional)
     }
 
@@ -77,9 +83,10 @@ export function parseDonationData(donationData: DonationData) {
 
   var tier = 0
 
-  if (totalAmount >= 50) {
+  // solve for tier
+  if (totalAmount >= 48) {
     var tier = 3
-  } else  if (totalAmount >= 25) {
+  } else  if (totalAmount >= 24) {
     var tier = 2
   } else if (totalAmount >= 12) {
     var tier = 1
@@ -87,8 +94,8 @@ export function parseDonationData(donationData: DonationData) {
     validMember = false;
   }
 
+  // 
+
   var last_amount = totalAmount
-
-
   return { email, donationTime, validMember, tier, last_amount};
 }
