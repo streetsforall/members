@@ -11,13 +11,14 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
+    "@lucia-auth/adapter-postgresql": "^3.1.2",
     "atob": "^2.1.2",
     "csv-parse": "^5.5.5",
     "csv-parser": "^3.0.0",
     "csvtojson": "^2.0.10",
     "dotenv": "^16.4.5",
+    "lucia": "^3.2.0",
     "next": "14.1.4",
-    "next-auth": "^4.24.7",
     "next-connect": "^1.0.0",
     "node-fetch": "^3.3.2",
     "nodemailer": "^6.9.13",

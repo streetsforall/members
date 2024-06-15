@@ -10,4 +10,3 @@ const sql = postgres('', {
 })
 
 export default sql
-
