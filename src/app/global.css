@@ -1,0 +1,21 @@
+.login_form {
+    margin: 3rem;
+}
+
+.login_form div{
+    margin:auto;
+    max-width: 25rem;
+    display: flex;
+    flex-direction: column;
+} 
+
+.login_form input{
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.login_form button{
+    font-size: 1.2rem;
+    border-radius: .5rem;
+    padding: .5rem;
+}

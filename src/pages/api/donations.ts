@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { DonationData } from "./donations.types";
+import { DonationData } from "./donation.types";
 import * as dbHelp from '../../server/dbHelpers'
 
 // this is the endpoint that fires when Actblue calls our API
