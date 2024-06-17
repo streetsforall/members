@@ -29,8 +29,9 @@ const new_token_email = async (to_email: string) => {
 			WHERE email = ${to_email}
 			`
 
-  console.log('valid_email', valid_email)
-  if (valid_email) {
+  console.log('valid_email', valid_email.length)
+  
+  if (valid_email.length > 0) {
 
     const verificationToken = await dbHelp.setEmailVerification(to_email)
 
