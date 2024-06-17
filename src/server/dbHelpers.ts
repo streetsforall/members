@@ -1,4 +1,10 @@
+'use server'
+
 import sql from './db'
+import { TimeSpan, createDate } from "oslo";
+import { generateIdFromEntropySize } from "lucia";
+import * as auth from './auth'
+import { cookies } from 'next/headers'
 
 export async function retrieveMembers() {
 
@@ -12,6 +18,56 @@ export async function retrieveMembers() {
     `
     console.log(users)
     return users
+  }
+
+
+  export async function retrieveMember(id:string) {
+
+    const user = await sql`
+      SELECT
+        first_name,
+        last_name,
+        email,
+        id,
+        last_amount,
+        tier,
+        active
+      FROM members
+      WHERE id = ${id};
+    `
+    return user[0]
+  }
+
+  export async function setEmailVerification (email:string) {
+
+    const tokenId = generateIdFromEntropySize(25); // 40 characters long
+    const expiration = createDate(new TimeSpan(10, "d"))
+
+  await sql`
+    INSERT INTO email_verification_token (id, user_id, email, expires_at)
+      VALUES( ${tokenId}, ${email}, ${email}, ${expiration})
+  `
+  console.log('db helper ', tokenId)
+  return tokenId
+
+  }
+
+  export async function createEmailVerificationToken(userId: string, email: string): Promise<string> {
+    // optionally invalidate all existing tokens
+  
+    // await db.table("email_verification_token").where("user_id", "=", userId).deleteAll();
+    const tokenId = generateIdFromEntropySize(25); // 40 characters long
+    
+    const timespan = createDate(new TimeSpan(2, "h"))
+  
+    const users = await sql`
+    INSERT INTO email_verification_token (id, email, expires_at)
+      VALUES(${tokenId}, ${email}, ${timespan})
+      ON CONFLICT (email) 
+      DO UPDATE SET id = ${tokenId}, expires_at = ${timespan}
+    `
+  
+    return tokenId;
   }
 
 
@@ -35,6 +91,13 @@ export async function retrieveMembers() {
     console.log(users)
     return users
   }
+
+
+export async function getSessionCookie() {
+	const sessionId = cookies().get('auth_session');
+  const { session, user } = await auth.lucia.validateSession(sessionId.value);
+  	return { session, user }
+}
 
 
 

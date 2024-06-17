@@ -45,14 +45,11 @@ export default async function handler(
         true, 
         tier,
         last_amount
-
         )
 
-      console.log(donationData.customFields)
-      const shirt_size = donationData.customFields.shirt_size
-      console.log(shirt_size)
+      // create new email verification token
+      const verificationToken = dbHelp.setEmailVerification(donationData.donor.email)
 
-        
       // Notify user email of donation receipt (Optional)
     }
 
@@ -61,6 +58,9 @@ export default async function handler(
     res.status(405).json({ message: "Method not allowed" });
   }
 }
+
+
+
 
 export function parseDonationData(donationData: DonationData) {
   const email = donationData.donor.email;

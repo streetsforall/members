@@ -1,8 +1,8 @@
-.login_form {
+.login_page {
     margin: 3rem;
 }
 
-.login_form div{
+.login_page div{
     margin:auto;
     max-width: 25rem;
     display: flex;
