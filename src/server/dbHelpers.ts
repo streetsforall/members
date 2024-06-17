@@ -95,9 +95,11 @@ export async function retrieveMembers() {
 
 export async function getSessionCookie() {
 	const sessionId = cookies().get('auth_session');
+  if (sessionId) {
   const { session, user } = await auth.lucia.validateSession(sessionId.value);
   	return { session, user }
-}
+  }
+} 
 
 
 
