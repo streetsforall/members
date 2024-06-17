@@ -6,8 +6,15 @@ import * as dbHelp from '../../../server/dbHelpers'
 import { validate_user}  from '../../../server/validate_user'
 
 
-const userPage = ({ params }: { params: { slug: string } }) => {
-    const [member, setmember] = useState('');
+
+export interface member {
+    first_name: string ;
+    last_name: string ;
+    tier: number;
+  }
+
+const UserPage = ({ params }: { params: { slug: string } }) => {
+    const [member, setmember] = useState<member>();
 
 
     useEffect (() => {
@@ -27,8 +34,8 @@ const userPage = ({ params }: { params: { slug: string } }) => {
     const member_content = (
         <div>
         <h1>Welcome to your SFA Membership Page</h1>
-        <p>{member.first_name} {member.last_name}</p>
-        <p>You are a tier {member.tier} member</p>
+        <p>{member ? member.first_name : ''} {member? member.last_name : ''}</p>
+        <p>You are a tier {member ? member.tier : ''} member</p>
         </div>
      )
 
@@ -39,4 +46,4 @@ const userPage = ({ params }: { params: { slug: string } }) => {
 
 
 
-export default userPage
+export default UserPage

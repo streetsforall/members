@@ -6,7 +6,7 @@ import { useRouter } from 'next/router'
 import { verify_token } from '../../../server/verifier'
 
 
-export default function validate({ params }: { params: { slug: string } }) {
+export default function Validate({ params }: { params: { slug: string } }) {
 	const [user, setUser] = useState('');
 
 	useEffect(()=> {
