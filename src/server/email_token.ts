@@ -24,18 +24,20 @@ const new_token_email = async (to_email: string) => {
 
 
   // make sure email is valid
-  const valid_email = await sql`
+  const member = await sql`
 			SELECT * FROM members
 			WHERE email = ${to_email}
 			`
 
-  console.log('valid_email', valid_email.length)
+  console.log('valid_email', member)
   
-  if (valid_email.length > 0) {
+  if (member.length > 0) {
 
     const verificationToken = await dbHelp.setEmailVerification(to_email)
 
     console.log('emailtoken', verificationToken)
+
+    console.log(member[0].first_name)
 
     try {
 
@@ -44,12 +46,21 @@ const new_token_email = async (to_email: string) => {
         to: to_email,
         subject: `Your Streets for All Membership Page`,
         html: `<div style="fontFamily: "Helvetica Neue", Arial, sans-serif; borderColor: #183963;>
-        <p>Here is your link to log into your membership page.</p></br>
-        <a href="${process.env.ROOT_URL}/link/${verificationToken}">
-        <button style="fontFamily: "Helvetica Neue", Arial, sans-serif; backgroundColor: none; borderColor: #183963; color: #183963" >
+        <p>Hi ${member[0].first_name},</p></br></br>
+        <p>Use this link to log into your membership page.</p></br>
+        <a target="_blank" rel="noopener noreferrer" href="${process.env.ROOT_URL}/link/${verificationToken}">
+        <button style="
+        fontFamily: "Helvetica Neue", Arial, sans-serif; 
+        font-size: 20px;
+        background-color: #183963; 
+        border-color: #183963; 
+        color: white" >
         Log In
         </button>
-        <a/>
+        <a/></br>
+        <p>If the button does not work, try <a target="_blank" rel="noopener noreferrer" href="${process.env.ROOT_URL}/link/${verificationToken}">this link</a> or respond to this email.</p></br></br>
+        <p>Thanks for supporting our ongoing advocacy,</p>
+        <p>Streets for All</p></br>
         </div>
         `,
       })
