@@ -58,7 +58,7 @@ const UserPage = ({ params }: { params: { slug: string } }) => {
         <p>Tier {member.tier} member</p>
         </div>
 
-        <Discounts email={member.email  as string} />
+        <Discounts email={member.email as string} />
 
 
         </div> : loading

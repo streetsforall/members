@@ -1,11 +1,11 @@
 'use client';
 
 import { getNextPeakCode } from '../../server/dbHelpers';
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 
 
-const discounts = (email: string) => {
+const Discounts = (email:any) => {
     const [code, setCode] = useState('');
 
 
@@ -29,4 +29,4 @@ const discounts = (email: string) => {
 
 }
 
-export default discounts;
+export default Discounts;
