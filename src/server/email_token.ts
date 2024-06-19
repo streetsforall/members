@@ -6,6 +6,7 @@ import sql from "./db";
 import * as dbHelp from './dbHelpers'
 
 
+// this is used to send emails to members
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_SERVER_HOST,
@@ -17,11 +18,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-
-
-
 const new_token_email = async (to_email: string) => {
-
 
   // make sure email is valid
   const member = await sql`
@@ -55,6 +52,7 @@ const new_token_email = async (to_email: string) => {
         max-width: 30rem; 
         margin: auto; 
         font-family: Helvetica Neue, Arial, sans-serif;"">
+
                 <img 
                 style="max-width: 60%; 
                 margin: auto;
@@ -75,13 +73,16 @@ const new_token_email = async (to_email: string) => {
                 margin: auto;
                 display: block;
                 border: none;">
+
                 <a target="_blank" 
                 rel="noopener noreferrer" 
                 style="cursor: pointer; 
                 color: white;
                 text-decoration: none;" 
                 href="${process.env.ROOT_URL}/link/${verificationToken}">
+
                 LOGIN
+
                 <a/>
                 </button>
                 <p>If the button does not work, try <a target="_blank" rel="noopener noreferrer" href="${process.env.ROOT_URL}/link/${verificationToken}">this link</a> or reach out to membership@streetsforall.org.</p>

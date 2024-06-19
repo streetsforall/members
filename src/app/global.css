@@ -1,26 +1,83 @@
 
+:root {
+    --blue: #0032ff;
+}
+
 * {
     font-family: Arial, Helvetica, sans-serif;
 }
 
+img {
+    max-width: 100%;
+}
+
+body {
+    background-color: rgb(237, 232, 232);
+    min-height: calc(100vh - 1rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+button {
+    margin: .5rem 0;
+    padding: .5rem 1rem;
+    border-radius: 1rem;
+    border:  none;
+    background-color: var(--blue);
+    color: white;
+}
+
+button:hover {
+    cursor: pointer;
+    background-color: rgb(64, 137, 233);
+}
+
+a {
+    color: var(--blue);
+}
+
+
+.footer {
+    max-width: 100%;
+    padding: 3rem;
+    text-align: center;
+}
+
+.header {
+    width: 100%;
+    padding: 2rem 0;
+}
+
+.header img {
+    width: 15rem;
+    max-width: 80%;
+    margin: auto;
+    display: block;
+
+}
+
 .login_page {
-    margin: 3rem;
+    background-color: white;
+    max-width: 25rem;
+    margin:auto;
+    padding: 2rem;
+    border-radius: 1rem;
+    border: 1px dotted var(--blue)
 }
 
 .login_page div{
-    margin:auto;
-    max-width: 25rem;
     display: flex;
     flex-direction: column;
 } 
 
-.login_form input{
-    margin-bottom: 1rem;
-    font-size: 1.2rem;
+.login_page input{
+    margin-top: 2rem;
+    padding: .5rem 1rem;
+    border-radius: 1rem;
+    border:  grey 1px solid;
 }
 
-.login_form button{
-    font-size: 1.2rem;
-    border-radius: .5rem;
-    padding: .5rem;
+.login_page button{
+    width: 100%;
 }
