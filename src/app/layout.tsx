@@ -1,13 +1,19 @@
 import Footer from "./components/footer"
 import Header from "./components/header"
 import './global.css'
+import { Courier_Prime } from 'next/font/google'
 
 export const metadata = {
-  title: 'Streets for All Membership',
+  title: 'Streets for All Membership Club',
   description: '',
   
 }
 
+const courier = Courier_Prime({
+  weight: ['400', '700'],
+  style: ['normal'],
+  subsets: ['latin']
+})
 
 export default function RootLayout({
   children,
@@ -15,11 +21,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html className={courier.className} lang="en">
       <head>
       <link rel="icon" href="/favicon.png" sizes="any" />
       </head>
-      <body>
+      <body >
         <Header/>
         {children}
         <Footer/>

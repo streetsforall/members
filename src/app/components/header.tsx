@@ -1,7 +1,7 @@
 const header = () => {
     return(
         <div className="header">
-            <img src="/members_club_logo.png" />
+            <a href="/"><img src="/members_club_logo.png" /></a>
         </div>
     )
 

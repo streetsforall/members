@@ -1,10 +1,16 @@
 
 :root {
     --blue: #0032ff;
+    --light_blue:  rgb(64, 137, 233);
+}
+
+html {
+    font-family: var(--Noto_Sans_Mon)
 }
 
 * {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--Noto_Sans_Mon);
+    font-weight: 400;
 }
 
 img {
@@ -13,7 +19,7 @@ img {
 
 body {
     background-color: rgb(237, 232, 232);
-    min-height: calc(100vh - 1rem);
+    height: calc(100dvh - 1rem);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -30,7 +36,7 @@ button {
 
 button:hover {
     cursor: pointer;
-    background-color: rgb(64, 137, 233);
+    background-color: var(--light_blue);
 }
 
 a {
@@ -44,17 +50,38 @@ a {
     text-align: center;
 }
 
+.sub {
+    font-size: .8rem;
+    color: var(--light_blue);
+}
+
 .header {
     width: 100%;
     padding: 2rem 0;
 }
 
 .header img {
-    width: 15rem;
-    max-width: 80%;
+    width: 14rem;
+    max-width: 50%;
     margin: auto;
     display: block;
+}
 
+.user_page {
+    max-width: 50rem;
+    margin: auto;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 1rem;
+}
+
+.tier_img {
+    max-width: 10rem;
+}
+
+.user_table {
+    border: dotted var(--blue) 1px;
+    padding: 0 1rem;
 }
 
 .login_page {
