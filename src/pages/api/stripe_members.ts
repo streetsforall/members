@@ -1,50 +1,123 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { DonationData } from "./donation.types";
 import * as dbHelp from '../../server/dbHelpers'
-// endpoint for stripe
+import { buffer } from "micro";
+import Stripe from "stripe";
 
-const stripe = require('stripe')(process.env.STRIPE_TEST);
+const stripe = new Stripe(process.env.STRIPE_TEST as string, {});
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  
-  const auth = req.headers.authorization;
 
   if (req.method === "POST") {
-    const donationData = req.body;
 
-    if (process.env.STRIPE_HOOK_SECRET) {
-      // Get the signature sent by Stripe
-      const signature = req.headers['stripe-signature'];
+    // stripe validation needs RAW body which Next.js automatically parses, this allows us to get around
+    const buf = await buffer(req);
+    const sig = req.headers["stripe-signature"] as string;
+    const STRIPE_HOOK_TEST = 'whsec_b1cd68f70bf4312a55f11e01c6c2db9f3b4ba69bd2f4af0bfb80e94d509f69b3'
 
-      try {
-        event = stripe.webhooks.constructEvent(
-          req.body,
-          signature,
-          process.env.STRIPE_HOOK_SECRET
-        );
-      } catch (error) {
-        console.log(`⚠️  Webhook signature verification failed.`);
-        return res.status(400);
-      }
+    let api_event;
+
+    try {
+      // validate webook came frome stripe
+      api_event = await stripe.webhooks.constructEvent(buf, sig, STRIPE_HOOK_TEST);
+    } catch (err: any) {
+      // On error, log and return the error message
+      console.log(`❌ Error message: ${err.message}`);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
-    console.log(donationData)
+    var customerID = ''
 
-    if (!donationData) {
-      res.status(400).json({ message: "Missing donation data" });
-      return;
+    // stripe doesn't pass customer information in their webhooks
+    // we have to call it seperately
+    const retrieveCustomer = async (customerID: string) => {
+      const customer = await stripe.customers.retrieve(customerID);
+      return (customer)
+    }
+
+    // iterate through various stripe webhook event types
+    switch (api_event.type) {
+
+      // NEW MEMBER SUBSCRIPTION
+      case 'customer.subscription.created':
+        const new_subscriber = api_event.data.object;
+        console.log('new_subscriber', new_subscriber);
+        customerID = new_subscriber.customer as string
+
+        const new_member = await retrieveCustomer(customerID)
+        console.log(new_member)
+
+
+        // Update database with member
+        if (validMember) {
+          dbHelp.setMember(
+            donationData.donor.firstname,
+            donationData.donor.lastname,
+            donationData.donor.email,
+            true,
+            tier,
+            last_amount
+          )
+
+          // create new email verification token
+          const verificationToken = dbHelp.setEmailVerification(donationData.donor.email)
+
+          // Notify user email of donation receipt (Optional)
+        }
+
+        res.status(200).end("New Subscriber Successful");
+
+        break;
+
+      // MEMBER SUBSCRIPTION UPDATED 
+      case 'customer.subscription.updated':
+        const updated_subscriber = api_event.data.object;
+        console.log('updated_subscriber', updated_subscriber);
+        customerID = updated_subscriber.customer as string
+
+        const member = await retrieveCustomer(customerID)
+        console.log(member)
+
+        res.status(200).end("Subscriber Updated Successful");
+        break;
+
+
+      // MEMBER SUBSCRIPTION CANCELED 
+      case 'customer.subscription.deleted':
+        const canceled_subscriber = api_event.data.object;
+        console.log('updated_subscriber', canceled_subscriber);
+        customerID = await canceled_subscriber.customer as string
+
+
+        const canceled_member = retrieveCustomer(customerID)
+        console.log(canceled_member)
+
+        res.status(200).end("Subscriber Canceled Successful");
+        break;
+
+
+
+      default:
+
+        // Unexpected event type
+        console.log(`Unhandled event type ${api_event.type}.`);
     }
 
 
     // create new email verification token
-    const verificationToken = dbHelp.setEmailVerification(donationData.donor.email)
 
-    res.status(200).json({ message: "Webhook data received" });
   } else {
-    res.status(405).json({ message: "Method not allowed" });
+    res.setHeader("Allow", "POST");
+    res.status(405).end("Method Not Allowed");
   }
 }
