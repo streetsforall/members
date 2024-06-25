@@ -5,6 +5,7 @@ import * as dbHelp from '../../../server/dbHelpers'
 import { validate_user } from '../../../server/validate_user'
 import Discounts from '../../components/discounts'
 import Merch from '@/app/components/merch';
+import {Billing_button} from '@/app/components/billing_button';
 
 
 
@@ -26,8 +27,6 @@ const updateViews = async () => {
     // retrieve member data
     const member = (JSON.parse(JSON.stringify(memberData)))
 
-    console.log(member)
-
     const teir_desc = (tier: number) => {
         if (tier == 1) {
             return ('Pedestrian')
@@ -48,6 +47,8 @@ const updateViews = async () => {
                 welcome to your active {teir_desc(member.tier)} Tier membership.
             </p>
 
+        <Billing_button member={member}/>
+
 
 
             <div className="info">
@@ -55,7 +56,7 @@ const updateViews = async () => {
                 <p>Last Payment: ${member.last_amount} on {readbleDate}</p>
             </div>
             <Merch member={member} />
-            
+
             {/* only show discounts on tier 2 and 3 */}
             {member.tier > 1 ? <Discounts member={member} /> : ''}
 
