@@ -30,6 +30,7 @@ export async function retrieveMember(id: string) {
         email,
         id,
         last_amount,
+        last_donation,
         tier,
         active
       FROM members

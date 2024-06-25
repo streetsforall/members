@@ -1,4 +1,5 @@
 // we load in benefits from server
+'use server'
 
 import type { InferGetServerSidePropsType, GetServerSideProps } from 'next'
  

@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/router'
 import { useState, useEffect } from "react";
+import Checkout from '@/app/components/checkout'
 
 import new_member from '../server/email_token'
 import { validate_user}  from '../server/validate_user'
@@ -49,7 +50,9 @@ export default function LoginPage() {
   function LoginForm() {
 
     return(
+
       <div className="login_page">
+
 
 
         {memberID ? <div> <a href={`/u/${memberID}`}><button>Log in to last session</button></a> </div> : ''}
@@ -77,7 +80,9 @@ export default function LoginPage() {
 
 
   return (
+    <div>
     <LoginForm />
+    </div>
   )
 
 }

@@ -1,7 +1,8 @@
 
 :root {
     --blue: #0032ff;
-    --light_blue:  rgb(64, 137, 233);
+    --light_blue:  rgb(84, 144, 223);
+    --bg: rgb(237, 232, 232);
 }
 
 html {
@@ -13,16 +14,30 @@ html {
     font-weight: 400;
 }
 
+h2 {
+    margin-bottom: .5rem;
+    font-size: 1.1rem;
+    background-color: var(--light_blue);
+    border-radius: .5rem;
+    padding: .5rem 1rem;
+    color: white;
+}
+
 img {
     max-width: 100%;
 }
 
 body {
-    background-color: rgb(237, 232, 232);
+    background-color: var(--bg);
     height: calc(100dvh - 1rem);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+}
+
+table {
+    text-align: left;
+    padding-bottom: .5rem;
 }
 
 button {
@@ -37,6 +52,29 @@ button {
 button:hover {
     cursor: pointer;
     background-color: var(--light_blue);
+}
+
+.hider {
+    background-color: transparent;
+    border: none;
+    margin: 0;
+    vertical-align: middle;
+}
+
+.light_butt, a {
+    color: var(--blue);
+    border: none;
+    background-color: transparent;
+    border-radius: 0;
+    padding: 0;
+    margin: 0;
+    font-size: 1rem;
+    text-decoration: underline;
+}
+
+.light_butt:hover, a:hover  {
+    color: var(--light_blue);
+    background-color: transparent;
 }
 
 a {
@@ -68,7 +106,7 @@ a {
 }
 
 .user_page {
-    max-width: 50rem;
+    max-width: 60rem;
     margin: auto;
     background-color: white;
     padding: 2rem;
@@ -79,9 +117,18 @@ a {
     max-width: 10rem;
 }
 
-.user_table {
-    border: dotted var(--blue) 1px;
-    padding: 0 1rem;
+.discounts {
+
+}
+
+.user_section {
+    border-top: dotted var(--blue) 1px;
+}
+
+.user_section h2 {
+    justify-content: space-between;
+    display: flex;
+    max-height: 1.2rem;
 }
 
 .login_page {
@@ -90,7 +137,6 @@ a {
     margin:auto;
     padding: 2rem;
     border-radius: 1rem;
-    border: 1px dotted var(--blue)
 }
 
 .login_page div{
