@@ -71,21 +71,20 @@ export async function createEmailVerificationToken(userId: string, email: string
 
 
 
-export async function setMember(name: string, email: string, active: boolean, tier: number, address: string,  last_amount: number) {
+export async function setMember(memberObj : any) {
 
   // this will create a new member or
-  // if email field matches an email in our database 
-  // it will update the 'active' field
+  // if email field matches an email in our database it will update
 
   const last_donation = (new Date()).toLocaleString("en-US")
 
-  console.log(name, email, active, tier, last_amount, address, last_donation)
+  console.log(memberObj)
 
   const users = await sql`
-      INSERT INTO members (name,  email, active, tier, last_amount, shipping_address, last_donation)
-        VALUES(${name}, , ${email}, ${active}, ${tier}, ${last_amount}, ${address} ${last_donation})
+      INSERT INTO members (name, email, tier, last_amount, shipping_address, last_donation, customer_id, phone)
+        VALUES(${memberObj.name}, ${memberObj.email}, ${memberObj.tier}, ${memberObj.amount}, ${memberObj.shipping_address}, ${last_donation}, ${memberObj.customer_id}, ${memberObj.phone})
         ON CONFLICT (email) 
-	      DO UPDATE SET active = ${active}, tier = ${tier}, last_amount = ${last_amount}
+	      DO UPDATE SET tier = ${memberObj.tier}, last_amount = ${memberObj.amount}, last_donation = ${last_donation}
     `
   console.log(users)
   return users
