@@ -50,11 +50,11 @@ export default async function handler(
 
       // NEW MEMBER SUBSCRIPTION
       case 'customer.subscription.created':
-        const new_subscriber = api_event.data.object;
+        const new_subscriber:any = api_event.data.object;
         // console.log('new_subscriber', new_subscriber);
         customerID = new_subscriber.customer as string
 
-        const new_member = await retrieveCustomer(customerID)
+        const new_member:any = await retrieveCustomer(customerID)
 
         // console.log("new_subscriber.items.data", new_subscriber.items.data)
         const amount = new_subscriber.plan.amount
