@@ -128,18 +128,25 @@ export async function getNextPeakCode(email : any) {
     `
     
     const discount_code = new_code[0].code
-
+    
     const updated = (new Date()).toLocaleString("en-US")
+
+    console.log('email', email)
+
+    console.log('updated', updated)
+    console.log('discount_code', discount_code)
 
     await sql`
     INSERT INTO peak_discounts (code, email, date_used)
-    VALUES(${discount_code}, ${email.email}, ${updated})
+    VALUES(${discount_code}, ${email}, ${updated})
     ON CONFLICT (code) 
-    DO UPDATE SET email = ${email.email}, date_used = ${updated}
+    DO UPDATE SET email = ${email}, date_used = ${updated}
   `
     console.log(discount_code)
     return discount_code
+
   } catch (error) {
+    console.log(error)
     return ('no more codes')
   }
 

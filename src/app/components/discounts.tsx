@@ -16,9 +16,9 @@ const Discounts = (member: any) => {
 
 
     return (
-            <div onClick={() => setShow(!show)} className='user_section'>
+            <div  className='user_section'>
                 <h2>Store Discounts 
-                    <button className='hider'>{!show ? '►' : '▼'}</button>
+                    <button onClick={() => setShow(!show)} className='hider'>{!show ? '►' : '▼'}</button>
                 </h2>
                 {show ? 
                 <table className='discounts'>
