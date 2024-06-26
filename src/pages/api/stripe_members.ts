@@ -75,10 +75,9 @@ export default async function handler(
           const address =  null
         }
 
+        var email = 'test@test.com'
         if (new_member.email) {
-          const email = new_member.email
-        } else {
-          const email = 'test@test.com'
+          email = new_member.email
         }
 
 
@@ -88,7 +87,7 @@ export default async function handler(
           'phone': new_member.phone,
           'email': email,
           'shipping_address': new_member.shipping,
-          'amount': amount,
+          'amount': amount/100,
           'customer_id': customerID
         }
 
