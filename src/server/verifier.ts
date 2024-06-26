@@ -8,6 +8,10 @@ import { cookies } from 'next/headers'
 import * as auth from './auth'
 import sql from './db'
 
+
+// verify email token for user login
+// create session cookie 
+
 export async function verify_token(token: string) {
 
 	if (token) {

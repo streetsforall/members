@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { retrieveMember} from "./dbHelpers"
 
 
-// validate that a user is signed in
+// validate user session cookie for login
 
 const getUser = cache(async () => {
 	const sessionId = cookies().get(auth.lucia.sessionCookieName)?.value ?? null;

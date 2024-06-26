@@ -43,7 +43,7 @@ const updateViews = async () => {
         <div className="user_page">
 
             <img className="tier_img" src={member.tier == 1 ? '../pedestrian.png' : member.tier == 2 ? '../bike.png' : '../bus.png'} />
-            <p>Hi {member.first_name}, <br />
+            <p>Hi {member.name}, <br />
                 welcome to your active {teir_desc(member.tier)} Tier membership.
             </p>
 
@@ -52,7 +52,7 @@ const updateViews = async () => {
 
 
             <div className="info">
-                <p>{member.first_name} {member.last_name} • Tier {member.tier} member</p>
+                <p>{member.name} • Tier {member.tier} member</p>
                 <p>Last Payment: ${member.last_amount} on {readbleDate}</p>
             </div>
             <Merch member={member} />
