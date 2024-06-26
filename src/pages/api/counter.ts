@@ -12,7 +12,7 @@ export default async function handler(
   
   if (req.method === "GET") {
     try {
-        dbHelp.retrieveMembers()
+        dbHelp.retrieveValidMembers()
             .then(response =>  res.status(200).json(response.length ));
     } catch (error: any) {
       if (error instanceof Error) {

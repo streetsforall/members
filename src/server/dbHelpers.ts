@@ -6,14 +6,14 @@ import { generateIdFromEntropySize } from "lucia";
 import * as auth from './auth'
 import { cookies } from 'next/headers'
 
-export async function retrieveMembers() {
+export async function retrieveValidMembers() {
 
   const users = await sql`
       SELECT
         name,
-        email,
-        active
+        email
       FROM members
+      WHERE tier > 0;
     `
   console.log(users)
   return users
