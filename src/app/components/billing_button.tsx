@@ -1,6 +1,6 @@
 'use server'
 
-const stripe = require('stripe')(process.env.STRIPE_TEST);
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 export async function Billing_button(member: any) {
 

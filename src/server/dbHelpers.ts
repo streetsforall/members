@@ -68,6 +68,23 @@ export async function createEmailVerificationToken(userId: string, email: string
   return tokenId;
 }
 
+export async function cancelMember(canceledMember : any) {
+
+  // this will cancel a member
+  const last_donation = (new Date()).toLocaleString("en-US")
+
+  console.log(canceledMember)
+
+  const users = await sql`
+      INSERT INTO members (email, tier, last_amount, last_donation)
+        VALUES(${canceledMember.email}, ${canceledMember.tier}, ${canceledMember.amount}, ${last_donation})
+        ON CONFLICT (email) 
+	      DO UPDATE SET tier = ${canceledMember.tier}, last_amount = ${canceledMember.amount}, last_donation = ${last_donation}
+    `
+  console.log(users)
+  return users
+}
+
 
 
 export async function setMember(memberObj : any) {
