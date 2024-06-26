@@ -52,7 +52,8 @@ export default async function handler(
     switch (api_event.type) {
 
       // NEW MEMBER SUBSCRIPTION OR UPDATE
-      case 'customer.subscription.created' || 'customer.subscription.updated':
+      case 'customer.subscription.created':
+      case 'customer.subscription.updated':
         const new_subscriber: any = api_event.data.object;
 
         customerID = new_subscriber.customer as string
