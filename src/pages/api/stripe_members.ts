@@ -51,29 +51,50 @@ export default async function handler(
       // NEW MEMBER SUBSCRIPTION
       case 'customer.subscription.created':
         const new_subscriber = api_event.data.object;
-        console.log('new_subscriber', new_subscriber);
+        // console.log('new_subscriber', new_subscriber);
         customerID = new_subscriber.customer as string
 
         const new_member = await retrieveCustomer(customerID)
-        console.log(new_member)
 
+        // console.log("new_subscriber.items.data", new_subscriber.items.data)
+        const amount = new_subscriber.plan.amount
 
-        // Update database with member
-        if (validMember) {
-          dbHelp.setMember(
-            donationData.donor.firstname,
-            donationData.donor.lastname,
-            donationData.donor.email,
-            true,
-            tier,
-            last_amount
-          )
-
-          // create new email verification token
-          const verificationToken = dbHelp.setEmailVerification(donationData.donor.email)
-
-          // Notify user email of donation receipt (Optional)
+        if (amount >= 4800) {
+          var tier = 3
+        } else if (amount >= 2400)  {
+          var tier = 2
+        } else if (amount >= 1200)  {
+          var tier = 1
+        } else {
+          var tier = 0
         }
+
+        if (new_member.shipping) {
+          const address =  new_member.shipping.address
+        } else {
+          const address =  null
+        }
+
+        if (new_member.email) {
+          const email = new_member.email
+        } else {
+          const email = 'test@test.com'
+        }
+
+
+        const memberObj = {
+          'tier':tier,
+          'name': new_member.name,
+          'phone': new_member.phone,
+          'email': email,
+          'shipping_address': new_member.shipping,
+          'amount': amount,
+          'customer_id': customerID
+        }
+
+        dbHelp.setMember(memberObj)
+
+        console.log(memberObj)
 
         res.status(200).end("New Subscriber Successful");
 
@@ -110,7 +131,8 @@ export default async function handler(
       default:
 
         // Unexpected event type
-        console.log(`Unhandled event type ${api_event.type}.`);
+        // console.log(`Unhandled event type ${api_event.type}.`);
+        res.status(405).end("Invalid or unneeded event type");
     }
 
 
