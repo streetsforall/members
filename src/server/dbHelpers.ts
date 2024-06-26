@@ -29,7 +29,8 @@ export async function retrieveMember(id: string) {
         id,
         last_amount,
         last_donation,
-        tier
+        tier,
+        customer_id
       FROM members
       WHERE id = ${id};
     `

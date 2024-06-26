@@ -4,19 +4,23 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 export async function Billing_button(member: any) {
 
-  const billingData = await stripe.billingPortal.sessions.create({
-    customer: member.customer.id,
-    return_url: process.env.ROOT_URL + '/u/' + member.member.id
-  })
+  if (member.customer_id) {
 
-  console.log('data', billingData)
+    const billingData = await stripe.billingPortal.sessions.create({
+      customer: member.customer_id,
+      return_url: process.env.ROOT_URL + '/u/' + member.member.id
+    })
 
-  if (member.customer.id) {
+    console.log('data', billingData)
+
+
     return (
-        <a href={billingData.url}> <button>Manage billing</button></a>
+      <a href={billingData.url}> <button>Manage billing</button></a>
     )
 
   } else {
-    'no stripe customer id'
+    return(<button>no stripe customer id</button>)
   }
+
+  
 }
