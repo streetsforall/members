@@ -117,6 +117,31 @@ export async function getSessionCookie() {
 }
 
 
+export async function getCurrentPeakCode(email : string) {
+  
+  try {
+    const current_code = await sql`
+      SELECT
+        code,
+        date_used
+      FROM peak_discounts
+      WHERE email=${email}
+      ORDER BY date_used DESC 
+    `
+
+    console.log(current_code)
+    const discount_code = current_code[0]
+
+    console.log(discount_code)
+    return discount_code
+
+  } catch (error) {
+    return (null)
+  }
+
+
+}
+
 export async function getNextPeakCode(email : any) {
   
   try {
@@ -125,7 +150,9 @@ export async function getNextPeakCode(email : any) {
         code
       FROM peak_discounts
       WHERE email IS NULL
+      ORDER BY date_used DESC 
     `
+    console.log(new_code)
     
     const discount_code = new_code[0].code
     

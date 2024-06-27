@@ -5,7 +5,8 @@ import * as dbHelp from '../../../server/dbHelpers'
 import { validate_user } from '../../../server/validate_user'
 import Discounts from '../../components/discounts'
 import Merch from '@/app/components/merch';
-import {Billing_button} from '@/app/components/billing_button';
+import { Billing_button } from '@/app/components/billing_button';
+import Voting from '@/app/components/voting';
 
 
 
@@ -47,7 +48,7 @@ const updateViews = async () => {
                 welcome to your active {teir_desc(member.tier)} Tier membership.
             </p>
 
-        <Billing_button member={member}/>
+            <Billing_button member={member} />
 
 
 
@@ -55,12 +56,14 @@ const updateViews = async () => {
                 <p>{member.name} • Tier {member.tier} member</p>
                 <p>Last Payment: ${member.last_amount} on {readbleDate}</p>
             </div>
+
+            <p>-------- Perks --------</p>
             <Merch member={member} />
 
             {/* only show discounts on tier 2 and 3 */}
             {member.tier > 1 ? <Discounts member={member} /> : ''}
 
-
+            < Voting />
         </div>
 
     )

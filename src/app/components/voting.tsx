@@ -2,19 +2,19 @@
 
 import { useState } from "react";
 
-const Merch = (member: any) => {
+const Voting = (member: any) => {
     const [show, setShow] = useState(true);
 
     return (
         <div className='user_section'>
             <div className='section_header'>
-                <h2>Order Merch</h2>
-                <button onClick={() => setShow(!show)} className='hider'>{!show ? '►' : '▼'}</button>
-            </div>
+                <h2>Member Voting</h2>
+                <span>coming soon</span>
 
+            </div>
         </div>
     )
 
 }
 
-export default Merch;
+export default Voting;

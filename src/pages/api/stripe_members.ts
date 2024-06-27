@@ -61,6 +61,7 @@ export default async function handler(
         const new_member: any = await retrieveCustomer(customerID)
         const amount = new_subscriber.plan.amount
 
+        // validate payment
         if (amount >= 4800) {
           var tier = 3
         } else if (amount >= 2400) {
@@ -71,6 +72,7 @@ export default async function handler(
           var tier = 0
         }
 
+        // validate shipping address
         if (new_member.shipping) {
           const address = new_member.shipping.address
         } else {
