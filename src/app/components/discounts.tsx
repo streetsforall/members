@@ -68,45 +68,45 @@ const Discounts = (member: any) => {
         <div className='user_section'>
             <div className='section_header'>
                 <h2>Store Discounts</h2>
-                <button onClick={() => setShow(!show)} className='hider'>{!show ? '►' : '▼'}</button>
+                <button onClick={() => setShow(!show)} className='hider'>{!show ? '+' : '-'}</button>
             </div>
 
-            {show ?
-                <div>
-                    <p>Use these codes to get 15% off all items. Peak Design codes are unique and can be requested every 2 weeks.</p>
-                    <table className='discounts'>
-                        <tbody>
-                            <tr>
-                                {/* Peak Design */}
-                                <th><a target="_blank" rel="noopener noreferrer" href="https://www.peakdesign.com/"> Peak Design</a>  <Tooltip>You can only request a Peak Design code every 2 weeks</Tooltip>:</th>
-                                <th>{!code ?
-                                    <button className='light_butt' onClick={() => getCode(member.member.email)}>
-                                        Request Discount Code
-                                    </button> :
-                                    <Copyblock>{code}</Copyblock>}
+            <div className={!show ? 'hidden' : 'unhidden'}>
+                <p>Use these codes to get 15% off all items. Peak Design codes are unique and can be requested every 2 weeks.</p>
+                <table className='discounts'>
+                    <tbody>
+                        <tr>
+                            {/* Peak Design */}
+                            <th><a target="_blank" rel="noopener noreferrer" href="https://www.peakdesign.com/"> Peak Design</a>  <Tooltip>You can only request a Peak Design code every 2 weeks</Tooltip>:</th>
+                            <th>{!code ?
+                                <button className='light_butt' onClick={() => getCode(member.member.email)}>
+                                    Request Discount Code
+                                </button> :
+                                <Copyblock>{code}</Copyblock>}
 
-                                    <span>{timeout ? <button className='light_butt' onClick={() => getCode(member.member.email)}>
-                                        Get New Code
-                                    </button> : ''}</span>
-                                </th>
-                            </tr>
-                            <tr>
-                                {/* // SFA */}
-                                <th><a target="_blank" rel="noopener noreferrer" href="https://www.streetsforall.org/merch">Streets for All</a>:</th>
-                                <th><Copyblock>STREETS_MEMBERS_CLUB</Copyblock></th>
-                            </tr>
-                            <tr>
-                                {/* // Thousand */}
-                                <th><a target="_blank" rel="noopener noreferrer" href="https://explorethousand.com/">Thousand</a>:</th>
-                                <th><Copyblock>StreetsForAll</Copyblock></th>
-                            </tr>
-                            <tr>
-                                {/* // Cleverhood */}
-                                <th><a target="_blank" rel="noopener noreferrer" href="https://cleverhood.com/pages/streets-for-all">Cleverhood</a>:</th>
-                                <th><a className="light_butt" href="https://cleverhood.com/pages/streets-for-all">Use Link</a></th>
-                            </tr>
-                        </tbody>
-                    </table> </div> : ''}
+                                <span>{timeout ? <button className='light_butt' onClick={() => getCode(member.member.email)}>
+                                    Get New Code
+                                </button> : ''}</span>
+                            </th>
+                        </tr>
+                        <tr>
+                            {/* // SFA */}
+                            <th><a target="_blank" rel="noopener noreferrer" href="https://www.streetsforall.org/merch">Streets for All</a>:</th>
+                            <th><Copyblock>STREETS_MEMBERS_CLUB</Copyblock></th>
+                        </tr>
+                        <tr>
+                            {/* // Thousand */}
+                            <th><a target="_blank" rel="noopener noreferrer" href="https://explorethousand.com/">Thousand</a>:</th>
+                            <th><Copyblock>StreetsForAll</Copyblock></th>
+                        </tr>
+                        <tr>
+                            {/* // Cleverhood */}
+                            <th><a target="_blank" rel="noopener noreferrer" href="https://cleverhood.com/pages/streets-for-all">Cleverhood</a>:</th>
+                            <th><a className="light_butt" href="https://cleverhood.com/pages/streets-for-all">Use Link</a></th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
         </div>
     )

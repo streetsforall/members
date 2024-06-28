@@ -1,7 +1,7 @@
 
 :root {
     --blue: #0032ff;
-    --light_blue:  rgb(84, 144, 223);
+    --light_blue:  rgb(102, 170, 222);
     --bg: rgb(237, 232, 232);
 }
 
@@ -55,6 +55,10 @@ button:hover {
     border: none;
     margin: 0;
     vertical-align: middle;
+}
+
+.hider:hover {
+    background-color: transparent;
 }
 
 a {
@@ -207,24 +211,58 @@ th {
     border-color: var(--light_blue);
 }
 
+#perks {
+    text-align: center;
+    width: 100%;
+    padding-top: 1rem;
+    border-top: 1px solid var(--blue);
+}
+
+.hidden {
+    display: none;
+}
+
+.unhidden {
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.input[type="radio"] {
+    width: 100%;
+}
+
 
 .section_header {
     justify-content: space-between;
     display: flex;
     max-height: 1.2rem;
-    background-color: var(--light_blue);
-    color: white;
+    font-size: 1rem;
+    background-color: var(--bg);
     margin-bottom: .5rem;
-    border-radius: 2rem;
-    padding: .8rem 1rem .5rem 1rem;
+    border-radius: .5rem;
+    padding: 1rem;
     line-height: 1rem;
     align-items: center;
 }
+
+.section_header button {
+    padding: .2rem .5rem 0rem .5rem;
+    font-size: 1.5rem;
+    color: var(--blue);
+    border-radius: 3rem;
+    border: 1px solid var(--blue);
+}
+
+.section_header button:hover {
+    background-color: white;
+}
+ 
 
 .section_header h2 {
     line-height: 1rem;
     margin: 0;
 }
+
 .user_section {
 }
 
@@ -251,3 +289,11 @@ th {
 .login_page button{
     width: 100%;
 }
+
+
+@media only screen and (max-width: 800px) {
+    .user_page {
+      padding: 1rem;
+      width: calc(100% - 2rem);
+    }
+  }

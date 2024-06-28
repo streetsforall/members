@@ -50,14 +50,13 @@ const updateViews = async () => {
 
             <Billing_button member={member} />
 
-
-
             <div className="info">
                 <p>{member.name} • Tier {member.tier} member</p>
                 <p>Last Payment: ${member.last_amount} on {readbleDate}</p>
             </div>
 
-            <p>-------- Perks --------</p>
+            <p id="perks">Perks</p>
+            
             <Merch member={member} />
 
             {/* only show discounts on tier 2 and 3 */}
