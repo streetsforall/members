@@ -94,16 +94,20 @@ export default async function handler(
           email = new_member.email
         }
 
+
+        console.log(new_member)
+
         const memberObj = {
           'tier': tier,
           'name': new_member.name,
           'phone': new_member.phone,
           'email': email,
           'status': new_member.status,
-          'shipping_address': address,
+          'shipping_address':  JSON.stringify(address),
           'amount': amount / 100,
           'customer_id': customerID,
-          'newMember': newMember
+          'newMember': newMember,
+          'shirtSize': new_member
         } 
 
         // pass member to database

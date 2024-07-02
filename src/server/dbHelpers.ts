@@ -30,7 +30,8 @@ export async function retrieveMember(id: string) {
         last_amount,
         last_donation,
         tier,
-        customer_id
+        customer_id,
+        joined_date
       FROM members
       WHERE id = ${id};
     `
@@ -112,12 +113,13 @@ export async function setMember(memberObj: any) {
   // if member is new we make sure they get a data added
   if (memberObj.newMember) {
     await sql`
-      INSERT INTO members (joined_date)
-        VALUES(${date})
+      INSERT INTO members (joined_date, email)
+        VALUES(${date}, ${memberObj.email})
         ON CONFLICT (email) 
 	      DO UPDATE SET joined_date = ${date}
   `
   }
+
     return 'successfully updated member'
   } catch (error) {
     return (null)
