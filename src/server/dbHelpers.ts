@@ -41,7 +41,9 @@ export async function retrieveMember(id: string) {
 export async function setEmailVerification(email: string) {
 
   const tokenId = generateIdFromEntropySize(25); // 40 characters long
-  const expiration = createDate(new TimeSpan(10, "d"))
+
+  // valid for 1 day
+  const expiration = createDate(new TimeSpan(1, "d"))
 
   await sql`
     INSERT INTO email_verification_token (id, user_id, email, expires_at)
@@ -56,6 +58,7 @@ export async function createEmailVerificationToken(userId: string, email: string
   // optionally invalidate all existing tokens
 
   // await db.table("email_verification_token").where("user_id", "=", userId).deleteAll();
+
   const tokenId = generateIdFromEntropySize(25); // 40 characters long
 
   const timespan = createDate(new TimeSpan(2, "h"))

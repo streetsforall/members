@@ -62,7 +62,15 @@ const new_token_email = async (to_email: string) => {
                 
                 <p>Hi ${member[0].first_name},</p>
                 <p>Use this button to log into your membership page.</p>
-      
+    
+
+                <a target="_blank" 
+                rel="noopener noreferrer" 
+                style="cursor: pointer; 
+                color: white;
+                text-decoration: none;" 
+                href="${process.env.ROOT_URL}/link/${verificationToken}">
+
                 <button style="
                 fontFamily: Helvetica Neue, Arial, sans-serif; 
                 font-size: 1.1rem;
@@ -74,19 +82,18 @@ const new_token_email = async (to_email: string) => {
                 display: block;
                 border: none;">
 
-                <a target="_blank" 
-                rel="noopener noreferrer" 
-                style="cursor: pointer; 
-                color: white;
-                text-decoration: none;" 
-                href="${process.env.ROOT_URL}/link/${verificationToken}">
-
                 LOGIN
 
-                <a/>
                 </button>
+
+                <a/>
+
                 <p>If the button does not work, try <a target="_blank" rel="noopener noreferrer" href="${process.env.ROOT_URL}/link/${verificationToken}">this link</a> or reach out to membership@streetsforall.org.</p>
+
+                <p>This link expires in 1 day.</p></br>
                 <p>Thank you for supporting our ongoing advocacy,</p>
+
+              
                 <p>Streets for All</p>
                  🚎 🚲 👩🏻‍🦽🚶🏾🌳
                 </div>

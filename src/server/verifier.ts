@@ -26,18 +26,21 @@ export async function verify_token(token: string) {
 		
 		const first_token = check_token[0]
 
-		console.log(first_token)
-
 		if (!first_token) {
 			return ('Please request a new email token')
 		}
 		
+
+		// Commenting this out - causes some problems on mobile
+		// where a preview window is created before goiing to the url
+		// but that burns the cookie and login fails
+
 		// delete token from table (it's been cooked!)
 
-		await sql`
-			DELETE FROM email_verification_token
-			WHERE id = ${first_token.id};
-			`
+		// await sql`
+		// 	DELETE FROM email_verification_token
+		// 	WHERE id = ${first_token.id};
+		// 	`
 		
 
 
