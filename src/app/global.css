@@ -201,7 +201,7 @@ a {
 }
 
 .slide p{
-    margin: 1rem;
+    margin: 1rem 0;
 }
 
 .status {
@@ -294,6 +294,7 @@ a {
 .unhidden {
     display: block;
     margin-bottom: 1rem;
+    border-bottom: 1px dotted var(--light_blue);
 }
 
 .input[type="radio"] {

@@ -134,7 +134,7 @@ const Discounts = (member: any) => {
 
                         <p><a target="_blank" rel="noopener noreferrer" href="https://explorethousand.com/">Thousand</a></p>
                         <p>Thousand makes incredibly comfortable and safe helmets. Get 15% off all orders.</p>
-                        <p> Discount Code: <Copyblock>StreetsForAll</Copyblock></p>
+                        <p>Discount Code: <Copyblock>StreetsForAll</Copyblock></p>
                     </div>
 
                     <div hidden data-key={3} className="slide">
@@ -149,7 +149,7 @@ const Discounts = (member: any) => {
                         {/* // SFA */}
                         <img src="/bdsm.jpg"/>
                         <p><a target="_blank" rel="noopener noreferrer" href="https://www.streetsforall.org/merch">Streets for All</a></p>
-                        <p>Get 15% off all orders through the SFA merch store.</p>
+                        <p>Get 15% off all orders through the SFA merch store including shirts, hats, and tote bags.</p>
                         <p>Discount Code: <Copyblock>STREETS_MEMBERS_CLUB</Copyblock></p>
                     </div>
 
