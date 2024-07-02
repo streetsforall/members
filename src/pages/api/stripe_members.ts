@@ -61,6 +61,9 @@ export default async function handler(
 
         customerID = subscriber.customer as string
 
+        // when member is new we need to 
+        // 1. update column flagged 'new'
+
         const new_member: any = await retrieveCustomer(customerID)
         const amount = subscriber.plan.amount
 
@@ -75,7 +78,7 @@ export default async function handler(
           var tier = 0
         }
 
-        // need to check against 
+        
 
         var address = ''
         // validate shipping address

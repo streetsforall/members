@@ -72,15 +72,15 @@ export async function createEmailVerificationToken(userId: string, email: string
 export async function cancelMember(canceledMember: any) {
 
   // this will cancel a member
-  const last_donation = (new Date()).toLocaleString("en-US")
+  const date = (new Date()).toLocaleString("en-US")
 
   console.log(canceledMember)
 
   const users = await sql`
       INSERT INTO members (email, tier, last_amount, last_donation)
-        VALUES(${canceledMember.email}, ${canceledMember.tier}, ${canceledMember.amount}, ${last_donation})
+        VALUES(${canceledMember.email}, ${canceledMember.tier}, ${canceledMember.amount}, ${date})
         ON CONFLICT (email) 
-	      DO UPDATE SET tier = ${canceledMember.tier}, last_amount = ${canceledMember.amount}, last_donation = ${last_donation}
+	      DO UPDATE SET tier = ${canceledMember.tier}, last_amount = ${canceledMember.amount}, last_donation = ${date}
     `
   console.log(users)
   return users
@@ -89,27 +89,39 @@ export async function cancelMember(canceledMember: any) {
 
 
 export async function setMember(memberObj: any) {
+  try {
 
-  // this will create a new member or
-  // if email field matches an email in our database it will update
+    // this will create a new member or
+    // if email field matches an email in our database it will update
 
+    // TODO: make sure new members get date added
 
-  // TODO: make sure new members get date added
+    const date = (new Date()).toLocaleString("en-US")
 
-  const last_donation = (new Date()).toLocaleString("en-US")
+    console.log(memberObj)
 
-  const new_member = memberObj.name ? last_donation : null
-
-  console.log(memberObj)
-
-  const users = await sql`
-      INSERT INTO members (name, email, tier, last_amount, shipping_address, last_donation, customer_id, phone, joined_date)
-        VALUES(${memberObj.name}, ${memberObj.email}, ${memberObj.tier}, ${memberObj.amount}, ${memberObj.shipping_address}, ${last_donation}, ${memberObj.customer_id}, ${memberObj.phone} , ${new_member})
+    await sql`
+      INSERT INTO members (name, email, tier, last_amount, shipping_address, last_donation, customer_id, phone)
+        VALUES(${memberObj.name}, ${memberObj.email}, ${memberObj.tier}, ${memberObj.amount}, ${memberObj.shipping_address}, ${date}, ${memberObj.customer_id}, ${memberObj.phone})
         ON CONFLICT (email) 
-	      DO UPDATE SET tier = ${memberObj.tier}, last_amount = ${memberObj.amount}, last_donation = ${last_donation}
-    `
-  console.log(users)
-  return users
+	      DO UPDATE SET tier = ${memberObj.tier}, last_amount = ${memberObj.amount}, last_donation = ${date}
+  `
+
+  console.log('new member', memberObj.newMember)
+
+  // if member is new we make sure they get a data added
+  if (memberObj.newMember) {
+    await sql`
+      INSERT INTO members (joined_date)
+        VALUES(${date})
+        ON CONFLICT (email) 
+	      DO UPDATE SET joined_date = ${date}
+  `
+  }
+    return 'successfully updated member'
+  } catch (error) {
+    return (null)
+  }
 }
 
 
