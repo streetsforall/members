@@ -79,9 +79,9 @@ const Discounts = (member: any) => {
         }
         setSlide(newSlide)
 
-        var slides = document.getElementsByClassName("slide");
+        var slides = document.getElementsByClassName("slide") as HTMLCollectionOf<HTMLElement>;
         for (let slide of slides) {
-            slide.getAttribute('data-key') == newSlide ? slide.hidden = false : slide.hidden = true
+            parseInt(slide.getAttribute('data-key') as string) == newSlide ? slide.hidden = false : slide.hidden = true
         }
        
     }
