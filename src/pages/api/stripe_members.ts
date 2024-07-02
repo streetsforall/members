@@ -37,6 +37,7 @@ export default async function handler(
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
+
     var customerID = ''
 
     // stripe doesn't pass customer information in their webhooks
@@ -54,13 +55,14 @@ export default async function handler(
       // NEW MEMBER SUBSCRIPTION or UPDATED
       case 'customer.subscription.created':
       case 'customer.subscription.updated':
-        const new_subscriber: any = api_event.data.object;
+
+        const subscriber: any = api_event.data.object;
         const newMember = api_event.type == 'customer.subscription.created' ? true : false 
 
-        customerID = new_subscriber.customer as string
+        customerID = subscriber.customer as string
 
         const new_member: any = await retrieveCustomer(customerID)
-        const amount = new_subscriber.plan.amount
+        const amount = subscriber.plan.amount
 
         // validate payment
         if (amount >= 4800) {
