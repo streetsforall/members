@@ -162,14 +162,46 @@ a {
 }
 
 .slider {
+    max-width: 100%;
+    position: relative;
+    box-sizing: border-box
 
 }
 
-.slide {
+.slide img{
     width: 100%;
-    display: flex;
+    object-fit: cover;
+    border-radius: 1rem;
+    overflow: hidden;
+    height: 30rem;
+}
+
+#s_left {
+    left: 1rem;
+}
+
+#s_right {
+    right: 1rem;
+}
+
+.slide_controler {
+    position: absolute;
+    margin-top: 26rem;
+    font-size: 2rem;
+    padding-top: .7rem;
+    border-radius: 50%;
+    line-height: 2rem;
+}
+
+.slide {
+    text-align: left;
+    width: 100%;
     justify-content: space-between;
-    margin: .5rem 0;
+    margin: 1rem 0;
+}
+
+.slide p{
+    margin: 1rem;
 }
 
 .status {
@@ -213,9 +245,7 @@ a {
 
 .copyblock {
     margin: 0;
-    margin-bottom: 1rem;
     font-size: .8rem;
-    line-height: 1.5rem;
 }
 
 .copyblock span {
