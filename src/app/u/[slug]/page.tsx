@@ -20,7 +20,7 @@ export interface member {
 
 // this needs to be a server component to preserve data
 
-const updateViews = async () => {
+const updateViews = async ({ params }: { params: { slug: string } }) => {
 
     // validating user cookies
     const memberData = await validate_user()
@@ -37,6 +37,7 @@ const updateViews = async () => {
             return ('Bus')
         }
     }
+
     const date = new Date(member.last_donation);
     const readbleDate = date.toDateString()
 
@@ -49,6 +50,7 @@ const updateViews = async () => {
             </p>
 
             <Billing_button member={member} />
+            <a href={params.slug + '/card'}><button>Member Card</button></a>
 
             <div className="info">
                 <p>{member.name} • Tier {member.tier} member</p>

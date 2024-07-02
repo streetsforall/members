@@ -30,12 +30,6 @@ body {
     justify-content: space-between;
 }
 
-table {
-    text-align: left;
-    padding-bottom: .5rem;
-    width: 100%;
-}
-
 button {
     margin: .5rem 0;
     padding: .5rem 1rem;
@@ -133,14 +127,59 @@ a {
     background-color: white;
     padding: 2rem;
     border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
 }
 
-th {
-    height: 2rem;
-    border-top: 1px dotted grey;
+.tier {
+    background-color: white;
+    width: max-content;
+    padding: 1rem;
+    border-radius: 50%;
+    width: 1.5rem;
+    height: 1.5rem;
+    line-height: 2rem;
+    color: var(--blue);
+    text-align: center;
+}
+
+.tier p{ 
+    font-size: 3rem;
+    margin: 0;
+    margin: auto;
+}
+
+.user_card {
+    background-color: var(--blue);
+    color: white;
+    width: 30rem;
+    max-width: 100%;
+    margin: auto;
+    height: 20rem;
+    border-radius: 1rem;
+    padding: 1rem;
+    font-size: 1.5rem;
+}
+
+.slider {
+
+}
+
+.slide {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin: .5rem 0;
+}
+
+.status {
+    color: green;
+    padding: .2rem .5rem;
+    border-radius: ;
 }
 
 .tier_img {
+    margin: auto;
     max-width: 10rem;
 }
 

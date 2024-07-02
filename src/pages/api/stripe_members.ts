@@ -51,10 +51,11 @@ export default async function handler(
     // iterate through various stripe webhook event types
     switch (api_event.type) {
 
-      // NEW MEMBER SUBSCRIPTION OR UPDATE
+      // NEW MEMBER SUBSCRIPTION or UPDATED
       case 'customer.subscription.created':
       case 'customer.subscription.updated':
         const new_subscriber: any = api_event.data.object;
+        const newMember = api_event.type == 'customer.subscription.created' ? true : false 
 
         customerID = new_subscriber.customer as string
 
@@ -72,14 +73,18 @@ export default async function handler(
           var tier = 0
         }
 
+        // need to check against 
+
+        var address = ''
         // validate shipping address
         if (new_member.shipping) {
-          const address = new_member.shipping.address
+          address = new_member.shipping.address
         } else {
-          const address = null
+          address = 'no address'
         }
 
         var email = 'test@test.com'
+
         if (new_member.email) {
           email = new_member.email
         }
@@ -90,10 +95,12 @@ export default async function handler(
           'phone': new_member.phone,
           'email': email,
           'status': new_member.status,
-          'shipping_address': new_member.shipping,
+          'shipping_address': address,
           'amount': amount / 100,
-          'customer_id': customerID
+          'customer_id': customerID,
+          'newMember': newMember
         } 
+
         // pass member to database
         dbHelp.setMember(memberObj)
 

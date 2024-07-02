@@ -62,7 +62,7 @@ export default function LoginPage() {
           <div>
           <input id='email' type="email" name="email" placeholder="Email" required />
           <button type="submit">Request Login Link</button>
-          <p className="sub">Use the email associated with your Actblue account.</p>
+          <p className="sub">Use the email associated with your Stripe payment.</p>
           </div> 
           </form>
           :

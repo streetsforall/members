@@ -25,7 +25,7 @@ const Discounts = (member: any) => {
     const [code, setCode] = useState('');
     const [show, setShow] = useState(false);
     const [timeout, setTimeout] = useState(false);
-
+    const [slide, setSlide] = useState(1)
     const getCode = async (email: string) => {
         const new_code = await getNextPeakCode(email)
         console.log(new_code)
@@ -73,42 +73,48 @@ const Discounts = (member: any) => {
 
             <div className={!show ? 'hidden' : 'unhidden'}>
                 <p>Use these codes to get 15% off all items. Peak Design codes are unique and can be requested every 2 weeks.</p>
-                <table className='discounts'>
-                    <tbody>
-                        <tr>
-                            {/* Peak Design */}
-                            <th><a target="_blank" rel="noopener noreferrer" href="https://www.peakdesign.com/"> Peak Design</a>  <Tooltip>You can only request a Peak Design code every 2 weeks</Tooltip>:</th>
-                            <th>{!code ?
-                                <button className='light_butt' onClick={() => getCode(member.member.email)}>
-                                    Request Discount Code
-                                </button> :
-                                <Copyblock>{code}</Copyblock>}
+                <div className="slider">
+                    <div className="slide">
+                        <img/>
+                        {/* Peak Design */}
+                        <div><a target="_blank" rel="noopener noreferrer" href="https://www.peakdesign.com/"> Peak Design</a>  <Tooltip>You can only request a Peak Design code every 2 weeks</Tooltip>:</div>
+                        <div>{!code ?
+                            <button className='light_butt' onClick={() => getCode(member.member.email)}>
+                                Request Discount Code
+                            </button> : <span>Code:  <Copyblock>{code}</Copyblock></span>}
 
-                                <span>{timeout ? <button className='light_butt' onClick={() => getCode(member.member.email)}>
-                                    Get New Code
-                                </button> : ''}</span>
-                            </th>
-                        </tr>
-                        <tr>
-                            {/* // SFA */}
-                            <th><a target="_blank" rel="noopener noreferrer" href="https://www.streetsforall.org/merch">Streets for All</a>:</th>
-                            <th><Copyblock>STREETS_MEMBERS_CLUB</Copyblock></th>
-                        </tr>
-                        <tr>
-                            {/* // Thousand */}
-                            <th><a target="_blank" rel="noopener noreferrer" href="https://explorethousand.com/">Thousand</a>:</th>
-                            <th><Copyblock>StreetsForAll</Copyblock></th>
-                        </tr>
-                        <tr>
-                            {/* // Cleverhood */}
-                            <th><a target="_blank" rel="noopener noreferrer" href="https://cleverhood.com/pages/streets-for-all">Cleverhood</a>:</th>
-                            <th><a className="light_butt" href="https://cleverhood.com/pages/streets-for-all">Use Link</a></th>
-                        </tr>
-                    </tbody>
-                </table>
+                            <span style={{marginLeft: '.5rem'}}>{timeout ? <button className='light_butt' onClick={() => getCode(member.member.email)}>
+                                Get New Code
+                            </button> : ''}</span>
+                        </div>
+                    </div>
+
+                    <div className="slide">
+                        {/* // SFA */}
+                        <img/>
+                        <discriptor></discriptor>
+                        <a target="_blank" rel="noopener noreferrer" href="https://www.streetsforall.org/merch">Streets for All</a>
+                        <div>Code: <Copyblock>STREETS_MEMBERS_CLUB</Copyblock></div>
+                    </div>
+
+                    <div className="slide">
+                        {/* // Thousand */}
+                        <img/>
+                        <div><a target="_blank" rel="noopener noreferrer" href="https://explorethousand.com/">Thousand</a>:</div>
+                        <div>Code: <Copyblock>StreetsForAll</Copyblock></div>
+                    </div>
+
+                    <div className="slide">
+                        {/* // Cleverhood */}
+                        <img/>
+                        <div><a target="_blank" rel="noopener noreferrer" href="https://cleverhood.com/pages/streets-for-all">Cleverhood</a>:</div>
+                        <div><a className="light_butt" href="https://cleverhood.com/pages/streets-for-all">Discount Link</a></div>
+                    </div>
+                </div>
+
             </div>
-
         </div>
+
     )
 
 }

@@ -69,7 +69,7 @@ export async function createEmailVerificationToken(userId: string, email: string
   return tokenId;
 }
 
-export async function cancelMember(canceledMember : any) {
+export async function cancelMember(canceledMember: any) {
 
   // this will cancel a member
   const last_donation = (new Date()).toLocaleString("en-US")
@@ -88,18 +88,23 @@ export async function cancelMember(canceledMember : any) {
 
 
 
-export async function setMember(memberObj : any) {
+export async function setMember(memberObj: any) {
 
   // this will create a new member or
   // if email field matches an email in our database it will update
 
+
+  // TODO: make sure new members get date added
+
   const last_donation = (new Date()).toLocaleString("en-US")
+
+  const new_member = memberObj.name ? last_donation : null
 
   console.log(memberObj)
 
   const users = await sql`
-      INSERT INTO members (name, email, tier, last_amount, shipping_address, last_donation, customer_id, phone)
-        VALUES(${memberObj.name}, ${memberObj.email}, ${memberObj.tier}, ${memberObj.amount}, ${memberObj.shipping_address}, ${last_donation}, ${memberObj.customer_id}, ${memberObj.phone})
+      INSERT INTO members (name, email, tier, last_amount, shipping_address, last_donation, customer_id, phone, joined_date)
+        VALUES(${memberObj.name}, ${memberObj.email}, ${memberObj.tier}, ${memberObj.amount}, ${memberObj.shipping_address}, ${last_donation}, ${memberObj.customer_id}, ${memberObj.phone} , ${new_member})
         ON CONFLICT (email) 
 	      DO UPDATE SET tier = ${memberObj.tier}, last_amount = ${memberObj.amount}, last_donation = ${last_donation}
     `
@@ -117,8 +122,8 @@ export async function getSessionCookie() {
 }
 
 
-export async function getCurrentPeakCode(email : string) {
-  
+export async function getCurrentPeakCode(email: string) {
+
   try {
     const current_code = await sql`
       SELECT
@@ -142,8 +147,8 @@ export async function getCurrentPeakCode(email : string) {
 
 }
 
-export async function getNextPeakCode(email : any) {
-  
+export async function getNextPeakCode(email: any) {
+
   try {
     const new_code = await sql`
       SELECT
@@ -153,9 +158,9 @@ export async function getNextPeakCode(email : any) {
       ORDER BY date_used DESC 
     `
     console.log(new_code)
-    
+
     const discount_code = new_code[0].code
-    
+
     const updated = (new Date()).toLocaleString("en-US")
 
     console.log('email', email)
