@@ -9,10 +9,9 @@ export async function new_order(data: any, tier: number) {
     console.log('creating shirt order')
     console.log(data)
     console.log(data.custom_fields)
-    console.log('custom_field', data.custom_fields.dropdown)
-    console.log('custom_field value', data.custom_fields.dropdown.value)
+    console.log('custom_field 2', data.custom_fields[0].dropdown)
 
-    const shirt_size = data.custom_fields.dropdown.value;
+    const shirt_size = data.custom_fields[0].dropdown.value;
 
     // set shirt size
     var shirtID = ''
