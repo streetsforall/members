@@ -6,6 +6,9 @@ export async function new_order(data: any, tier: number) {
 
     // create printful order
 
+    console.log('creating shirt order')
+    console.log('custom_field', data.custom_fields.dropdown)
+    console.log('custom_field value', data.custom_fields.dropdown.value)
     const shirt_size = data.custom_fields.dropdown.value;
 
     // set shirt size
