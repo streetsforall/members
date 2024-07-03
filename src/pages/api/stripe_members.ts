@@ -5,7 +5,7 @@ import {new_order} from '@/server/merch'
 import { buffer } from "micro";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_TEST as string, {});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {});
 // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {});
 
 export const config = {
