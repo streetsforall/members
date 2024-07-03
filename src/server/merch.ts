@@ -14,17 +14,21 @@ export async function new_order(data: any, tier: number) {
     const shirt_size = data.custom_fields[0].dropdown.value;
 
     // set shirt size
-    var shirtID = ''
+    // note for future: was painful to figure this out but you can only find the sync_variant_id 
+    // by requesting all items from that product ID from the Printful API
+    // GET /sync/products/{ID}
+
+    var shirtID = 0
     if (shirt_size == 's') {
-        shirtID = '#27636855-fe47-4702-8a97-2a8e03b9768c'
+        shirtID = 4433819851
     } else if (shirt_size == 'm') {
-        shirtID = '#d32be939-cb43-467b-900e-6ae21e5a3598'
+        shirtID = 4433819852
     } else if (shirt_size == 'l') {
-        shirtID = '#9a029bf3-ad3d-4992-8b6a-fd934363333e'
+        shirtID = 4433819853
     } else if (shirt_size == 'xl') {
-        shirtID = '#b5c3950b-10cf-46d1-882a-e4e6f802586a'
+        shirtID = 4433819854
     } else if (shirt_size == '2xl') {
-        shirtID = '#3a02c650-806c-4159-95ca-44981f96076c'
+        shirtID = 4433819855
     }
 
     // create products
@@ -37,14 +41,14 @@ export async function new_order(data: any, tier: number) {
 
     const sticker = {
         "source": 'sync',
-        "sync_variant_id": '#401aad0c-b1f0-46e5-b8ea-134f4e362551',
+        "sync_variant_id": 4433819998,
         "quantity": 1,
         "name": "Members Sticker sheet"
     }
 
     const hat = {
         "source": 'sync',
-        "sync_variant_id": '#5f103f57-981c-43ff-b211-7ada1fe09a97',
+        "sync_variant_id": 4434444449,
         "quantity": 1,
         "name": "Members Dad Hat"
     }
