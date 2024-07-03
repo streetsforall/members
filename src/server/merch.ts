@@ -101,9 +101,17 @@ export async function new_order(data: any, tier: number) {
         const response = await fetch('https://api.printful.com/v2/orders', requestOptions);
         const order_details = await response.json();
 
-        console.log('order',order_details)
-        console.log('order links',order_details.data._links)
-        console.log('order items',order_details.data.order_items)
+        console.log('order', order_details)
+        console.log('order links', order_details.data._links)
+        console.log('order items', order_details.data.order_items)
+
+
+    const date = (new Date()).toLocaleString("en-US")
+
+    await sql`
+        INSERT INTO merch_orders (email, order_tier, date, order_id, delivered)
+        VALUES(${data.customer_details.email}, ${tier}, ${date}, ${order_details.data.id}, ${date}, false)
+    `
 
     } catch (err: any) {
         // On error, log and return the error message
