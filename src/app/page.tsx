@@ -3,42 +3,42 @@
 import { useRouter } from 'next/router'
 import { useState, useEffect } from "react";
 
-import {new_token_email} from '../server/email_token'
-import { validate_user}  from '../server/validate_user'
+import { new_token_email } from '../server/email_token'
+import { validate_user } from '../server/validate_user'
 
 export default function LoginPage() {
   const [memberID, setMemberID] = useState('');
 
   const [emailSent, setEmailSent] = useState(true);
-  
+
 
   // const { session, user } = await auth.lucia.validateSession(sessionId);
 
   // if no valid cookie
   // show form that allows to request an email
 
-  useEffect (() => {
+  useEffect(() => {
 
     const updateViews = async () => {
-        const memberData = await validate_user()
-        if (memberData) {
-          setMemberID(memberData.id)
-        } else {
-          console.log('no member')
-        }
-}
-      updateViews()
-}, [])
+      const memberData = await validate_user()
+      if (memberData) {
+        setMemberID(memberData.id)
+      } else {
+        console.log('no member')
+      }
+    }
+    updateViews()
+  }, [])
 
 
 
-  const fireEmail = (event:any) => {
+  const fireEmail = (event: any) => {
 
-    
+
     event.preventDefault()
 
     console.log(event.target.elements[0].value)
-    
+
     const email = new_token_email(event.target.elements[0].value)
     console.log(email)
     setEmailSent(false)
@@ -48,31 +48,34 @@ export default function LoginPage() {
 
   function LoginForm() {
 
-    return(
+    return (
 
       <div className="login_page">
 
 
 
         {memberID ? <div> <a href={`/u/${memberID}`}><button>Log in to last session</button></a> </div> : ''}
-        <br/>
-       
+        <br />
+
         {emailSent ?
-         <form onSubmit={(event) => fireEmail(event)} >
-          <div>
-          <input id='email' type="email" name="email" placeholder="Email" required />
-          <button type="submit">Request Login Link</button>
-          <p className="sub">Use the email associated with your Stripe payment.</p>
-          </div> 
+          <form onSubmit={(event) => fireEmail(event)} >
+            <div>
+              <input id='email' type="email" name="email" placeholder="Email" required />
+              <button type="submit">Request Login Link</button>
+              <p className="sub">Use the email associated with your Stripe payment.</p>
+            </div>
           </form>
           :
           <div>
             <h2 className='alert'>Login link sent!</h2>
-            If you are a verified member, check your email for a new login link. 
-            <br/><br/>
+            If you are a verified member, check your email for a new login link.
+            <br /><br />
             If you are having difficulties, reach out to membership@streetsforall.org
           </div>
-  }
+        }
+
+      <br/>      <br/>
+        Don't have an account? <a target="_blank" rel="noopener noreferrer" href="https://www.streetsforall.org/membership">Sign up here</a>.
       </div>
     )
   }
@@ -80,7 +83,7 @@ export default function LoginPage() {
 
   return (
     <div>
-    <LoginForm />
+      <LoginForm />
     </div>
   )
 
