@@ -113,17 +113,24 @@ export async function new_order(data: any, tier: number) {
         VALUES(${data.customer_details.email}, ${tier}, ${date}, ${order_details.data.id}, false)
         `
 
+        const retrieve_order = async ( ) => {
+            const orderHeader = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.PRINTFUL_KEY}`
+                }
+            };
+            const order_response = await fetch(`https://api.printful.com/v2/orders/${order_details.data.id}/confirmation`, orderHeader);
+            const order = await order_response.json();
+            console.log('order created', order)
+        }
+
+        setTimeout(function(){
         // submit order to printful 
-        const orderHeader = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.PRINTFUL_KEY}`
-            }
-        };
-        const order_response = await fetch(`https://api.printful.com/v2/orders/${order_details.data.id}/confirmation`, orderHeader);
-        const order = await order_response.json();
-        console.log('order created', order)
+            retrieve_order()
+        }, 10000);
+       
 
     } catch (err: any) {
         // On error, log and return the error message
