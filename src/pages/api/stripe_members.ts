@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { DonationData } from "./donation.types";
 import * as dbHelp from '../../server/dbHelpers'
+import {new_order} from '@/server/merch'
 import { buffer } from "micro";
 import Stripe from "stripe";
 
@@ -11,6 +12,22 @@ export const config = {
     bodyParser: false,
   },
 };
+
+
+const validateTier = (payment : number) => {
+          // validate payment
+          if (payment >= 4800) {
+            var tier = 3
+          } else if (payment >= 2400) {
+            var tier = 2
+          } else if (payment >= 1200) {
+            var tier = 1
+          } else {
+            var tier = 0
+          }
+
+      return(tier)
+}
 
 export default async function handler(
   req: NextApiRequest,
@@ -52,6 +69,25 @@ export default async function handler(
     // iterate through various stripe webhook event types
     switch (api_event.type) {
 
+      // we use this to grab the shirt size
+      // weirdly the only stipe API call that forwards custom fields
+      case 'checkout.session.completed':
+        const checkout: any = api_event.data.object;
+
+        if (checkout.mode != 'subscription') {
+          // make sure checkout is a subscription 
+          res.status(200).end("Not a member subscription");
+          break;
+        } 
+
+        const checkout_tier = validateTier(checkout.amount_total)
+
+        new_order(checkout, checkout_tier)
+
+        res.status(200).end("New Member Succesful");
+
+        break;
+
       // NEW MEMBER SUBSCRIPTION or UPDATED
       case 'customer.subscription.created':
       case 'customer.subscription.updated':
@@ -67,20 +103,9 @@ export default async function handler(
         const new_member: any = await retrieveCustomer(customerID)
         const amount = subscriber.plan.amount
 
-        // validate payment
-        if (amount >= 4800) {
-          var tier = 3
-        } else if (amount >= 2400) {
-          var tier = 2
-        } else if (amount >= 1200) {
-          var tier = 1
-        } else {
-          var tier = 0
-        }
-
         
 
-        var address = ''
+        var address = {}
         // validate shipping address
         if (new_member.shipping) {
           address = new_member.shipping.address
@@ -94,6 +119,8 @@ export default async function handler(
           email = new_member.email
         }
 
+        var tier = validateTier(amount)
+
 
         console.log(new_member)
 
@@ -101,7 +128,7 @@ export default async function handler(
           'tier': tier,
           'name': new_member.name,
           'phone': new_member.phone,
-          'email': email,
+          'email': new_member.email,
           'status': new_member.status,
           'shipping_address':  JSON.stringify(address),
           'amount': amount / 100,
