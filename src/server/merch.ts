@@ -53,6 +53,8 @@ export async function new_order(data: any, tier: number) {
         orderPackage = [sticker, shirt, hat]
      }
 
+     console.log('orderPackage', orderPackage)
+
     const request_body = {
         "external_id": "",
         "shipping": "STANDARD",
