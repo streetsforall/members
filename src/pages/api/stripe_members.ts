@@ -101,7 +101,7 @@ export default async function handler(
         customerID = subscriber.customer as string
 
         const new_member: any = await retrieveCustomer(customerID)
-        
+
         const amount = subscriber.plan.amount
 
         var address = {}
@@ -129,7 +129,8 @@ export default async function handler(
         } 
 
         // pass member to database
-        dbHelp.setMember(memberObj)
+        const dbsubmit = dbHelp.setMember(memberObj)
+        console.log(dbsubmit)
 
         res.status(200).end("New Subscriber Successful");
 

@@ -63,12 +63,14 @@ export async function createEmailVerificationToken(userId: string, email: string
 
   const timespan = createDate(new TimeSpan(2, "h"))
 
-  await sql`
+  const emailtoken = await sql`
     INSERT INTO email_verification_token (id, email, expires_at)
       VALUES(${tokenId}, ${email}, ${timespan})
       ON CONFLICT (email) 
       DO UPDATE SET id = ${tokenId}, expires_at = ${timespan}
     `
+
+  console.log('emailtoken', emailtoken)
 
   return tokenId;
 }
@@ -103,23 +105,24 @@ export async function setMember(memberObj: any) {
 
     console.log('memberObj', memberObj)
 
-    await sql`
+    const update_member = await sql`
       INSERT INTO members (name, email, tier, last_amount, shipping_address, last_donation, status, customer_id, phone)
         VALUES(${memberObj.name}, ${memberObj.email}, ${memberObj.tier}, ${memberObj.amount}, ${memberObj.shipping_address}, ${date}, ${memberObj.status}, ${memberObj.customer_id}, ${memberObj.phone})
         ON CONFLICT (email) 
 	      DO UPDATE SET tier = ${memberObj.tier}, last_amount = ${memberObj.amount}, last_donation = ${date}
   `
 
-    console.log('new member', memberObj.newMember)
+    console.log('new member', update_member)
 
     // if member is new we make sure they get a data added
     if (memberObj.newMember) {
-      await sql`
+    const update_member  = await sql`
       INSERT INTO members (joined_date, email)
         VALUES(${date}, ${memberObj.email})
         ON CONFLICT (email) 
 	      DO UPDATE SET joined_date = ${date}
   `
+    console.log('update_member', update_member)
     }
 
     return 'successfully updated member'
