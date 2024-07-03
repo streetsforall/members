@@ -125,7 +125,7 @@ export async function setMember(memberObj: any) {
     console.log('update_member', update_member)
     }
 
-    return 'successfully updated member'
+    return ({'successfully updated member': update_member})
   } catch (error) {
     return (null)
   }
