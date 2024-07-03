@@ -101,7 +101,7 @@ export async function setMember(memberObj: any) {
 
     const date = (new Date()).toLocaleString("en-US")
 
-    console.log(memberObj)
+    console.log('memberObj', memberObj)
 
     await sql`
       INSERT INTO members (name, email, tier, last_amount, shipping_address, last_donation, status, customer_id, phone)
