@@ -87,7 +87,7 @@ export async function new_order(data: any, tier: number) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer' + process.env.PRINTFUL_KEY
+                'Authorization': `Bearer ${process.env.PRINTFUL_KEY}`
             },
             body: JSON.stringify(request_body)
         };
