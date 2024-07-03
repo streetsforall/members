@@ -149,7 +149,7 @@ const new_signup_email = async (to_email: string) => {
     const verificationToken = await dbHelp.setEmailVerification(to_email)
     console.log('emailtoken', verificationToken)
 
-    
+
 
     try {
 
@@ -178,11 +178,11 @@ const new_signup_email = async (to_email: string) => {
                 src="cid:logo">
                 </a>
                 
-                <p>Hi ${member[0].first_name},</p>
+                <p>Hi ${member[0].name},</p>
                 <p>Welcome to the Streets For All Membership Club! Your recurring contribution will help us continue our mission to make the streets of Los Angeles safe for all modes of transportation.
                 </p>
 
-                <p>Be sure to check out all the awesome perks included in your ${memebrship_tier} Tier membership by login into your membership portal:</p>
+                <p>Be sure to check out all the awesome perks included in your ${memebrship_tier} Tier membership by loging into your membership portal below:</p>
     
 
                 <a target="_blank" 
