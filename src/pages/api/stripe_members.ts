@@ -1,5 +1,4 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { DonationData } from "./donation.types";
 import * as dbHelp from '../../server/dbHelpers'
 import {new_order} from '@/server/merch_order'
 import { buffer } from "micro";
