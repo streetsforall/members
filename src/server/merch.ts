@@ -62,16 +62,16 @@ export async function new_order(data: any, tier: number) {
         "external_id": "",
         "shipping": "STANDARD",
         "recipient": {
-            "name": data.name,
+            "name": data.customer_details.name,
             "company": "",
-            "address1": data.shipping.address.line1,
-            "address2": data.shipping.address.line2,
-            "city": data.shipping.address.city,
-            "state_name": data.shipping.address.state,
-            "country_name": data.shipping.address.country,
-            "zip": data.shipping.address.postal_code,
-            "phone": data.shipping.address.phone,
-            "email": data.shipping.address.email
+            "address1": data.shipping_details.address.line1,
+            "address2": data.shipping_details.address.line2,
+            "city": data.shipping_details.address.city,
+            "state_name": data.shipping_details.address.state,
+            "country_name": data.shipping_details.address.country,
+            "zip": data.shipping_details.address.postal_code,
+            "phone": data.customer_details.phone,
+            "email": data.customer_details.email
         },
         "order_items": [
             orderPackage
@@ -79,6 +79,8 @@ export async function new_order(data: any, tier: number) {
         "customization": {},
         "retail_costs": {}
     }
+
+    console.log(request_body)
 
     try {
         const requestOptions = {
