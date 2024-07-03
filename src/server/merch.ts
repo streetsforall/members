@@ -31,19 +31,22 @@ export async function new_order(data: any, tier: number) {
     const shirt = {
         "source": 'sync',
         "sync_variant_id": shirtID,
-        "quantity": 1
+        "quantity": 1,
+        "name": "Membership T-Shirt"
     }
 
     const sticker = {
         "source": 'sync',
-        "sync_variant_id": '#6684377927bc320828613908',
-        "quantity": 1
+        "sync_variant_id": '#401aad0c-b1f0-46e5-b8ea-134f4e362551',
+        "quantity": 1,
+        "name": "Members Sticker sheet"
     }
 
     const hat = {
         "source": 'sync',
         "sync_variant_id": '#5f103f57-981c-43ff-b211-7ada1fe09a97',
-        "quantity": 1
+        "quantity": 1,
+        "name": "Members Dad Hat"
     }
 
     // create order packages
@@ -93,7 +96,10 @@ export async function new_order(data: any, tier: number) {
         };
         const response = await fetch('https://api.printful.com/v2/orders', requestOptions);
         const order_details = await response.json();
+        
         console.log('order',order_details)
+        console.log('order links',order_details._links)
+        console.log('order items',order_details.order_items)
 
     } catch (err: any) {
         // On error, log and return the error message
