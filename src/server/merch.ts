@@ -110,7 +110,7 @@ export async function new_order(data: any, tier: number) {
 
     await sql`
         INSERT INTO merch_orders (email, order_tier, date, order_id, delivered)
-        VALUES(${data.customer_details.email}, ${tier}, ${date}, ${order_details.data.id}, ${date}, false)
+        VALUES(${data.customer_details.email}, ${tier}, ${date}, ${order_details.data.id}, false)
     `
 
     } catch (err: any) {
