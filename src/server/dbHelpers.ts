@@ -77,20 +77,25 @@ export async function createEmailVerificationToken(userId: string, email: string
 
 
 export async function cancelMember(canceledMember: any) {
+  try {
 
-  // this will cancel a member
-  const date = (new Date()).toLocaleString("en-US")
+    // this will cancel a member
+    const date = (new Date()).toLocaleString("en-US")
 
-  console.log(canceledMember)
+    console.log(canceledMember)
 
-  const users = await sql`
+    const users = await sql`
       INSERT INTO members (email, tier, last_amount, last_donation)
         VALUES(${canceledMember.email}, ${canceledMember.tier}, ${canceledMember.amount}, ${date})
         ON CONFLICT (email) 
 	      DO UPDATE SET tier = ${canceledMember.tier}, last_amount = ${canceledMember.amount}, last_donation = ${date}
     `
-  console.log(users)
-  return users
+    console.log(users)
+    return users
+  } catch (error) {
+    console.log(error)
+    return (null)
+  }
 }
 
 
@@ -116,17 +121,18 @@ export async function setMember(memberObj: any) {
 
     // if member is new we make sure they get a data added
     if (memberObj.newMember) {
-    const update_member  = await sql`
+      const update_member = await sql`
       INSERT INTO members (joined_date, email)
         VALUES(${date}, ${memberObj.email})
         ON CONFLICT (email) 
 	      DO UPDATE SET joined_date = ${date}
   `
-    console.log('update_member', update_member)
+      console.log('update_member', update_member)
     }
 
-    return ({'successfully updated member': update_member})
+    return ({ 'successfully updated member': update_member })
   } catch (error) {
+    console.log(error)
     return (null)
   }
 }

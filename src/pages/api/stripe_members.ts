@@ -129,9 +129,7 @@ export default async function handler(
         } 
 
         // pass member to database
-        const dbsubmit = await dbHelp.setMember(memberObj)
-
-        console.log(dbsubmit)
+        dbHelp.setMember(memberObj)
 
         res.status(200).end("New Subscriber Successful");
 
