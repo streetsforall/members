@@ -3,6 +3,7 @@ import * as dbHelp from '../../server/dbHelpers'
 import {new_order} from '@/server/merch_order'
 import { buffer } from "micro";
 import Stripe from "stripe";
+import { new_signup_email } from '@/server/email_token'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {});
 // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {});
@@ -83,6 +84,8 @@ export default async function handler(
         const checkout_tier = validateTier(checkout.amount_total)
 
         new_order(checkout, checkout_tier)
+
+        new_signup_email(checkout.customer_details.email)
 
         res.status(200).end("New Member Succesful");
 
