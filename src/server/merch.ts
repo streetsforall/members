@@ -6,8 +6,6 @@ export async function new_order(data: any, tier: number) {
 
     // create printful order
 
-
-
     const shirt_size = data.custom_fields.dropdown.value;
 
     // set shirt size
@@ -45,15 +43,15 @@ export async function new_order(data: any, tier: number) {
 
     // create order packages
     var orderPackage = {}
-     if (tier == 1) {
+    if (tier == 1) {
         orderPackage = [sticker]
-     } else if (tier == 2) {
+    } else if (tier == 2) {
         orderPackage = [sticker, shirt]
-     } else if (tier == 3) {
+    } else if (tier == 3) {
         orderPackage = [sticker, shirt, hat]
-     }
+    }
 
-     console.log('orderPackage', orderPackage)
+    console.log('orderPackage', orderPackage)
 
     const request_body = {
         "external_id": "",
@@ -77,18 +75,24 @@ export async function new_order(data: any, tier: number) {
         "retail_costs": {}
     }
 
-    const requestOptions = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer' + process.env.PRINTFUL_KEY
-        },
-        body: JSON.stringify(request_body)
-    };
-    const response = await fetch('https://api.printful.com/v2/orders', requestOptions);
-    const order_details = await response.json();
+    try {
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer' + process.env.PRINTFUL_KEY
+            },
+            body: JSON.stringify(request_body)
+        };
+        const response = await fetch('https://api.printful.com/v2/orders', requestOptions);
+        const order_details = await response.json();
+        console.log(order_details)
 
-    console.log(order_details)
+    } catch (err: any) {
+        // On error, log and return the error message
+        console.log(`❌ Error message: ${err.message}`);
+    }
+
 
     // add order to database
 

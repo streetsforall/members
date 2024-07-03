@@ -75,6 +75,9 @@ export default async function handler(
       case 'checkout.session.completed':
         const checkout: any = api_event.data.object;
 
+
+        console.log('checkout body', checkout)
+
         if (checkout.mode != 'subscription') {
           // make sure checkout is a subscription 
           res.status(200).end("Not a member subscription");
