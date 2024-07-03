@@ -69,6 +69,7 @@ export async function new_order(data: any, tier: number) {
             "city": data.shipping_details.address.city,
             "state_name": data.shipping_details.address.state,
             "country_name": data.shipping_details.address.country,
+            "country_code": data.shipping_details.address.country,
             "zip": data.shipping_details.address.postal_code,
             "phone": data.customer_details.phone,
             "email": data.customer_details.email
