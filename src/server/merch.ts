@@ -121,7 +121,7 @@ export async function new_order(data: any, tier: number) {
                 'Authorization': `Bearer ${process.env.PRINTFUL_KEY}`
             }
         };
-        const order_response = await fetch(`https://api.printful.com/v2/orders/{order_details.data.id}/confirmation`, orderHeader);
+        const order_response = await fetch(`https://api.printful.com/v2/orders/${order_details.data.id}/confirmation`, orderHeader);
         const order = await order_response.json();
         console.log('order created', order)
 
