@@ -90,6 +90,8 @@ export async function new_order(data: any, tier: number) {
     console.log(request_body)
 
     try {
+
+        // create order with printful
         const requestOptions = {
             method: 'POST',
             headers: {
@@ -100,18 +102,28 @@ export async function new_order(data: any, tier: number) {
         };
         const response = await fetch('https://api.printful.com/v2/orders', requestOptions);
         const order_details = await response.json();
-
-        console.log('order', order_details)
-        console.log('order links', order_details.data._links)
-        console.log('order items', order_details.data.order_items)
+        console.log('order created')
 
 
-    const date = (new Date()).toLocaleString("en-US")
+        // add order to database
+        const date = (new Date()).toLocaleString("en-US")
 
-    await sql`
+        await sql`
         INSERT INTO merch_orders (email, order_tier, date, order_id, delivered)
         VALUES(${data.customer_details.email}, ${tier}, ${date}, ${order_details.data.id}, false)
-    `
+        `
+
+        // submit order to printful 
+        const orderHeader = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.PRINTFUL_KEY}`
+            },
+        };
+        const order_response = await fetch(`https://api.printful.com/v2/orders/{order_details.data.id}/confirmation`, orderHeader);
+        const order = await response.json();
+        console.log('order created', order)
 
     } catch (err: any) {
         // On error, log and return the error message
