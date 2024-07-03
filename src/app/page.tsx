@@ -74,7 +74,7 @@ export default function LoginPage() {
           </div>
         }
 
-      <br/><br/>
+        <br /><br />
         Don't have an account? <a target="_blank" rel="noopener noreferrer" href="https://www.streetsforall.org/membership">Sign up here</a>.
       </div>
     )
