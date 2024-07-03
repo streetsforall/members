@@ -35,7 +35,7 @@ export async function new_order(data: any, tier: number) {
     }
 
     const sticker = {
-        "source": '6684377927bc320828613908',
+        "source": 350800543,
         "sync_variant_id": '#6684377927bc320828613908',
         "quantity": 1
     }
@@ -95,7 +95,7 @@ export async function new_order(data: any, tier: number) {
         };
         const response = await fetch('https://api.printful.com/v2/orders', requestOptions);
         const order_details = await response.json();
-        console.log(order_details)
+        console.log('order',order_details)
 
     } catch (err: any) {
         // On error, log and return the error message
