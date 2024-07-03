@@ -96,10 +96,10 @@ export async function new_order(data: any, tier: number) {
         };
         const response = await fetch('https://api.printful.com/v2/orders', requestOptions);
         const order_details = await response.json();
-        
+
         console.log('order',order_details)
-        console.log('order links',order_details._links)
-        console.log('order items',order_details.order_items)
+        console.log('order links',order_details.data._links)
+        console.log('order items',order_details.data.order_items)
 
     } catch (err: any) {
         // On error, log and return the error message
