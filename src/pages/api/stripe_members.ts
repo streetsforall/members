@@ -16,6 +16,7 @@ export const config = {
 
 
 const validateTier = (payment : number) => {
+          var tier = 0
           // validate payment
           if (payment >= 4800) {
             var tier = 3
@@ -23,8 +24,6 @@ const validateTier = (payment : number) => {
             var tier = 2
           } else if (payment >= 1200) {
             var tier = 1
-          } else {
-            var tier = 0
           }
 
       return(tier)
@@ -81,7 +80,7 @@ export default async function handler(
           break;
         } 
 
-        const checkout_tier = validateTier(checkout.amount_total)
+        const checkout_tier = await validateTier(checkout.amount_total)
 
         new_order(checkout, checkout_tier)
 
