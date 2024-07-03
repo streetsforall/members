@@ -22,22 +22,33 @@ const updateViews = async () => {
     // retrieve member data
     const member = (JSON.parse(JSON.stringify(memberData)))
 
-    const date = new Date(member.last_donation);
+    const date = new Date(member.joined_date);
     const readbleDate = date.toDateString()
 
     return (
-        <div className="user_card">
+        <>
+            <div className="user">
 
-           
-            {member.name}
-            <div className='tier'>
-                <p>{member.tier}</p>
-                </div>
+                <a href={'../'+memberData.id}>
+                    <p className="light_butt" style={{maxWidth: 'max-content', margin: 'auto', marginBottom: '2rem'}}>
+                    User Page
+                    </p>
+                </a>
 
-                <div>
-                <span>CLUB MEMBER SINCE </span>
+                <div className="user_card">
+
+
+                    {member.name}
+                    <div className='tier'>
+                        <p>{member.tier}</p>
+                    </div>
+
+                    <div>
+                        <span>CLUB MEMBER SINCE {readbleDate}</span>
+                    </div>
                 </div>
-        </div>
+            </div>
+        </>
 
     )
 }

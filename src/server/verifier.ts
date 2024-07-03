@@ -27,7 +27,7 @@ export async function verify_token(token: string) {
 		const first_token = check_token[0]
 
 		if (!first_token) {
-			return ('Please request a new email token')
+			return ('Invalid Token. Please request a new email link')
 		}
 		
 
@@ -45,7 +45,7 @@ export async function verify_token(token: string) {
 
 
 		if (!token || !isWithinExpirationDate(first_token.expires_at)) {
-			return ('email token expired')
+			return ('Token expired. Please request a new email link.')
 		}
 
 

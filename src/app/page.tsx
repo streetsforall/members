@@ -3,7 +3,7 @@
 import { useRouter } from 'next/router'
 import { useState, useEffect } from "react";
 
-import new_member from '../server/email_token'
+import {new_token_email} from '../server/email_token'
 import { validate_user}  from '../server/validate_user'
 
 export default function LoginPage() {
@@ -39,7 +39,7 @@ export default function LoginPage() {
 
     console.log(event.target.elements[0].value)
     
-    const email = new_member(event.target.elements[0].value)
+    const email = new_token_email(event.target.elements[0].value)
     console.log(email)
     setEmailSent(false)
   }
@@ -67,7 +67,7 @@ export default function LoginPage() {
           </form>
           :
           <div>
-            <h2>Login link sent!</h2>
+            <h2 className='alert'>Login link sent!</h2>
             If you are a verified member, check your email for a new login link. 
             <br/><br/>
             If you are having difficulties, reach out to membership@streetsforall.org

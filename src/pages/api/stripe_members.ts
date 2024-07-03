@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { DonationData } from "./donation.types";
 import * as dbHelp from '../../server/dbHelpers'
-import {new_order} from '@/server/merch'
+import {new_order} from '@/server/merch_order'
 import { buffer } from "micro";
 import Stripe from "stripe";
 
@@ -98,13 +98,8 @@ export default async function handler(
 
         customerID = subscriber.customer as string
 
-        // when member is new we need to 
-        // 1. update column flagged 'new'
-
         const new_member: any = await retrieveCustomer(customerID)
         const amount = subscriber.plan.amount
-
-        
 
         var address = {}
         // validate shipping address
@@ -114,14 +109,7 @@ export default async function handler(
           address = 'no address'
         }
 
-        var email = 'test@test.com'
-
-        if (new_member.email) {
-          email = new_member.email
-        }
-
         var tier = validateTier(amount)
-
 
         console.log(new_member)
 
@@ -135,7 +123,6 @@ export default async function handler(
           'amount': amount / 100,
           'customer_id': customerID,
           'newMember': newMember,
-          'shirtSize': new_member
         } 
 
         // pass member to database

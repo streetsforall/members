@@ -2,9 +2,9 @@
 
 import * as auth from './auth'
 import { cookies } from "next/headers";
-import {cache} from 'react';
+import { cache } from 'react';
 import { redirect } from "next/navigation";
-import { retrieveMember} from "./dbHelpers"
+import { retrieveMember } from "./dbHelpers"
 
 
 // validate user session cookie for login
@@ -42,4 +42,9 @@ export async function validate_user() {
 
 		return memberData;
 	}
+}
+
+export async function sign_out_user() {
+	const sessionCookie = auth.lucia.createBlankSessionCookie();
+	cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
 }

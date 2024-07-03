@@ -35,7 +35,6 @@ const Discounts = (member: any) => {
         console.log(new_code)
         setCode(new_code)
         setTimeout(false)
-
     }
 
     useEffect(() => {

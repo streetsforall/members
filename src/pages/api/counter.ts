@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import * as dbHelp from '../../server/dbHelpers'
 
 
-
 // returns number of active members
 
 export default async function handler(

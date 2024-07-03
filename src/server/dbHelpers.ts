@@ -99,15 +99,13 @@ export async function setMember(memberObj: any) {
     // this will create a new member or
     // if email field matches an email in our database it will update
 
-    // TODO: make sure new members get date added
-
     const date = (new Date()).toLocaleString("en-US")
 
     console.log(memberObj)
 
     await sql`
-      INSERT INTO members (name, email, tier, last_amount, shipping_address, last_donation, customer_id, phone)
-        VALUES(${memberObj.name}, ${memberObj.email}, ${memberObj.tier}, ${memberObj.amount}, ${memberObj.shipping_address}, ${date}, ${memberObj.customer_id}, ${memberObj.phone})
+      INSERT INTO members (name, email, tier, last_amount, shipping_address, last_donation, status, customer_id, phone)
+        VALUES(${memberObj.name}, ${memberObj.email}, ${memberObj.tier}, ${memberObj.amount}, ${memberObj.shipping_address}, ${date}, ${memberObj.status}, ${memberObj.customer_id}, ${memberObj.phone})
         ON CONFLICT (email) 
 	      DO UPDATE SET tier = ${memberObj.tier}, last_amount = ${memberObj.amount}, last_donation = ${date}
   `

@@ -109,8 +109,8 @@ export async function new_order(data: any, tier: number) {
         const date = (new Date()).toLocaleString("en-US")
 
         await sql`
-        INSERT INTO merch_orders (email, order_tier, date, order_id, delivered)
-        VALUES(${data.customer_details.email}, ${tier}, ${date}, ${order_details.data.id}, false)
+        INSERT INTO merch_orders (email, order_tier, date, order_id, delivered, shirt_size)
+        VALUES(${data.customer_details.email}, ${tier}, ${date}, ${order_details.data.id}, false, ${shirt_size})
         `
 
         const retrieve_order = async ( ) => {
@@ -128,6 +128,8 @@ export async function new_order(data: any, tier: number) {
 
         setTimeout(function(){
         // submit order to printful 
+        // takes a sec for them to create pricing
+        // so we give it 10 seconds
             retrieve_order()
         }, 10000);
        

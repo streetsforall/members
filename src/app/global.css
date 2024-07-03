@@ -37,6 +37,7 @@ button {
     border:  none;
     background-color: var(--blue);
     color: white;
+    margin-right: .5rem;
 }
 
 button:hover {
@@ -65,12 +66,22 @@ a {
     font-size: 1rem;
     text-decoration: underline;
 }
+
 a:hover  {
     color: var(--light_blue);
     background-color: transparent;
 }
 
+.alert {
+    background-color: var(--light_blue);
+    /* border: 1px solid var(--blue); */
+    padding: .5rem 1rem;
+    border-radius: .4rem;
+    color: white;
+}
+
 .light_butt {
+    max-width: max-content;
     background-color: transparent;
     color: var(--light_blue);
     border: 1px solid var(--light_blue);
@@ -120,6 +131,12 @@ a {
     display: block;
 }
 
+.user {
+    max-width: 100%;
+    margin: auto;
+    width: 30rem;
+}
+
 .user_page {
     max-width: 100%;
     margin: auto;
@@ -154,8 +171,8 @@ a {
     color: white;
     width: 30rem;
     max-width: 100%;
+    aspect-ratio: 1.75;
     margin: auto;
-    height: 20rem;
     border-radius: 1rem;
     padding: 1rem;
     font-size: 1.5rem;
