@@ -29,19 +29,19 @@ export async function new_order(data: any, tier: number) {
 
     // create products
     const shirt = {
-        "source": "sync",
+        "source": 350800527,
         "sync_variant_id": shirtID,
         "quantity": 1
     }
 
     const sticker = {
-        "source": "sync",
+        "source": '6684377927bc320828613908',
         "sync_variant_id": '#6684377927bc320828613908',
         "quantity": 1
     }
 
     const hat = {
-        "source": "sync",
+        "source": 350858203,
         "sync_variant_id": '#5f103f57-981c-43ff-b211-7ada1fe09a97',
         "quantity": 1
     }
