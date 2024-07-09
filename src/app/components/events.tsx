@@ -13,7 +13,7 @@ const Events = (member: any) => {
            
             </div>
 
-            <div className={!show ? 'hidden' : 'unhidden'}>
+            <div className={!show ? 'section_content hidden' : 'section_content'}>
                 <p>👀 Details coming soon!</p>
             </div>
         </div> 

@@ -74,10 +74,10 @@ const Merch = (member: any) => {
                 <button onClick={() => setShow(!show)} className='hider'>{!show ? '+' : '-'}</button>
 
             </div>
-            <div className={!show ? 'hidden' : 'unhidden'}>
+            <div className={!show ? 'section_content hidden' : 'section_content'}>
                 <p className="status">
-                    order status: {status ? status.delivery_status != 'unknown' ? status.delivery_status : status.orderstatus : 'no order found'} • 
-                {status.tracking_url ? <a target="_blank" rel="noopener noreferrer" href= {status.tracking_url} >Tracking Link</a> : ''}</p>
+                    Order status: <span style={{color: 'green'}}>{status ? status.delivery_status != 'unknown' ? status.delivery_status : status.orderstatus : 'no order found'}</span> 
+                {status.tracking_url && status.delivery_status != 'delivered' ? <a target="_blank" rel="noopener noreferrer" href= {status.tracking_url} ><button>Tracking Link</button></a> : ''}</p>
                 {teir_desc(member.member.tier)}
 
             </div>

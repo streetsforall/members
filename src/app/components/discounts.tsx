@@ -99,7 +99,7 @@ const Discounts = (member: any) => {
                 <button onClick={() => setShow(!show)} className='hider'>{!show ? '+' : '-'}</button>
             </div>
             
-            <div className={!show ? 'hidden' : 'unhidden'}>
+            <div className={!show ? 'section_content hidden' : 'section_content'}>
 
            
 

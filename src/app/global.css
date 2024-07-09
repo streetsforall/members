@@ -81,7 +81,7 @@ a:hover  {
 
 .light_butt {
     max-width: max-content;
-    background-color: transparent;
+    background-color: white;
     color: var(--light_blue);
     border: 1px solid var(--light_blue);
     border-radius: .4rem;
@@ -93,7 +93,8 @@ a:hover  {
 
 .light_butt:hover {
     text-decoration: underline;
-    background-color: transparent;
+    background-color: white;
+    color: var(--blue);
 }
 
 
@@ -263,6 +264,7 @@ a {
 .merch_grid { 
     display: flex;
     flex-wrap: wrap;
+    gap: 1rem;
 }
 
 
@@ -270,8 +272,7 @@ a {
     border-radius: .5rem;
     padding: .5rem;
     width: calc(50% - 2rem);
-    background-color: aliceblue;
-    margin: .3rem;
+    background-color: white;
     border: 1px dotted var(--light_blue);
 }
 
@@ -305,10 +306,10 @@ a {
 }
 
 .copyblock span {
-    background-color: var(--bg);
+    background-color: white;
     padding: .3rem .5rem;
     border-radius: .4rem;
-    border: 1px solid white;
+    border: 1px solid var(--light_blue);
     color: var(--blue);
     max-width: max-content;
 }
@@ -333,7 +334,7 @@ a {
 .copyblock span:hover { 
     cursor:pointer;
     background-color: white;
-    border-color: var(--light_blue);
+    border-color: var(--blue);
 }
 
 #perks {
@@ -343,13 +344,29 @@ a {
     border-top: 1px solid var(--blue);
 }
 
-.hidden {
-    display: none;
+
+.user_section {
+    background-color: rgb(239, 245, 250);
+    border: 1px dotted var(--light_blue);
+    margin-bottom: .5rem;
+    border-radius: 1rem;
+    overflow: hidden;
 }
 
-.unhidden {
-    display: block;
-    margin-bottom: 1.5rem;
+
+.section_content {
+    transition: .3s ease-out;
+    max-height: 45rem;
+    overflow: hidden;
+    border-top: 1px dotted var(--light_blue);
+    padding: 0rem  1rem 1rem 1rem;
+}
+
+.section_content.hidden {
+    max-height: 0;
+    border-top: 1px dotted transparent;
+    transition: .3s ease-in;
+    padding: 0rem  1rem;
 }
 
 .input[type="radio"] {
@@ -362,10 +379,11 @@ a {
     display: flex;
     max-height: 1.2rem;
     font-size: 1rem;
-    background-color: var(--bg);
-    margin-bottom: .5rem;
-    border-radius: .5rem;
     padding: 1rem;
+    /* background-color: var(--bg); */
+    /* margin-bottom: .5rem; */
+    /* border-radius: .5rem; */
+    /* padding: 1rem; */
     line-height: 1rem;
     align-items: center;
 }
@@ -387,10 +405,6 @@ a {
     line-height: 1rem;
     margin: 0;
 }
-
-.user_section {
-}
-
 .login_page {
     background-color: white;
     max-width: 25rem;
