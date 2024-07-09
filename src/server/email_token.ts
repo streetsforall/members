@@ -47,7 +47,7 @@ const new_token_email = async (to_email: string) => {
         <html>
           <body>
         <div style=" 
-        font-size: 1.1rem;
+        font-size: 1.2rem;
         padding: 1rem 2rem; 
         max-width: 30rem; 
         margin: auto; 
@@ -75,6 +75,7 @@ const new_token_email = async (to_email: string) => {
                 border-color: #183963; 
                 border-radius: 1rem;
                 margin: auto;
+                color: white;
                 display: block;
                 border: none;">
 
@@ -150,7 +151,7 @@ const new_signup_email = async (to_email: string) => {
     console.log('emailtoken', verificationToken)
 
 
-
+ 
     try {
 
       const mail = await transporter.sendMail({
@@ -162,7 +163,7 @@ const new_signup_email = async (to_email: string) => {
         <html>
           <body>
         <div style=" 
-        font-size: 1.1rem;
+        font-size: 1.2rem;
         padding: 1rem 2rem; 
         max-width: 30rem; 
         margin: auto; 
@@ -200,6 +201,7 @@ const new_signup_email = async (to_email: string) => {
                 border-color: #183963; 
                 border-radius: 1rem;
                 margin: auto;
+                color: white;
                 display: block;
                 border: none;">
 

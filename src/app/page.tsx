@@ -62,7 +62,6 @@ export default function LoginPage() {
             <div>
               <input id='email' type="email" name="email" placeholder="Email" required />
               <button type="submit">Request Login Link</button>
-              <p className="sub">Use the email associated with your Stripe payment.</p>
             </div>
           </form>
           :
@@ -73,9 +72,7 @@ export default function LoginPage() {
             If you are having difficulties, reach out to membership@streetsforall.org
           </div>
         }
-
-        <br /><br />
-        Don't have an account? <a target="_blank" rel="noopener noreferrer" href="https://www.streetsforall.org/membership">Sign up here</a>
+        <p className="sub">Don't have an account? <a target="_blank" rel="noopener noreferrer" href="https://www.streetsforall.org/membership">Sign up here</a></p>
       </div>
     )
   }

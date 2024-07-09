@@ -14,6 +14,8 @@ export async function merch_status(email: string) {
       ORDER BY date DESC 
     `
 
+    console.log(order_id)
+
 
   if (order_id[0]) {
     const recent_order = order_id[0].order_id

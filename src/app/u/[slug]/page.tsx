@@ -8,6 +8,7 @@ import Merch from '@/app/components/merch';
 import { Billing_button } from '@/app/components/billing_button';
 import Voting from '@/app/components/voting';
 import {SignOut} from '@/app/components/signout'
+import Events from '@/app/components/events';
 
 
 
@@ -70,6 +71,8 @@ const updateViews = async ({ params }: { params: { slug: string } }) => {
             {member.tier > 1 ? <Discounts member={member} /> : ''}
 
             < Voting />
+            < Events />
+        
 
             <SignOut />
         </div>

@@ -63,7 +63,6 @@ a {
     border-radius: 0;
     padding: 0;
     margin: 0;
-    font-size: 1rem;
     text-decoration: underline;
 }
 
@@ -221,10 +220,9 @@ a {
     margin: 1rem 0;
 }
 
-.status {
-    color: green;
-    padding: .2rem .5rem;
-    border-radius: ;
+.status a {
+    margin-left: .5rem;
+
 }
 
 .tier_img {
@@ -234,6 +232,21 @@ a {
 
 .discounts {
 
+}
+
+.merch_grid { 
+    display: flex;
+    flex-wrap: wrap;
+}
+
+
+.merch_item {
+    border-radius: .5rem;
+    padding: .5rem;
+    width: calc(50% - 2rem);
+    background-color: aliceblue;
+    margin: .3rem;
+    border: 1px dotted var(--light_blue);
 }
 
 .tooltip_butt {
@@ -310,8 +323,7 @@ a {
 
 .unhidden {
     display: block;
-    margin-bottom: 1rem;
-    border-bottom: 1px dotted var(--light_blue);
+    margin-bottom: 1.5rem;
 }
 
 .input[type="radio"] {
@@ -379,6 +391,11 @@ a {
 
 
 @media only screen and (max-width: 800px) {
+
+    * {
+        font-size: .9rem;
+    }
+
     .user_page {
       padding: 1rem;
       width: calc(100% - 2rem);

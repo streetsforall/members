@@ -9,10 +9,56 @@ import { merch_status } from "@/server/merch_status";
 
 const Merch = (member: any) => {
     const [show, setShow] = useState(false);
-    const [status, setStatus] = useState({'delivery_status' : '', 'orderstatus' : '', 'tracking_url' : '' })
+    const [status, setStatus] = useState({ 'delivery_status': '', 'orderstatus': '', 'tracking_url': '' })
+
+
+    const teir_desc = (tier: number) => {
+        if (tier == 1) {
+            return (
+                <div className="merch_grid">
+                    <div className="merch_item">
+                        <img src="/merch_stickers.jpg" />
+                        ✓ Members Club Sticker Sheet
+                    </div>
+                </div>
+            )
+        } else if (tier == 2) {
+            return (
+                <div className="merch_grid">
+                    <div className="merch_item">
+                        <img src="/merch_stickers.jpg" />
+                        ✓ Members Club Sticker Sheet
+                    </div>
+                    <div className="merch_item">
+                        <img src="/merch_shirt.jpg" />
+                        ✓ Members Club T-Shirt
+                    </div>
+                </div>
+            )
+        } else {
+            return (
+                <div className="merch_grid">
+                    <div className="merch_item">
+                        <img src="/merch_stickers.jpg" />
+                        ✓ Members Club Sticker Sheet
+                    </div>
+                    <div className="merch_item">
+                        <img src="/merch_shirt.jpg" />
+                        ✓ Members Club T-Shirt
+                    </div>
+                    <div className="merch_item">
+                        <img src="/merch_hat.jpg" />
+                        ✓ Members Club Hat
+                    </div>
+                </div>
+            )
+        }
+    }
+
+
 
     useEffect(() => {
-        const getMerch = async (email:string) => {
+        const getMerch = async (email: string) => {
             const order = await merch_status(email)
             console.log('order', order)
             setStatus(order)
@@ -24,8 +70,16 @@ const Merch = (member: any) => {
     return (
         <div className='user_section'>
             <div className='section_header'>
-                <h2>2024 Merch</h2>
-                <div className="status">order status: {status ? status.delivery_status != 'unknown' ? status.delivery_status : status.orderstatus : 'no order' }</div>
+                <h2>Member Merch</h2>
+                <button onClick={() => setShow(!show)} className='hider'>{!show ? '+' : '-'}</button>
+
+            </div>
+            <div className={!show ? 'hidden' : 'unhidden'}>
+                <p className="status">
+                    order status: {status ? status.delivery_status != 'unknown' ? status.delivery_status : status.orderstatus : 'no order found'} • 
+                {status.tracking_url ? <a target="_blank" rel="noopener noreferrer" href= {status.tracking_url} >Tracking Link</a> : ''}</p>
+                {teir_desc(member.member.tier)}
+
             </div>
 
         </div>

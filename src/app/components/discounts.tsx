@@ -110,11 +110,22 @@ const Discounts = (member: any) => {
                     <button className="slide_controler" id='s_left' onClick={() => nextSlide(-1)}> &lt; </button>
                     <button className="slide_controler"  id='s_right' onClick={() => nextSlide(1)}> &gt;  </button>
 
+
                     <div data-key={1} className="slide">
+                        {/* // Thousand */}
+                        <img src='/thousand.jpeg'/>
+
+                        <p><a target="_blank" rel="noopener noreferrer" href="https://explorethousand.com/">Thousand</a></p>
+                        <p>Thousand makes incredibly comfortable and safe helmets. Get 15% off all orders.</p>
+                        <p>Discount Code: <Copyblock>StreetsForAll</Copyblock></p>
+                    </div>
+
+
+                    <div hidden data-key={2} className="slide">
                         {/* Peak Design */}
                         <img src='/peak_design.jpg'/>
 
-                        <p><a target="_blank" rel="noopener noreferrer" href="https://www.peakdesign.com/"> Peak Design</a>  <Tooltip>You can only request a Peak Design code every 2 weeks</Tooltip></p>
+                        <p><a target="_blank" rel="noopener noreferrer" href="https://www.peakdesign.com/"> Peak Design</a>  </p>
                         <p>Peak Design makes premium bags, camera gear, and phone cases. Get 15% off all orders.</p>
                         <p>{!code ?
                             <button className='light_butt' onClick={() => getCode(member.member.email)}>
@@ -124,17 +135,10 @@ const Discounts = (member: any) => {
                             <span style={{marginLeft: '.5rem'}}>{timeout ? <button className='light_butt' onClick={() => getCode(member.member.email)}>
                                 Get New Code
                             </button> : ''}</span>
+                            <Tooltip>Each Peak Design code can only be used once. You can request a Peak Design code every 2 weeks</Tooltip>
                         </p>
                     </div>
 
-                    <div hidden data-key={2} className="slide">
-                        {/* // Thousand */}
-                        <img src='/thousand.jpeg'/>
-
-                        <p><a target="_blank" rel="noopener noreferrer" href="https://explorethousand.com/">Thousand</a></p>
-                        <p>Thousand makes incredibly comfortable and safe helmets. Get 15% off all orders.</p>
-                        <p>Discount Code: <Copyblock>StreetsForAll</Copyblock></p>
-                    </div>
 
                     <div hidden data-key={3} className="slide">
                         {/* // Cleverhood */}
