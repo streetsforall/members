@@ -27,9 +27,11 @@ const updateViews = async () => {
 
     var elapsed = ''
     if (diff_month < 1) {
-        elapsed = `MEMBER FOR ${diff_days}  DAYS`
+        elapsed = `MEMBER FOR ${diff_days} DAYS`
+    }  else if (diff_month == 1) {
+        elapsed = `MEMBER FOR 1 MONTH`
     } else {
-        elapsed = `MEMBER FOR ${diff_month}  DAYS`
+        elapsed = `MEMBER FOR ${diff_month}  MONTHS`
     }
 
 

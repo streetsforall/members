@@ -273,7 +273,6 @@ a {
     padding: .5rem;
     width: calc(50% - 2rem);
     background-color: white;
-    border: 1px dotted var(--light_blue);
 }
 
 .tooltip_butt {
@@ -355,7 +354,6 @@ a {
 
 
 .section_content {
-    transition: .3s ease-out;
     max-height: 45rem;
     overflow: hidden;
     border-top: 1px dotted var(--light_blue);
@@ -365,7 +363,6 @@ a {
 .section_content.hidden {
     max-height: 0;
     border-top: 1px dotted transparent;
-    transition: .3s ease-in;
     padding: 0rem  1rem;
 }
 
@@ -380,10 +377,6 @@ a {
     max-height: 1.2rem;
     font-size: 1rem;
     padding: 1rem;
-    /* background-color: var(--bg); */
-    /* margin-bottom: .5rem; */
-    /* border-radius: .5rem; */
-    /* padding: 1rem; */
     line-height: 1rem;
     align-items: center;
 }
