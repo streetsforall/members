@@ -169,12 +169,38 @@ a {
     background-color: var(--blue);
     color: white;
     width: 30rem;
-    max-width: 100%;
+    max-width: calc(100% - 3rem);
     aspect-ratio: 1.75;
     margin: auto;
     border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     padding: 1rem;
-    font-size: 1.5rem;
+    position: relative;
+    box-shadow: 0 0 2rem grey;
+    transition: .5s;
+}
+
+.user_card:hover  { 
+    transform: scale(1.05);
+    transition: .5s;
+    background-color: rgb(56, 56, 231);
+}
+
+.user_card div {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.user_card img {
+    max-width: 70%;
+}
+
+.card_tier_img {
+    mix-blend-mode: luminosity;
+    max-height: 2.5rem;
 }
 
 .slider {
@@ -395,6 +421,7 @@ a {
     * {
         font-size: .9rem;
     }
+
 
     .user_page {
       padding: 1rem;
