@@ -8,13 +8,13 @@ const Events = (member: any) => {
     return (
         <div className='user_section'>
             <div className='section_header'>
-                <h2>Next Member Event: August 27th</h2>
+                <h2>Next Member Event</h2>
                 <button onClick={() => setShow(!show)} className='hider'>{!show ? '+' : '-'}</button>
            
             </div>
 
             <div className={!show ? 'section_content hidden' : 'section_content'}>
-                <p>👀 Details coming soon!</p>
+                <p>September 12th: details coming soon!</p>
             </div>
         </div> 
     )

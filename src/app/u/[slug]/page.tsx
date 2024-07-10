@@ -47,8 +47,10 @@ const updateViews = async ({ params }: { params: { slug: string } }) => {
         <div className="user_page">
 
             <img className="tier_img" src={member.tier == 1 ? '../pedestrian.png' : member.tier == 2 ? '../bike.png' : '../bus.png'} />
-            <p>Hi {member.name}, <br />
-                welcome to your active {teir_desc(member.tier)} Tier membership.
+            <p>Welcome {member.name}, <br /><br />
+                {member.tier > 0 ? `welcome to your active ${teir_desc(member.tier)} Tier membership.` : 
+                'Your membership is currently canceled. Please subscribe again to access member perks.'
+                }
             </p>
 
             
@@ -65,13 +67,14 @@ const updateViews = async ({ params }: { params: { slug: string } }) => {
 
             <p id="perks">Perks</p>
             
-            <Merch member={member} />
+            {member.tier > 0 ? <Merch member={member} /> : ''}
 
             {/* only show discounts on tier 2 and 3 */}
             {member.tier > 1 ? <Discounts member={member} /> : ''}
 
-            < Voting />
-            < Events />
+            {member.tier > 0 ? < Voting /> : ''}
+            {member.tier > 0 ? < Events /> : ''}
+
         
 
             <SignOut />

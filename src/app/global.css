@@ -166,6 +166,7 @@ a {
     margin: auto;
 }
 
+
 .user_card {
     background-color: var(--blue);
     color: white;
@@ -187,6 +188,10 @@ a {
     transform: scale(1.05);
     transition: .5s;
     background-color: rgb(56, 56, 231);
+}
+
+.user_card.canceled_member {
+    background-color: #ff7300;
 }
 
 .user_card div {

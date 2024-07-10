@@ -72,7 +72,7 @@ export default function LoginPage() {
             If you are having difficulties, reach out to membership@streetsforall.org
           </div>
         }
-        <p className="sub">Don't have an account? <a target="_blank" rel="noopener noreferrer" href="https://www.streetsforall.org/membership">Sign up here</a></p>
+        <p className="sub">Don't have an account? <a href="/new">Sign up here</a></p>
       </div>
     )
   }

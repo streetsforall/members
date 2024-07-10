@@ -55,8 +55,8 @@ export async function setEmailVerification(email: string) {
 }
 
 export async function createEmailVerificationToken(userId: string, email: string): Promise<string> {
+  
   // optionally invalidate all existing tokens
-
   // await db.table("email_verification_token").where("user_id", "=", userId).deleteAll();
 
   const tokenId = generateIdFromEntropySize(25); // 40 characters long

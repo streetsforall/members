@@ -38,7 +38,6 @@ export async function validate_user() {
 	} else {
 
 		const memberData = await retrieveMember(user.id)
-		console.log(memberData)
 
 		return memberData;
 	}

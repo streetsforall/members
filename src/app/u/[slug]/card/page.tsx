@@ -39,7 +39,9 @@ const updateViews = async () => {
     const readbleDate = date.toDateString()
 
     const teir_desc = (tier: number) => {
-        if (tier == 1) {
+        if (tier == 0) {
+            return ('CANCELED')
+        } else if (tier == 1) {
             return ('PEDESTRIAN')
         } else if (tier == 2) {
             return ('CARGO BIKE')
@@ -55,17 +57,15 @@ const updateViews = async () => {
 
 
 
-
-
                 <p style={{ maxWidth: 'max-content', margin: 'auto', marginBottom: '2rem' }}>
                     <a href={'../' + memberData.id}>
                         User Page
                     </a>
                 </p>
 
-                    <div className="user_card">
+                    <div className={'user_card ' + (member.tier == 0 ? 'canceled_member' : '')}>
                         <div>
-                            <img className="card_tier_img" src={member.tier == 1 ? '/pedestrian.png' : member.tier == 2 ? '/bike.png' : '/bus.png'} />
+                            <img className="card_tier_img" src={member.tier == 0 ? '' : member.tier == 1 ? '/pedestrian.png' : member.tier == 2 ? '/bike.png' : '/bus.png'} />
                             <span>{teir_desc(member.tier)} MEMBER </span>
                         </div>
 
@@ -76,7 +76,7 @@ const updateViews = async () => {
 
                         <div>
                             <span>                    {member.name}</span>
-                            <span>{elapsed}</span>
+                            <span>{ member.tier != 0 ? elapsed : ''}</span>
                         </div>
                     </div>
 
