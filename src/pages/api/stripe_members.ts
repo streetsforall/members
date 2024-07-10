@@ -156,7 +156,7 @@ export default async function handler(
         const canceledMember = {
           'tier': 0,
           'email': email,
-          'status': canceled_member.status ? canceled_member.status : 'none',
+          'status': canceled_member.status ? canceled_member.status : 'canceled',
           'amount': 0,
         } 
         dbHelp.cancelMember(canceledMember)

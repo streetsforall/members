@@ -110,27 +110,26 @@ export async function setMember(memberObj: any) {
 
     console.log('memberObj', memberObj)
 
-    const update_member = await sql`
+    await sql`
       INSERT INTO members (name, email, tier, last_amount, shipping_address, last_donation, customer_id, phone, subscription_ID)
         VALUES(${memberObj.name}, ${memberObj.email}, ${memberObj.tier}, ${memberObj.amount}, ${memberObj.shipping_address}, ${date}, ${memberObj.customer_id}, ${memberObj.phone},  ${memberObj.subID})
         ON CONFLICT (email) 
 	      DO UPDATE SET tier = ${memberObj.tier}, last_amount = ${memberObj.amount}, last_donation = ${date}
-  `
-
-    console.log('new member', update_member)
+    `
+    console.log('added member')
 
     // if member is new we make sure they get a data added
     if (memberObj.newMember) {
-      const update_member = await sql`
+      await sql`
       INSERT INTO members (joined_date, email)
         VALUES(${date}, ${memberObj.email})
         ON CONFLICT (email) 
 	      DO UPDATE SET joined_date = ${date}
   `
-      console.log('update_member', update_member)
+      console.log('created member added date')
     }
 
-    return ({ 'successfully updated member': update_member })
+    return ('successfully updated member')
   } catch (error) {
     console.log(error)
     return (null)
