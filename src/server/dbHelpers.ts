@@ -111,8 +111,8 @@ export async function setMember(memberObj: any) {
     console.log('memberObj', memberObj)
 
     const update_member = await sql`
-      INSERT INTO members (name, email, tier, last_amount, shipping_address, last_donation, customer_id, phone)
-        VALUES(${memberObj.name}, ${memberObj.email}, ${memberObj.tier}, ${memberObj.amount}, ${memberObj.shipping_address}, ${date}, ${memberObj.customer_id}, ${memberObj.phone})
+      INSERT INTO members (name, email, tier, last_amount, shipping_address, last_donation, customer_id, phone, subscription_ID)
+        VALUES(${memberObj.name}, ${memberObj.email}, ${memberObj.tier}, ${memberObj.amount}, ${memberObj.shipping_address}, ${date}, ${memberObj.customer_id}, ${memberObj.phone},  ${memberObj.subID})
         ON CONFLICT (email) 
 	      DO UPDATE SET tier = ${memberObj.tier}, last_amount = ${memberObj.amount}, last_donation = ${date}
   `

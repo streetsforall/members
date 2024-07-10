@@ -125,6 +125,7 @@ export default async function handler(
           'amount': amount / 100,
           'customer_id': customerID,
           'newMember': newMember,
+          'subID': subscriber.id,
         } 
 
         // pass member to database

@@ -6,6 +6,7 @@ import { validate_user, sign_out_user } from '../../../server/validate_user'
 import Discounts from '../../components/discounts'
 import Merch from '@/app/components/merch';
 import { Billing_button } from '@/app/components/billing_button';
+import { Upgrade_button } from '@/app/components/upgrade_button'
 import Voting from '@/app/components/voting';
 import {SignOut} from '@/app/components/signout'
 import Events from '@/app/components/events';
@@ -56,7 +57,11 @@ const updateViews = async ({ params }: { params: { slug: string } }) => {
             
 
             <div style={{display:'flex'}}>
-                <Billing_button member={member} />
+            
+            <Upgrade_button member={member} />
+
+            <Billing_button member={member} />
+
             <a href={params.slug + '/card'}><button>Member Card</button></a>
             </div>
 
