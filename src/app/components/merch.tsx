@@ -79,7 +79,7 @@ const Merch = (member: any) => {
         // }
 
         // retrieveMerch(member.member.email)
-    }, [])
+    }, [status])
 
 
     return (
@@ -93,15 +93,17 @@ const Merch = (member: any) => {
 
                 {merch ? merch.map((item) => (
 
-                    <div className="order">
-                    <p>Order ID: {item.order_id}</p>
-                        {item.order_status == 'fulfilled' ? <a target="_blank" rel="noopener noreferrer" href= {item.delivery_status} ><button>Tracking Link</button></a> : item.order_status}
+                    item.order_status ?
 
-
-
-
-                    </div>
+                            <div className="order">
+                                <div>
+                                    <span>Order: {item.order_id}</span>
+                                    <span>Status:   {item.order_status == 'fulfilled' ? <a target="_blank" rel="noopener noreferrer" href={item.delivery_status} ><button>Tracking Link</button></a> : item.order_status}</span>
+                                </div>
+                            </div> : ''
                 )) : ''}
+
+                <button onClick={() => {merch_status(member.member.email), setStatus('updated') }}>Refresh Orders</button>
 
                 {/* <p className="status"> */}
                 {/* Order status: <span style={{color: 'green'}}>{status ? status.delivery_status != 'unknown' ? status.delivery_status : status.orderstatus : 'no order found'}</span> 

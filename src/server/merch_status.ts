@@ -84,7 +84,9 @@ export async function merch_status(email: string) {
 
         const orderstatus = order_details.result.status
         const tracking_url = 'tbd'
-        const delivery_status = order_details.result.shipments[0].tracking_url
+
+        const delivery_status = order_details.result.shipments[0] ? 
+         order_details.result.shipments[0].tracking_url : ''
 
         console.log(orderstatus, tracking_url)
 
