@@ -6,10 +6,8 @@ export async function new_order(data: any, tier: number) {
 
     // create printful order
 
-    console.log('/// creating shirt order')
-    console.log(data)
-    console.log(data.custom_fields)
-    console.log('custom_field 2', data.custom_fields[0].dropdown)
+    console.log('/// creating printful order', data.custom_fields)
+
 
     const shirt_size = data.custom_fields[0].dropdown.value;
 
@@ -53,6 +51,16 @@ export async function new_order(data: any, tier: number) {
         "name": "Members Dad Hat"
     }
 
+    // retrieve past orders
+    // we need to make sure we aren't re-ordering merch to the same user
+
+    const merch_orders = await sql`
+      SELECT
+        email,
+        order_tier
+      FROM merch_orders
+      WHERE tier > 0;
+    `
     // create order packages
     var orderPackage = {}
     if (tier == 1) {
@@ -108,9 +116,11 @@ export async function new_order(data: any, tier: number) {
         // add order to database
         const date = (new Date()).toLocaleString("en-US")
 
+        const order_pack = JSON.stringify(orderPackage)
+
         await sql`
-        INSERT INTO merch_orders (email, order_tier, date, order_id, delivered, shirt_size)
-        VALUES(${data.customer_details.email}, ${tier}, ${date}, ${order_details.data.id}, false, ${shirt_size})
+        INSERT INTO merch_orders (email, order_tier, date, order_id, delivered, shirt_size, order_package)
+        VALUES(${data.customer_details.email}, ${tier}, ${date}, ${order_details.data.id}, false, ${shirt_size} , ${order_pack})
         `
 
         const retrieve_order = async ( ) => {
@@ -131,7 +141,7 @@ export async function new_order(data: any, tier: number) {
         // takes a sec for them to create pricing
         // so we give it 10 seconds
             retrieve_order()
-        }, 10000);
+        }, 12000);
        
 
     } catch (err: any) {
