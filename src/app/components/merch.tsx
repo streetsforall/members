@@ -73,7 +73,7 @@ const Merch = (member: any) => {
                                     return(
                                     <div className="merch_item">
                                         <img src="/merch_shirt.jpg" />
-                                        ✓ Members Club T-Shirt
+                                        1x Members Club T-Shirt
                                     </div>
                                     )
 
@@ -83,7 +83,7 @@ const Merch = (member: any) => {
                                     return(
                                     <div className="merch_item">
                                         <img src="/merch_hat.jpg" />
-                                        ✓ Members Club Hat
+                                        1x Members Club Hat
                                     </div>
                                     )
 
@@ -93,7 +93,7 @@ const Merch = (member: any) => {
                                     return(
                                     <div className="merch_item">
                                         <img src="/merch_stickers.jpg" />
-                                        ✓ Members Club Sticker Sheet
+                                        1x Members Club Sticker Sheet
                                     </div>
                                     )
                                 }
@@ -105,7 +105,7 @@ const Merch = (member: any) => {
                         </div> : ''
                 )) : ''}
 
-                <button onClick={() => updateMerch()}>Refresh Orders</button>
+                <button className="light_butt" onClick={() => updateMerch()}>Refresh Orders</button>
 
                 {/* <p className="status"> */}
                 {/* Order status: <span style={{color: 'green'}}>{status ? status.delivery_status != 'unknown' ? status.delivery_status : status.orderstatus : 'no order found'}</span> 

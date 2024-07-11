@@ -26,8 +26,8 @@ const updateViews = async () => {
     var diff_days = today.getDate() - date.getDate();
 
     var elapsed = ''
-    if (diff_days == 1) {
-        elapsed = `SUPPORTER FOR ${diff_days} DAY`
+    if (diff_days <= 1) {
+        elapsed = `SUPPORTER FOR 1 DAY`
     } else if (diff_month < 1) {
         elapsed = `SUPPORTER FOR ${diff_days} DAYS`
     } else if (diff_month == 1) {

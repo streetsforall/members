@@ -97,6 +97,15 @@ export default async function handler(
         const subscriber: any = api_event.data.object;
         const newMember = api_event.type == 'customer.subscription.created' ? true : false 
 
+        const check_tier = await validateTier(checkout.amount_total)
+        const prevAmount = api_event?.data?.previous_attributes?.items?.data[0]?.plan?.amount;
+      
+
+        if (api_event.type == 'customer.subscription.updated') {
+          if (subscriber.amount != prevAmount)
+          new_order(checkout, check_tier)
+        }
+
         customerID = subscriber.customer as string
 
         const new_member: any = await retrieveCustomer(customerID)
