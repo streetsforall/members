@@ -150,7 +150,6 @@ const new_signup_email = async (to_email: string) => {
     const verificationToken = await dbHelp.setEmailVerification(to_email)
     console.log('emailtoken', verificationToken)
 
-
  
     try {
 

@@ -11,13 +11,15 @@ export async function retrieveValidMembers() {
   const users = await sql`
       SELECT
         name,
-        email
+        email,
+        last_amount
       FROM members
       WHERE tier > 0;
     `
   console.log(users)
   return users
 }
+
 
 
 export async function retrieveMember(id: string) {
