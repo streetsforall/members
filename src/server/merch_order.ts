@@ -6,7 +6,7 @@ export async function new_order(data: any, tier: number) {
 
     // create printful order
 
-    console.log('creating shirt order')
+    console.log('/// creating shirt order')
     console.log(data)
     console.log(data.custom_fields)
     console.log('custom_field 2', data.custom_fields[0].dropdown)
