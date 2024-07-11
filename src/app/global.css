@@ -37,7 +37,6 @@ button {
     border:  none;
     background-color: var(--blue);
     color: white;
-    margin-right: .5rem;
 }
 
 button:hover {
@@ -162,6 +161,10 @@ a {
     position: relative;
 }
 
+.info {
+    margin-top: 1rem;
+}
+
 .user_page {
     max-width: 100%;
     margin: auto;
@@ -191,6 +194,17 @@ a {
     margin: auto;
 }
 
+.card_page {
+    position: fixed;
+    background-color: var(--bg);
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
 
 .user_card {
     background-color: var(--blue);
@@ -411,7 +425,7 @@ a {
     align-items: center;
 }
 
-.section_header button {
+.section_header .hider {
     padding: .2rem .5rem 0rem .5rem;
     font-size: 1.5rem;
     color: var(--blue);
@@ -419,7 +433,7 @@ a {
     border: 1px solid var(--blue);
 }
 
-.section_header button:hover {
+.section_header .hider:hover {
     background-color: white;
 }
  

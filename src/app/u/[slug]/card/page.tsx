@@ -27,11 +27,11 @@ const updateViews = async () => {
 
     var elapsed = ''
     if (diff_month < 1) {
-        elapsed = `MEMBER FOR ${diff_days} DAYS`
-    }  else if (diff_month == 1) {
-        elapsed = `MEMBER FOR 1 MONTH`
+        elapsed = `SUPPORTER FOR ${diff_days} DAYS`
+    } else if (diff_month == 1) {
+        elapsed = `SUPPORTER FOR 1 MONTH`
     } else {
-        elapsed = `MEMBER FOR ${diff_month}  MONTHS`
+        elapsed = `SUPPORTER FOR ${diff_month}  MONTHS`
     }
 
 
@@ -40,45 +40,50 @@ const updateViews = async () => {
 
     const teir_desc = (tier: number) => {
         if (tier == 0) {
-            return ('CANCELED')
+            return ('CANCELED MEMBERSHIP')
         } else if (tier == 1) {
-            return ('PEDESTRIAN')
+            return ('PEDESTRIAN ADVOCATE')
         } else if (tier == 2) {
-            return ('CARGO BIKE')
+            return ('CARGO BIKE ADVOCATE')
+        } else if (tier == 10) {
+            return ('VOLUNTEER ADVOCATE')
         } else {
-            return ('BUS')
+            return ('BUS ADVOCATE')
         }
     }
 
 
     return (
         <>
-            <div className="user">
+            <div className="card_page">
 
 
 
-                <p style={{ maxWidth: 'max-content', margin: 'auto', marginBottom: '2rem' }}>
+
+
+                <div className={'user_card ' + (member.tier == 0 ? 'canceled_member' : '')}>
+                    <div>
+                        <img className="card_tier_img" src={member.tier == 0 ? '' : member.tier == 1 ? '/pedestrian.png' : member.tier == 2 ? '/bike.png' : '/bus.png'} />
+                        <span>{teir_desc(member.tier)}</span>
+                    </div>
+
+                    <div style={{flexDirection: 'column'}}>
+                        <img style={{ margin: 'auto' }} src="/members_logo_white.png" />
+                        <p style={{ margin: 'auto' }}>CLUB MEMBER</p>
+                    </div>
+
+
+                    <div>
+                        <span>                    {member.name}</span>
+                        <span>{member.tier != 0 ? elapsed : ''}</span>
+                    </div>
+                </div>
+
+                <p style={{ maxWidth: 'max-content', margin: 'auto', marginTop: '2rem' }}>
                     <a href={'../' + memberData.id}>
                         User Page
                     </a>
                 </p>
-
-                    <div className={'user_card ' + (member.tier == 0 ? 'canceled_member' : '')}>
-                        <div>
-                            <img className="card_tier_img" src={member.tier == 0 ? '' : member.tier == 1 ? '/pedestrian.png' : member.tier == 2 ? '/bike.png' : '/bus.png'} />
-                            <span>{teir_desc(member.tier)} MEMBER </span>
-                        </div>
-
-                        <div>
-                            <img style={{ margin: 'auto' }} src="/members_logo_white.png" />
-                        </div>
-
-
-                        <div>
-                            <span>                    {member.name}</span>
-                            <span>{ member.tier != 0 ? elapsed : ''}</span>
-                        </div>
-                    </div>
 
             </div>
         </>

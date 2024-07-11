@@ -41,22 +41,27 @@ export async function retrieveMember(id: string) {
   return user[0]
 }
 
+
+
 export async function setEmailVerification(email: string) {
 
   const tokenId = generateIdFromEntropySize(25); // 40 characters long
+  const date = (new Date()).toLocaleString("en-US")
 
   // valid for 1 day
   const expiration = createDate(new TimeSpan(1, "d"))
 
   await sql`
-    INSERT INTO email_verification_token (id, user_id, email, expires_at)
-      VALUES( ${tokenId}, ${email}, ${email}, ${expiration})
+    INSERT INTO email_verification_token (id, user_id, email, expires_at, created)
+      VALUES( ${tokenId}, ${email}, ${email}, ${expiration}, ${date})
   `
-  console.log('db helper ', tokenId)
+  console.log(`new login token for ${email}`)
   return tokenId
 
 }
 
+
+// we aren't using this function anywhere
 export async function createEmailVerificationToken(userId: string, email: string): Promise<string> {
   
   // optionally invalidate all existing tokens
@@ -88,12 +93,10 @@ export async function cancelMember(canceledMember: any) {
     console.log(canceledMember)
 
     const users = await sql`
-      INSERT INTO members (email, tier, last_amount, last_donation)
-        VALUES(${canceledMember.email}, ${canceledMember.tier}, ${canceledMember.amount}, ${date})
-        ON CONFLICT (email) 
-	      DO UPDATE SET tier = ${canceledMember.tier}, last_amount = ${canceledMember.amount}, last_donation = ${date}
+    UPDATE merchants SET tier = ${canceledMember.tier}, last_amount = ${canceledMember.amount}, last_donation = ${date} WHERE email = ${canceledMember.email};
     `
-    console.log(users)
+    console.log('CANCELLED MEMBER', users)
+
     return users
   } catch (error) {
     console.log(error)
