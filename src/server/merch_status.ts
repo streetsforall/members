@@ -38,6 +38,7 @@ export async function merch_status(email: string) {
 
         const response = await fetch(`https://api.printful.com/v2/orders/${order.order_id}/shipments`, requestOptions);
         const order_details = await response.json();
+        console.log(order_details)
 
         if (order_details) {
 
@@ -45,7 +46,7 @@ export async function merch_status(email: string) {
 
           if (order_details.data.length == 0) {
             console.log(order.order_id, 'no order')
-            return ('order canceled')
+            return ([{status: 'order canceled'}])
           }
 
           const orderstatus = order_details.data[0].shipment_status
@@ -64,11 +65,9 @@ export async function merch_status(email: string) {
 
 
 
-          return ({
-            'orderstatus': orderstatus,
-            'tracking_url': tracking_url,
-            'delivery_status': delivery_status
-          })
+          return ([{
+           'status':''
+          }])
         }
       })
 
@@ -78,7 +77,7 @@ export async function merch_status(email: string) {
     }
     catch (error) {
       console.log('MERCH STATUS', error)
-      return ('failed to retrieve orders')
+      return ([{'status':'failed to retrieve orders'}])
     }
   }
 

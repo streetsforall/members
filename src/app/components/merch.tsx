@@ -9,7 +9,7 @@ import { merch_status } from "@/server/merch_status";
 
 const Merch = (member: any) => {
     const [show, setShow] = useState(false);
-    const [status, setStatus] = useState({ 'delivery_status': '', 'orderstatus': '', 'tracking_url': '' })
+    const [status, setStatus] = useState('')
 
 
     const teir_desc = (tier: number) => {
@@ -63,7 +63,7 @@ const Merch = (member: any) => {
         const getMerch = async (email: string) => {
             const order = await merch_status(email)
             console.log('order', order)
-            setStatus(order)
+            setStatus('testin orders')
         }
 
         getMerch(member.member.email)
@@ -77,9 +77,9 @@ const Merch = (member: any) => {
 
             </div>
             <div className={!show ? 'section_content hidden' : 'section_content'}>
-                <p className="status">
-                    Order status: <span style={{color: 'green'}}>{status ? status.delivery_status != 'unknown' ? status.delivery_status : status.orderstatus : 'no order found'}</span> 
-                {status.tracking_url && (status.delivery_status != 'delivered' && status.delivery_status != 'no order') ? <a target="_blank" rel="noopener noreferrer" href= {status.tracking_url} ><button>Tracking Link</button></a> : ''}</p>
+                {/* <p className="status"> */}
+                    {/* Order status: <span style={{color: 'green'}}>{status ? status.delivery_status != 'unknown' ? status.delivery_status : status.orderstatus : 'no order found'}</span> 
+                {status.tracking_url && (status.delivery_status != 'delivered' && status.delivery_status != 'no order') ? <a target="_blank" rel="noopener noreferrer" href= {status.tracking_url} ><button>Tracking Link</button></a> : ''}</p> */}
                 {teir_desc(member.member.tier)}
 
             </div>
