@@ -57,10 +57,12 @@ export async function new_order(data: any, tier: number) {
     const merch_orders = await sql`
       SELECT
         email,
-        order_tier
+        order_tier,
+        order_package
       FROM merch_orders
-      WHERE tier > 0;
+      WHERE email = ${data.customer_details.email};
     `
+
     // create order packages
     var orderPackage = {}
     if (tier == 1) {
