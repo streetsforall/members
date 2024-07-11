@@ -63,25 +63,57 @@ export async function new_order(data: any, tier: number) {
       WHERE email = ${data.customer_details.email};
     `
 
-    console.log('merch_orders')
+    console.log('merch_orders', merch_orders)
+
+    // get any unique items ordered 
+    let justPackages = merch_orders.flatMap(a => JSON.parse(a.order_package));
+    const uniqueOrders = ([... new Set(justPackages)])    
+
+
+
+
+    // these return undefined unless previously ordered, so we can use as bools
+    const prevHat = uniqueOrders.find((e) => e == 'hat')
+    const prevShirt = uniqueOrders.find((e) => e == 'shirt')
+    const prevStick = uniqueOrders.find((e) => e == 'sticker')
+
+
+    console.log(prevHat, prevShirt, prevStick)
 
     // create order packages
     var orderPackage = {}
     var orderList = {}
 
 
-    if (tier == 1) {
+    // this is how we filter out historic merch orders
+    if (tier == 1 && !prevStick) {
+        // tier 1 order
         orderList = ['sticker']
         orderPackage = [sticker]
-    } else if (tier == 2) {
+    } else if (tier == 2 && !prevStick && !prevShirt) {
+        // tier 2 full
         orderList = ['sticker', 'shirt']
         orderPackage = [sticker, shirt]
-    } else if (tier == 3) {
+    } else if (tier == 2 && !prevStick) {
+        // tier 2 upgrade from tier 1
+        orderList = ['shirt']
+        orderPackage = [shirt]
+    } else if (tier == 3 && !prevStick && !prevShirt  && !prevHat)  {
+        // tier 3 full
         orderList = ['sticker', 'shirt', 'hat']
         orderPackage = [sticker, shirt, hat]
+    } else if (tier == 3 && !prevStick) {
+        // tier 3 upgrade from tier 1
+        orderList = ['shirt', 'hat']
+        orderPackage = [shirt, hat]
+    } else if (tier == 3 && !prevStick && !prevShirt) {
+        // tier 3 upgrade from tier 2
+        orderList = ['hat']
+        orderPackage = [hat]
     }
 
     console.log('orderPackage', orderPackage)
+    
 
     const request_body = {
         "external_id": "",

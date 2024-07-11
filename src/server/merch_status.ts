@@ -41,6 +41,24 @@ export async function merch_status(email: string) {
       WHERE email=${email}
       ORDER BY date DESC 
     `
+    console.log(orders)
+    let justPackages = orders.flatMap(a => JSON.parse(a.order_package));
+    const uniqueOrders = ([... new Set(justPackages)])    
+
+
+
+
+    const prevHat = uniqueOrders.find((e) => e == 'hat')
+    const prevShirt = uniqueOrders.find((e) => e == 'shirt')
+    const prevStick = uniqueOrders.find((e) => e == 'sticker')
+
+    if (!prevHat) {
+      console.log('order sticker')
+    } else {
+      console.log('not a  hat')
+    }
+
+    console.log(prevHat, prevShirt, prevStick)
 
   if (orders) {
 
@@ -52,7 +70,7 @@ export async function merch_status(email: string) {
 
 
       const order_packages = await orders.map(async (order, id) => {
-        console.log(`order ${id}`, order)
+        // console.log(`order ${id}`, order)
 
         // const getMerch = async () => {
         //   try {
@@ -75,7 +93,7 @@ export async function merch_status(email: string) {
 
         const order_details = await getMerch(order.order_id)
 
-        console.log('order_details', order_details)
+        // console.log('order_details', order_details)
 
         if (!order_details) {
           console.log(order.order_id, 'no order')
@@ -88,7 +106,7 @@ export async function merch_status(email: string) {
         const delivery_status = order_details.result.shipments[0] ? 
          order_details.result.shipments[0].tracking_url : ''
 
-        console.log(orderstatus, tracking_url)
+        // console.log(orderstatus, tracking_url)
 
         // update delivery status using order ID
         await sql`
