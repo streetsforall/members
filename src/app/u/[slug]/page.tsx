@@ -54,13 +54,17 @@ const updateViews = async ({ params }: { params: { slug: string } }) => {
                 }
             </p>
 
-            <a href={params.slug + '/card'}><button>Member Card</button></a>
+            {member.tier > 0 ? <a href={params.slug + '/card'}><button>Member Card</button></a> :  <a href={'../../new'}><button>Sign Up Again</button></a>}
 
-            <br />
+
 
             
 
+           
 
+            <br />
+
+        
 
             {member.tier > 0 ? <Merch member={member} /> : ''}
 

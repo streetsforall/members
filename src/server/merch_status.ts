@@ -16,6 +16,7 @@ export async function merch_status(email: string) {
 
     console.log(order_id)
 
+  try {
 
   if (order_id[0]) {
     const recent_order = order_id[0].order_id
@@ -62,6 +63,16 @@ export async function merch_status(email: string) {
       'delivery_status':  'no order'
     })
   }
+
+}
+catch (error) {
+  console.log('MERCH STATUS', error)
+  return ({
+    'orderstatus': 'no order',
+    'tracking_url':  'no order',
+    'delivery_status':  'no order'
+  })
+}
 
 
 }
