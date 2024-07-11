@@ -6,10 +6,10 @@ export async function new_order(data: any, tier: number) {
 
     // create printful order
 
-    console.log('/// creating printful order', data.custom_fields)
+    console.log('/// creating printful order')
 
 
-    const shirt_size = data.custom_fields[0].dropdown.value;
+    const shirt_size = data.size;
 
     // set shirt size
     // note for future: was painful to figure this out but you can only find the sync_variant_id 
@@ -60,7 +60,7 @@ export async function new_order(data: any, tier: number) {
         order_tier,
         order_package
       FROM merch_orders
-      WHERE email = ${data.customer_details.email};
+      WHERE email = ${data.email};
     `
 
     console.log('merch_orders', merch_orders)
@@ -68,8 +68,6 @@ export async function new_order(data: any, tier: number) {
     // get any unique items ordered 
     let justPackages = merch_orders.flatMap(a => JSON.parse(a.order_package));
     const uniqueOrders = ([... new Set(justPackages)])    
-
-
 
 
     // these return undefined unless previously ordered, so we can use as bools
@@ -119,18 +117,18 @@ export async function new_order(data: any, tier: number) {
         "external_id": "",
         "shipping": "STANDARD",
         "recipient": {
-            "name": data.customer_details.name,
+            "name": data.name,
             "company": "",
-            "address1": data.shipping_details.address.line1,
-            "address2": data.shipping_details.address.line2,
-            "city": data.shipping_details.address.city,
-            "state_name": data.shipping_details.address.state,
-            "state_code": data.shipping_details.address.state,
-            "country_name": data.shipping_details.address.country,
-            "country_code": data.shipping_details.address.country,
-            "zip": data.shipping_details.address.postal_code,
-            "phone": data.customer_details.phone,
-            "email": data.customer_details.email
+            "address1": data.address1,
+            "address2": data.address2,
+            "city": data.city,
+            "state_name": data.state_name,
+            "state_code": data.state_name,
+            "country_name": data.country_name,
+            "country_code": data.country_name,
+            "zip": data.zip,
+            "phone": data.phone,
+            "email": data.email
         },
         "order_items": orderPackage,
         "customization": {},
@@ -164,7 +162,7 @@ export async function new_order(data: any, tier: number) {
 
         await sql`
         INSERT INTO merch_orders (email, order_tier, date, order_id, delivered, shirt_size, order_package, order_status)
-        VALUES(${data.customer_details.email}, ${tier}, ${date}, ${order_details.data.id}, false, ${shirt_size} , ${order_pack}, ${order_details.data.status})
+        VALUES(${data.email}, ${tier}, ${date}, ${order_details.data.id}, false, ${shirt_size} , ${order_pack}, ${order_details.data.status})
         `
 
         const retrieve_order = async ( ) => {

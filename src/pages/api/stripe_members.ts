@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import * as dbHelp from '../../server/dbHelpers'
-import {new_order} from '@/server/merch_order'
+import { new_order } from '@/server/merch_order'
 import { buffer } from "micro";
 import Stripe from "stripe";
 import { new_signup_email } from '@/server/email_token'
@@ -15,18 +15,18 @@ export const config = {
 };
 
 
-const validateTier = (payment : number) => {
-          var tier = 0
-          // validate payment
-          if (payment >= 4800) {
-            var tier = 3
-          } else if (payment >= 2400) {
-            var tier = 2
-          } else if (payment >= 1200) {
-            var tier = 1
-          }
+const validateTier = (payment: number) => {
+  var tier = 0
+  // validate payment
+  if (payment >= 4800) {
+    var tier = 3
+  } else if (payment >= 2400) {
+    var tier = 2
+  } else if (payment >= 1200) {
+    var tier = 1
+  }
 
-      return(tier)
+  return (tier)
 }
 
 export default async function handler(
@@ -78,11 +78,22 @@ export default async function handler(
           // make sure checkout is a subscription 
           res.status(200).end("Not a member subscription");
           break;
-        } 
+        }
 
         const checkout_tier = await validateTier(checkout.amount_total)
 
-        new_order(checkout, checkout_tier)
+        new_order({
+          "size": checkout.custom_fields[0].dropdown.value,
+          "name": checkout.customer_details.name,
+          "address1": checkout.shipping_details.address.line1,
+          "address2": checkout.shipping_details.address.line2,
+          "city": checkout.shipping_details.address.city,
+          "state_name": checkout.shipping_details.address.state,
+          "country_name": checkout.shipping_details.address.country,
+          "zip": checkout.shipping_details.address.postal_code,
+          "phone": checkout.customer_details.phone,
+          "email": checkout.customer_details.email
+        }, checkout_tier)
 
         new_signup_email(checkout.customer_details.email)
 
@@ -95,22 +106,50 @@ export default async function handler(
       case 'customer.subscription.updated':
 
         const subscriber: any = api_event.data.object;
-        const newMember = api_event.type == 'customer.subscription.created' ? true : false 
+        const newMember = api_event.type == 'customer.subscription.created' ? true : false
 
         const check_tier = await validateTier(subscriber.amount)
         const prevAmount = api_event?.data?.previous_attributes?.items?.data[0]?.plan?.amount;
-      
 
-        if (api_event.type == 'customer.subscription.updated') {
-          if (subscriber.amount != prevAmount)
-          new_order(subscriber.amount, check_tier)
-        }
 
         customerID = subscriber.customer as string
 
         const new_member: any = await retrieveCustomer(customerID)
-
         const amount = subscriber.plan.amount
+
+        // this is used to order new merch if someone upgrades
+        if (api_event.type == 'customer.subscription.updated') {
+
+          // only fire if sub amount changes
+          if (subscriber.amount != prevAmount) {
+
+            const retrieveAllMerch = async (email: string) => {
+              const order = await dbHelp.retrieveMerchOrders(email)
+              return(order)
+          }
+  
+            const merch = await retrieveAllMerch(new_member.email)
+            const size = merch[0].shirt_size;
+            console.log('shirt size', size)
+
+            new_order({
+              "size": size,
+              "name": new_member.name,
+              "address1": new_member.address.line1,
+              "address2": new_member.address.line2,
+              "city": new_member.address.city,
+              "state_name": new_member.address.state,
+              "country_name": new_member.address.country,
+              "zip": new_member.address.postal_code,
+              "phone": new_member.phone,
+              "email": new_member.email
+            }, check_tier)
+          }
+
+        }
+
+
+
 
         var address = {}
         // validate shipping address
@@ -130,12 +169,12 @@ export default async function handler(
           'phone': new_member.phone,
           'email': new_member.email,
           'status': new_member.status,
-          'shipping_address':  JSON.stringify(address),
+          'shipping_address': JSON.stringify(address),
           'amount': amount / 100,
           'customer_id': customerID,
           'newMember': newMember,
           'subID': subscriber.id,
-        } 
+        }
 
         // pass member to database
         dbHelp.setMember(memberObj)
@@ -154,7 +193,7 @@ export default async function handler(
         console.log('canceled_subscriber', canceled_subscriber);
         customerID = canceled_subscriber.customer as string
 
-        const canceled_member : any = await retrieveCustomer(customerID)
+        const canceled_member: any = await retrieveCustomer(customerID)
         console.log(canceled_member)
 
         var email = 'test@test.com'
@@ -167,7 +206,7 @@ export default async function handler(
           'email': email,
           'status': canceled_member.status ? canceled_member.status : 'canceled',
           'amount': 0,
-        } 
+        }
         dbHelp.cancelMember(canceledMember)
 
         res.status(200).end("Subscriber Canceled Successful");

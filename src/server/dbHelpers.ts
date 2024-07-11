@@ -48,6 +48,7 @@ export async function retrieveMerchOrders(email: string) {
       SELECT
         order_id,
         email,
+        shirt_size,
         delivery_status,
         order_status,
         order_package
