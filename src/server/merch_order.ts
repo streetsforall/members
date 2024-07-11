@@ -78,7 +78,6 @@ export async function new_order(data: any, tier: number) {
     const prevShirt = uniqueOrders.find((e) => e == 'shirt')
     const prevStick = uniqueOrders.find((e) => e == 'sticker')
 
-
     console.log(prevHat, prevShirt, prevStick)
     console.log('tier', tier)
 
@@ -89,33 +88,46 @@ export async function new_order(data: any, tier: number) {
 
     // this is how we filter out historic merch orders
 
-    if (tier == 1 && !prevStick) {
-        // tier 1 order
-        orderList = ['sticker']
-        orderPackage = [sticker]
-    } else if (tier == 2 && !prevStick && !prevShirt) {
-        // tier 2 full
-        orderList = ['sticker', 'shirt']
-        orderPackage = [sticker, shirt]
-    } else if (tier == 2 && prevStick) {
-        // tier 2 upgrade from tier 1
-        orderList = ['shirt']
-        orderPackage = [shirt]
-    } else if (tier == 3 && !prevStick && !prevShirt  && !prevHat)  {
-        // tier 3 full
-        orderList = ['sticker', 'shirt', 'hat']
-        orderPackage = [sticker, shirt, hat]
-    } else if (tier == 3 && prevStick && !shirt && !hat) {
-        // tier 3 upgrade from tier 1
-        orderList = ['shirt', 'hat']
-        orderPackage = [shirt, hat]
-    } else if (tier == 3 && shirt && !hat) {
-        // tier 3 upgrade from tier 2
-        orderList = ['hat']
-        orderPackage = [hat]
+    if (tier == 1 ) {
+        if (prevStick) {
+            console.log('tier 1: sticker already ordered')
+        } else {
+            console.log('tier 1: full order')
+            orderList = ['sticker']
+            orderPackage = [sticker]
+        }
+
+    } else if (tier == 2 ) {
+        if (prevShirt && prevStick) {
+            console.log('tier 2: sticker and shirt ordered')
+        } else if (prevStick) {
+            console.log('tier 2: sticker already ordered')
+            orderList = ['shirt']
+            orderPackage = [shirt]
+        } else {
+            console.log('tier 2: full order')
+            orderList = ['sticker', 'shirt']
+            orderPackage = [sticker, shirt]
+        }
+
+    } else if (tier == 3 ) {
+        if  (prevShirt && prevStick && prevHat) {
+            console.log('tier 3: sticker and shirt and hat already ordered')
+        } else if ( prevStick && shirt) {
+            console.log('tier 3: sticker and shirt already ordered')
+            orderList = ['hat']
+            orderPackage = [hat]
+        } else if (prevStick) {
+            console.log('tier 3: sticker already ordered')
+            orderList = ['shirt', 'hat']
+            orderPackage = [shirt, hat]
+        } else {
+            console.log('tier 3: full order')
+            orderList = ['sticker', 'shirt', 'hat']
+            orderPackage = [sticker, shirt, hat]
+        }
     } else {
         console.log('no valid orders')
-        return('')
     }
 
     console.log('orderPackage', orderPackage)
