@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { merch_status } from "@/server/merch_status";
 import { retrieveMerchOrders } from '@/server/dbHelpers'
+import { Row } from "postgres";
 
 
 
@@ -11,7 +12,7 @@ import { retrieveMerchOrders } from '@/server/dbHelpers'
 const Merch = (member: any) => {
     const [show, setShow] = useState(false);
     const [status, setStatus] = useState('')
-    const [merch, setMerch] = useState<[]>([])
+    const [merch, setMerch] = useState<Row[]>([])
 
 
     const teir_desc = (tier: number) => {
