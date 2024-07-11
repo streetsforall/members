@@ -105,7 +105,7 @@ const Merch = (member: any) => {
                         </div> : ''
                 )) : ''}
 
-                <button className="light_butt" onClick={() => updateMerch()}>Refresh Orders</button>
+                <button style={{marginTop: '.5rem'}} className="light_butt" onClick={() => updateMerch()}>Refresh Orders</button>
 
                 {/* <p className="status"> */}
                 {/* Order status: <span style={{color: 'green'}}>{status ? status.delivery_status != 'unknown' ? status.delivery_status : status.orderstatus : 'no order found'}</span> 
