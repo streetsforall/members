@@ -8,7 +8,7 @@ import Merch from '@/app/components/merch';
 import { Billing_button } from '@/app/components/billing_button';
 import { Upgrade_button } from '@/app/components/upgrade_button'
 import Voting from '@/app/components/voting';
-import {SignOut} from '@/app/components/signout'
+import { SignOut } from '@/app/components/signout'
 import Events from '@/app/components/events';
 
 
@@ -48,30 +48,20 @@ const updateViews = async ({ params }: { params: { slug: string } }) => {
         <div className="user_page">
 
             <img className="tier_img" src={member.tier == 1 ? '../pedestrian.png' : member.tier == 2 ? '../bike.png' : '../bus.png'} />
-            <p>Welcome {member.name}, <br /><br />
-                {member.tier > 0 ? `welcome to your active ${teir_desc(member.tier)} Tier membership.` : 
-                'Your membership is currently canceled. Please subscribe again to access member perks.'
+            <p>Hi {member.name}, <br /><br />
+                {member.tier > 0 ? `Thank you for supporting Streets for All. Welcome to your active ${teir_desc(member.tier)} Tier membership.` :
+                    'Your membership is currently canceled. Please subscribe again to access member perks.'
                 }
             </p>
 
-            
-
-            <div style={{display:'flex'}}>
-            
-            <Upgrade_button member={member} />
-
-            <Billing_button member={member} />
-
             <a href={params.slug + '/card'}><button>Member Card</button></a>
-            </div>
 
-            <div className="info">
-                <p>{member.name} • Tier {member.tier} member</p>
-                <p>Last Payment: ${member.last_amount} on {readbleDate}</p>
-            </div>
+            <br />
 
-            <p id="perks">Perks</p>
             
+
+
+
             {member.tier > 0 ? <Merch member={member} /> : ''}
 
             {/* only show discounts on tier 2 and 3 */}
@@ -80,7 +70,29 @@ const updateViews = async ({ params }: { params: { slug: string } }) => {
             {member.tier > 0 ? < Voting /> : ''}
             {member.tier > 0 ? < Events /> : ''}
 
-        
+            {member.tier < 3 &&  member.tier > 0?
+
+                <div className='user_section'>
+                    <div className='section_header' style={{backgroundColor:'white'}}>
+                        <h2>Want more perks?</h2>
+                        <Upgrade_button member={member}/>
+                    </div>
+
+                </div>
+
+
+            : ''}
+
+
+
+
+
+            <div className="info">
+                Last Payment: ${member.last_amount} on {readbleDate}
+                <Billing_button member={member} />
+            </div>
+
+
 
             <SignOut />
         </div>
