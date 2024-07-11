@@ -92,13 +92,13 @@ const updateViews = async ({ params }: { params: { slug: string } }) => {
 
 
             <div className="info">
-                Last Payment: ${member.last_amount} on {readbleDate}
-                <Billing_button member={member} />
+                <p>Last Payment: ${member.last_amount} on {readbleDate}</p>
             </div>
 
-
-
+<div style={{display: 'flex', justifyContent: 'space-between'}}>
+            <Billing_button member={member} />
             <SignOut />
+            </div>
         </div>
 
     )

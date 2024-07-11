@@ -60,7 +60,7 @@ const Merch = (member: any) => {
                         <div className="order">
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <span>Order: {item.order_id}</span>
-                                <span>{item.order_status == 'fulfilled' ? <a target="_blank" rel="noopener noreferrer" href={item.delivery_status} ><button>Tracking Link</button></a> : 'Status: '+item.order_status}</span>
+                                <span>{item.order_status == 'fulfilled' ? <a target="_blank" rel="noopener noreferrer" href={item.delivery_status} ><button className="light_butt">Tracking Link</button></a> : 'Status: '+item.order_status}</span>
                             </div>
 
                             <div className="merch_grid">

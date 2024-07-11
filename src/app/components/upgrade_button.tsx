@@ -23,10 +23,10 @@ export async function Upgrade_button(member: any) {
         },
       });
       return (
-        <a href={session.url}> <button>Upgrade Membership</button></a>
+        <a href={session.url}> <button>Upgrade</button></a>
         // <a href=''> <button>Upgrade Membership</button></a>
       )
-      
+
     } catch (error) {
       console.log(error)
       return ('no sub ID')

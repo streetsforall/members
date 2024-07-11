@@ -11,7 +11,7 @@ export async function Billing_button(member: any) {
     })
 
     return (
-      <a href={billingData.url}> <button>Manage billing</button></a>
+      <a href={billingData.url}> <button className="light_butt">Manage billing</button></a>
     )
 
   } else {
