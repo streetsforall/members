@@ -110,7 +110,7 @@ export default async function handler(
 
         const check_tier = await validateTier(subscriber.plan.amount)  
         console.log(check_tier)
-        console.log(subscriber)
+        console.log(subscriber.plan.amount)
 
         const prevAmount = api_event?.data?.previous_attributes?.items?.data[0]?.plan?.amount;
 
