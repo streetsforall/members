@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { merch_status } from "@/server/merch_status";
+import { retrieveMerchOrders } from '@/server/dbHelpers'
 
 
 
@@ -10,6 +11,7 @@ import { merch_status } from "@/server/merch_status";
 const Merch = (member: any) => {
     const [show, setShow] = useState(false);
     const [status, setStatus] = useState('')
+    const [merch, setMerch] = useState<[]>([])
 
 
     const teir_desc = (tier: number) => {
@@ -60,14 +62,25 @@ const Merch = (member: any) => {
 
 
     useEffect(() => {
-        const getMerch = async (email: string) => {
-            const order = await merch_status(email)
-            console.log('order', order)
-            setStatus('testin orders')
+
+        const retrieveAllMerch = async (email: string) => {
+            const order = await retrieveMerchOrders(email)
+            setMerch(order)
+            console.log(order)
         }
 
-        getMerch(member.member.email)
+        const merch = retrieveAllMerch(member.member.email)
+
+
+        // const retrieveMerch = async (email: string) => {
+        //     const order = await merch_status(email)
+        //     console.log('order', order)
+        //     setStatus('testin orders')
+        // }
+
+        // retrieveMerch(member.member.email)
     }, [])
+
 
     return (
         <div className='user_section'>
@@ -77,8 +90,21 @@ const Merch = (member: any) => {
 
             </div>
             <div className={!show ? 'section_content hidden' : 'section_content'}>
+
+                {merch ? merch.map((item) => (
+
+                    <div className="order">
+                    <p>Order ID: {item.order_id}</p>
+                        {item.order_status == 'fulfilled' ? <a target="_blank" rel="noopener noreferrer" href= {item.delivery_status} ><button>Tracking Link</button></a> : item.order_status}
+
+
+
+
+                    </div>
+                )) : ''}
+
                 {/* <p className="status"> */}
-                    {/* Order status: <span style={{color: 'green'}}>{status ? status.delivery_status != 'unknown' ? status.delivery_status : status.orderstatus : 'no order found'}</span> 
+                {/* Order status: <span style={{color: 'green'}}>{status ? status.delivery_status != 'unknown' ? status.delivery_status : status.orderstatus : 'no order found'}</span> 
                 {status.tracking_url && (status.delivery_status != 'delivered' && status.delivery_status != 'no order') ? <a target="_blank" rel="noopener noreferrer" href= {status.tracking_url} ><button>Tracking Link</button></a> : ''}</p> */}
                 {teir_desc(member.member.tier)}
 

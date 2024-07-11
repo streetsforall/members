@@ -63,13 +63,21 @@ export async function new_order(data: any, tier: number) {
       WHERE email = ${data.customer_details.email};
     `
 
+    console.log('merch_orders')
+
     // create order packages
     var orderPackage = {}
+    var orderList = {}
+
+
     if (tier == 1) {
+        orderList = ['sticker']
         orderPackage = [sticker]
     } else if (tier == 2) {
+        orderList = ['sticker', 'shirt']
         orderPackage = [sticker, shirt]
     } else if (tier == 3) {
+        orderList = ['sticker', 'shirt', 'hat']
         orderPackage = [sticker, shirt, hat]
     }
 
@@ -118,7 +126,7 @@ export async function new_order(data: any, tier: number) {
         // add order to database
         const date = (new Date()).toLocaleString("en-US")
 
-        const order_pack = JSON.stringify(orderPackage)
+        const order_pack = JSON.stringify(orderList)
 
         await sql`
         INSERT INTO merch_orders (email, order_tier, date, order_id, delivered, shirt_size, order_package)

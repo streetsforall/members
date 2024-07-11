@@ -42,6 +42,25 @@ export async function retrieveMember(id: string) {
 }
 
 
+export async function retrieveMerchOrders(email: string) {
+
+  const orders = await sql`
+      SELECT
+        order_id,
+        email,
+        delivery_status,
+        order_status,
+        order_package
+      FROM merch_orders
+      WHERE email=${email}
+      ORDER BY date DESC 
+    `
+
+  return orders
+}
+
+
+
 
 export async function setEmailVerification(email: string) {
 
@@ -63,7 +82,7 @@ export async function setEmailVerification(email: string) {
 
 // we aren't using this function anywhere
 export async function createEmailVerificationToken(userId: string, email: string): Promise<string> {
-  
+
   // optionally invalidate all existing tokens
   // await db.table("email_verification_token").where("user_id", "=", userId).deleteAll();
 
