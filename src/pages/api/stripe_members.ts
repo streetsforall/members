@@ -108,8 +108,10 @@ export default async function handler(
         const subscriber: any = api_event.data.object;
         const newMember = api_event.type == 'customer.subscription.created' ? true : false
 
-        const check_tier = await validateTier(subscriber.plan.amount)  
+        const check_tier = validateTier(subscriber.plan.amount)  
+
         console.log(check_tier)
+        
         console.log(subscriber.plan.amount)
 
         const prevAmount = api_event?.data?.previous_attributes?.items?.data[0]?.plan?.amount;
