@@ -123,14 +123,16 @@ export async function new_order(data: any, tier: number) {
         console.log('order created')
 
 
+
+
         // add order to database
         const date = (new Date()).toLocaleString("en-US")
 
         const order_pack = JSON.stringify(orderList)
 
         await sql`
-        INSERT INTO merch_orders (email, order_tier, date, order_id, delivered, shirt_size, order_package)
-        VALUES(${data.customer_details.email}, ${tier}, ${date}, ${order_details.data.id}, false, ${shirt_size} , ${order_pack})
+        INSERT INTO merch_orders (email, order_tier, date, order_id, delivered, shirt_size, order_package, order_status)
+        VALUES(${data.customer_details.email}, ${tier}, ${date}, ${order_details.data.id}, false, ${shirt_size} , ${order_pack}, ${order_details.data.status})
         `
 
         const retrieve_order = async ( ) => {

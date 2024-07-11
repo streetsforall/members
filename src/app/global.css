@@ -305,6 +305,11 @@ a {
 
 }
 
+.order {
+    padding: .5rem 0rem;
+    border-bottom: 1px dotted var(--light_blue);
+}
+
 .merch_grid { 
     display: flex;
     flex-wrap: wrap;
