@@ -100,11 +100,11 @@ export async function new_order(data: any, tier: number) {
         // tier 3 full
         orderList = ['sticker', 'shirt', 'hat']
         orderPackage = [sticker, shirt, hat]
-    } else if (tier == 3 && !prevStick) {
+    } else if (tier == 3 && !shirt && !hat) {
         // tier 3 upgrade from tier 1
         orderList = ['shirt', 'hat']
         orderPackage = [shirt, hat]
-    } else if (tier == 3 && !prevStick && !prevShirt) {
+    } else if (tier == 3 && !hat) {
         // tier 3 upgrade from tier 2
         orderList = ['hat']
         orderPackage = [hat]

@@ -123,6 +123,8 @@ export default async function handler(
           // only fire if sub amount changes
           if (subscriber.amount != prevAmount) {
 
+            console.log('SUBSCRIPTION UPGRADE MERCH ORDER')
+
             const retrieveAllMerch = async (email: string) => {
               const order = await dbHelp.retrieveMerchOrders(email)
               return(order)
