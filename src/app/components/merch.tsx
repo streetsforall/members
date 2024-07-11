@@ -24,14 +24,6 @@ const Merch = (member: any) => {
 
         const merch = retrieveAllMerch(member.member.email)
 
-
-        // const retrieveMerch = async (email: string) => {
-        //     const order = await merch_status(email)
-        //     console.log('order', order)
-        //     setStatus('testin orders')
-        // }
-
-        // retrieveMerch(member.member.email)
     }, [])
 
 
@@ -68,7 +60,7 @@ const Merch = (member: any) => {
                         <div className="order">
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <span>Order: {item.order_id}</span>
-                                <span>Status:   {item.order_status == 'fulfilled' ? <a target="_blank" rel="noopener noreferrer" href={item.delivery_status} ><button>Tracking Link</button></a> : item.order_status}</span>
+                                <span>{item.order_status == 'fulfilled' ? <a target="_blank" rel="noopener noreferrer" href={item.delivery_status} ><button>Tracking Link</button></a> : 'Status: '+item.order_status}</span>
                             </div>
 
                             <div className="merch_grid">
