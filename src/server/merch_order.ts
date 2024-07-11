@@ -29,6 +29,8 @@ export async function new_order(data: any, tier: number) {
         shirtID = 4433819855
     }
 
+
+
     // create products
     const shirt = {
         "source": 'sync',
@@ -51,6 +53,7 @@ export async function new_order(data: any, tier: number) {
         "name": "Members Dad Hat"
     }
 
+
     // retrieve past orders
     // we need to make sure we aren't re-ordering merch to the same user
 
@@ -63,7 +66,7 @@ export async function new_order(data: any, tier: number) {
       WHERE email = ${data.email};
     `
 
-    console.log('merch_orders', merch_orders)
+    // console.log('merch_orders', merch_orders)
 
     // get any unique items ordered 
     let justPackages = merch_orders.flatMap(a => JSON.parse(a.order_package));
@@ -77,6 +80,7 @@ export async function new_order(data: any, tier: number) {
 
 
     console.log(prevHat, prevShirt, prevStick)
+    console.log('tier', tier)
 
     // create order packages
     var orderPackage = {}
@@ -84,6 +88,7 @@ export async function new_order(data: any, tier: number) {
 
 
     // this is how we filter out historic merch orders
+
     if (tier == 1 && !prevStick) {
         // tier 1 order
         orderList = ['sticker']
@@ -92,7 +97,7 @@ export async function new_order(data: any, tier: number) {
         // tier 2 full
         orderList = ['sticker', 'shirt']
         orderPackage = [sticker, shirt]
-    } else if (tier == 2 && !prevStick) {
+    } else if (tier == 2 && prevStick) {
         // tier 2 upgrade from tier 1
         orderList = ['shirt']
         orderPackage = [shirt]
@@ -100,14 +105,17 @@ export async function new_order(data: any, tier: number) {
         // tier 3 full
         orderList = ['sticker', 'shirt', 'hat']
         orderPackage = [sticker, shirt, hat]
-    } else if (tier == 3 && !shirt && !hat) {
+    } else if (tier == 3 && prevStick && !shirt && !hat) {
         // tier 3 upgrade from tier 1
         orderList = ['shirt', 'hat']
         orderPackage = [shirt, hat]
-    } else if (tier == 3 && !hat) {
+    } else if (tier == 3 && shirt && !hat) {
         // tier 3 upgrade from tier 2
         orderList = ['hat']
         orderPackage = [hat]
+    } else {
+        console.log('no valid orders')
+        return('')
     }
 
     console.log('orderPackage', orderPackage)
