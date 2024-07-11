@@ -26,7 +26,13 @@ export default function Validate({ params }: { params: { slug: string } }) {
 					<p className="alert">{user}</p>
 					<LoginPage />
 				</>
-				: 'Fetching Member'
+
+				: 
+				
+				<div className="loader">
+				<img src="/bus.png" />
+				<p>Fetching Member</p>
+				</div>
 			}
 		</div>
 

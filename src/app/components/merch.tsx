@@ -57,6 +57,8 @@ const Merch = (member: any) => {
 
 
 
+
+
     useEffect(() => {
         const getMerch = async (email: string) => {
             const order = await merch_status(email)
@@ -77,7 +79,7 @@ const Merch = (member: any) => {
             <div className={!show ? 'section_content hidden' : 'section_content'}>
                 <p className="status">
                     Order status: <span style={{color: 'green'}}>{status ? status.delivery_status != 'unknown' ? status.delivery_status : status.orderstatus : 'no order found'}</span> 
-                {status.tracking_url && status.delivery_status != 'delivered' ? <a target="_blank" rel="noopener noreferrer" href= {status.tracking_url} ><button>Tracking Link</button></a> : ''}</p>
+                {status.tracking_url && (status.delivery_status != 'delivered' && status.delivery_status != 'no order') ? <a target="_blank" rel="noopener noreferrer" href= {status.tracking_url} ><button>Tracking Link</button></a> : ''}</p>
                 {teir_desc(member.member.tier)}
 
             </div>
