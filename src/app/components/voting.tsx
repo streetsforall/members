@@ -9,7 +9,7 @@ const Voting = (member: any) => {
         <div className='user_section'>
             <div className='section_header'>
                 <h2>Member Voting</h2>
-                <span>coming soon</span>
+                <span style={{color: 'green'}}>coming soon</span>
             </div>
         </div>
     )
