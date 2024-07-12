@@ -30,23 +30,23 @@ export default async function handler(
                     country: parsed_address.county,
                   }} : ''
 
-                addMailchimp(
-                    member.email,
-                    {
-                      FNAME:  member.name.split(" ")[0],
-                      LNAME:  member.name.split(" ")[1],
-                      ADDRESSYU: {
-                        addr1: parsed_address ? parsed_address.line1 : null,
-                        addr2: parsed_address ? parsed_address.line2 : null,
-                        city: parsed_address ? parsed_address.city : null,
-                        state: parsed_address ? parsed_address.state : null,
-                        zip: parsed_address ? parsed_address.postal_code :  null,
-                        country: parsed_address ? parsed_address.county : null
-                      },
-                      PHONE: member.phone,
-                      MEMBERSHIP: member.tier
-                    }
-                  )
+                // addMailchimp(
+                //     member.email,
+                //     {
+                //       FNAME:  member.name.split(" ")[0],
+                //       LNAME:  member.name.split(" ")[1],
+                //       ADDRESSYU: {
+                //         addr1: parsed_address ? parsed_address.line1 : null,
+                //         addr2: parsed_address ? parsed_address.line2 : null,
+                //         city: parsed_address ? parsed_address.city : null,
+                //         state: parsed_address ? parsed_address.state : null,
+                //         zip: parsed_address ? parsed_address.postal_code :  null,
+                //         country: parsed_address ? parsed_address.county : null
+                //       },
+                //       PHONE: member.phone,
+                //       MEMBERSHIP: member.tier
+                //     }
+                //   )
             })
 
             res.status(200).end("");
