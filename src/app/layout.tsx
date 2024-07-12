@@ -5,8 +5,8 @@ import { Courier_Prime } from 'next/font/google'
 
 export const metadata = {
   title: 'Streets for All Membership Club',
-  description: '',
-  
+  keywords: "Streets for All, Membership, Members Club",
+  description: 'The Streets For All Members Club is an exclusive group for our most loyal supporters. Perks include unique stickers, t-shirts, hats and discounts with partners, having a say in the organization’s endorsements and special members-only events.',
 }
 
 const courier = Courier_Prime({
@@ -23,6 +23,7 @@ export default function RootLayout({
   return (
     <html className={courier.className} lang="en">
       <head>
+      <script defer src="https://cloud.umami.is/script.js" data-website-id="76c5149b-374a-4f78-88b3-82c0ac336446"></script>
       <link rel="icon" href="/favicon.png" sizes="any" />
       </head>
       <body >
