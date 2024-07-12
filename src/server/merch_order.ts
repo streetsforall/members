@@ -125,6 +125,7 @@ export async function new_order(data: any, tier: number) {
         }
     } else {
         console.log('no valid orders')
+        return('no valid orders')
     }
 
     console.log('orderPackage', orderPackage)
