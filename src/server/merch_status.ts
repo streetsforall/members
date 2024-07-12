@@ -42,23 +42,6 @@ export async function merch_status(email: string) {
       ORDER BY date DESC 
     `
     console.log(orders)
-    let justPackages = orders.flatMap(a => JSON.parse(a.order_package));
-    const uniqueOrders = ([... new Set(justPackages)])    
-
-
-
-
-    const prevHat = uniqueOrders.find((e) => e == 'hat')
-    const prevShirt = uniqueOrders.find((e) => e == 'shirt')
-    const prevStick = uniqueOrders.find((e) => e == 'sticker')
-
-    if (!prevHat) {
-      console.log('order sticker')
-    } else {
-      console.log('not a  hat')
-    }
-
-    console.log(prevHat, prevShirt, prevStick)
 
   if (orders) {
 
@@ -67,29 +50,7 @@ export async function merch_status(email: string) {
       // iterate through each merch order
       // return status 
 
-
-
       const order_packages = await orders.map(async (order, id) => {
-        // console.log(`order ${id}`, order)
-
-        // const getMerch = async () => {
-        //   try {
-        //     const response = await fetch(`https://api.printful.com/v2/orders/${order.order_id}/shipments`, requestOptions);
-
-        //     if (!response.ok) {
-        //       throw new Error(`Response status: ${response.status}`);
-        //     }
-        //     const json = await response.json();
-        //     console.log('json', json);
-        //     return (json)
-
-        //   } catch (error) {
-        //     console.error(error);
-        //   }
-        // }
-
-
-
 
         const order_details = await getMerch(order.order_id)
 

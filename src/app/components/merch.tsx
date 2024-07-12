@@ -65,7 +65,9 @@ const Merch = (member: any) => {
 
                             <div className="merch_grid">
 
-                            {item.order_package ? JSON.parse(item.order_package).map((pack : any) => {
+                            {console.log('item.order_package', item.order_package)}
+
+                            {item.order_package.length > 0 ? JSON.parse(item.order_package).map((pack : any) => {
                                 
                                 console.log('pack', pack )
 
