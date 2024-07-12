@@ -15,7 +15,7 @@ const run = async () => {
     email_address: email,
     merge_fields: merge_fields,
     status: "subscribed",
-    tags: 'members_club'
+    tags: ['members_club']
   });
   console.log(response);
 };

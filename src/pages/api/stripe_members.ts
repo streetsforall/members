@@ -102,7 +102,8 @@ export default async function handler(
         addMailchimp(
           checkout.customer_details.email,
           {
-            FNAME: checkout.customer_details.name,
+            FNAME: checkout.customer_details.name.split(" ")[0],
+            LNAME: checkout.customer_details.name.split(" ")[1],
             ADDRESS: {
               addr1: checkout.shipping_details.address.line1,
               city: checkout.shipping_details.address.city,
