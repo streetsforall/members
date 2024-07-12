@@ -106,16 +106,16 @@ export default async function handler(
             LNAME: checkout.customer_details.name.split(" ")[1],
             ADDRESSYU: {
               addr1: checkout.shipping_details.address.line1,
+              addr2: checkout.shipping_details.address.line2,
               city: checkout.shipping_details.address.city,
               state: checkout.shipping_details.address.state,
               zip: checkout.shipping_details.address.postal_code,
+              country: checkout.shipping_details.address.country
             },
             PHONE: checkout.customer_details.phone,
             MEMBERSHIP: checkout_tier
           }
         )
-
-
 
         new_signup_email(checkout.customer_details.email)
 
@@ -173,6 +173,26 @@ export default async function handler(
               "phone": new_member.phone,
               "email": new_member.email
             }, check_tier)
+
+            // updait mailchimp with any new info (i.e. upgraded tier)
+            addMailchimp(
+              new_member.email,
+              {
+                FNAME: new_member.name.split(" ")[0],
+                LNAME: new_member.name.split(" ")[1],
+                ADDRESSYU: {
+                  addr1: new_member.address.line1,
+                  addr2: new_member.address.line2,
+                  city: new_member.address.city,
+                  state: new_member.address.state,
+                  zip: new_member.address.postal_code,
+                  country: new_member.address.country,
+                },
+                PHONE: new_member.phone,
+                MEMBERSHIP: check_tier
+              }
+            )
+
           }
 
         }

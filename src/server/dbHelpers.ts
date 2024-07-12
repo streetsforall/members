@@ -12,14 +12,16 @@ export async function retrieveValidMembers() {
       SELECT
         name,
         email,
-        last_amount
+        last_amount,
+        tier,
+        shipping_address,
+        phone
       FROM members
       WHERE tier > 0;
     `
   console.log(users)
   return users
 }
-
 
 
 export async function retrieveMember(id: string) {
