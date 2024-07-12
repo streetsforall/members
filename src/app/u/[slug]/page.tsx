@@ -32,7 +32,9 @@ const updateViews = async ({ params }: { params: { slug: string } }) => {
     const member = (JSON.parse(JSON.stringify(memberData)))
 
     const teir_desc = (tier: number) => {
-        if (tier == 1) {
+        if (tier == 10) {
+            return ('Volunteer')
+        } else if (tier == 1) {
             return ('Pedestrian')
         } else if (tier == 2) {
             return ('Cargo Bike')
@@ -47,7 +49,7 @@ const updateViews = async ({ params }: { params: { slug: string } }) => {
     return (
         <div className="user_page">
 
-            <img className="tier_img" src={member.tier == 1 ? '../pedestrian.png' : member.tier == 2 ? '../bike.png' : '../bus.png'} />
+            <img className="tier_img" src={member.tier == 1 ? '../pedestrian.png' : member.tier == 2 ? '../bike.png' : member.tier == 0 ? '../tree.png' : member.tier == 3 ? '../bus.png' : '../walkers.png'} />
             <p>Hi {member.name}, <br /><br />
                 {member.tier > 0 ? `Thank you for supporting Streets for All. Welcome to your active ${teir_desc(member.tier)} Tier membership.` :
                     'Your membership is currently canceled. Please subscribe again to access member perks.'
@@ -66,10 +68,10 @@ const updateViews = async ({ params }: { params: { slug: string } }) => {
 
         
 
-            {member.tier > 0 ? <Merch member={member} /> : ''}
+            {member.tier != 0  &&  member.tier != 10 ? <Merch member={member} /> : ''}
 
             {/* only show discounts on tier 2 and 3 */}
-            {member.tier > 1 ? <Discounts member={member} /> : ''}
+            {member.tier > 1  &&  member.tier != 10 ? <Discounts member={member} /> : ''}
 
             {member.tier > 0 ? < Voting /> : ''}
             {member.tier > 0 ? < Events /> : ''}

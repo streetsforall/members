@@ -65,7 +65,8 @@ const updateViews = async () => {
 
                 <div className={'user_card ' + (member.tier == 0 ? 'canceled_member' : '')}>
                     <div>
-                        <img className="card_tier_img" src={member.tier == 0 ? '' : member.tier == 1 ? '/pedestrian.png' : member.tier == 2 ? '/bike.png' : '/bus.png'} />
+                    <img className="card_tier_img"  src={member.tier == 1 ? '../../pedestrian.png' : member.tier == 2 ? '../../bike.png' : member.tier == 0 ? '../../tree.png' : member.tier == 3 ? '../../bus.png' : '../../walkers.png'} />
+                      
                         <span>{teir_desc(member.tier)}</span>
                     </div>
 
@@ -75,7 +76,7 @@ const updateViews = async () => {
                     </div>
 
 
-                    <div>
+                    <div style={{marginTop: '2rem'}}>
                         <span>                    {member.name}</span>
                         <span>{member.tier != 0 ? elapsed : ''}</span>
                     </div>

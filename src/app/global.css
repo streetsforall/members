@@ -245,7 +245,9 @@ a {
 
 .card_tier_img {
     mix-blend-mode: luminosity;
-    max-height: 4rem;
+    max-width: 3rem;
+    max-height: 5rem;
+    margin-top: -.2rem;
 }
 
 .slider {
