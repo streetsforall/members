@@ -179,7 +179,7 @@ const new_signup_email = async (to_email: string) => {
                 </a>
                 
                 <p>Hi ${member[0].name},</p>
-                <p>Welcome to the Streets For All Membership Club! Your recurring contribution will help us continue our mission to make the streets of Los Angeles safe for all modes of transportation.
+                <p>Welcome to the Streets For All Membership Club! Thank you for your support. Your recurring contribution will directly help us continue our mission to make the streets of Los Angeles and California safe for all modes of transportation.
                 </p>
 
                 <p>Be sure to check out all the awesome perks included in your ${memebrship_tier} Tier membership by loging into your membership portal below:</p>
@@ -212,8 +212,8 @@ const new_signup_email = async (to_email: string) => {
 
                 <p>If the button does not work, try <a target="_blank" rel="noopener noreferrer" href="${process.env.ROOT_URL}/link/${verificationToken}">this link</a> or reach out to membership@streetsforall.org. The link expires in 1 day.</p></br>
 
-                <p>Thank you for supporting our ongoing advocacy, <br/> 
-                Streets for All <br/> 
+                <p>Thank you for supporting our ongoing advocacy, <3 <br/> 
+                - The Streets For All team <br/> 
                  🚎 🚲 👩🏻‍🦽🚶🏾🌳
                 </div>
           </body>
