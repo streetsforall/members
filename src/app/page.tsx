@@ -7,18 +7,15 @@ import { new_token_email } from '../server/email_token'
 import { validate_user } from '../server/validate_user'
 
 export default function LoginPage() {
+  
   const [memberID, setMemberID] = useState('');
-
   const [emailSent, setEmailSent] = useState(true);
 
-
-  // const { session, user } = await auth.lucia.validateSession(sessionId);
 
   // if no valid cookie
   // show form that allows to request an email
 
   useEffect(() => {
-
     const updateViews = async () => {
       const memberData = await validate_user()
       if (memberData) {
@@ -33,7 +30,6 @@ export default function LoginPage() {
 
 
   const fireEmail = (event: any) => {
-
 
     event.preventDefault()
 
@@ -51,8 +47,6 @@ export default function LoginPage() {
     return (
 
       <div className="login_page">
-
-
 
         {memberID ? <div> <a href={`/u/${memberID}`}><button>Log in to last session</button></a> </div> : ''}
         <br />
