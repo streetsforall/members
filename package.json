@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@lucia-auth/adapter-postgresql": "^3.1.2",
+    "@mailchimp/mailchimp_marketing": "^3.0.80",
     "@stripe/react-stripe-js": "^2.7.1",
     "@stripe/stripe-js": "^3.5.0",
     "@types/react": "^18",

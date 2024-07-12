@@ -4,6 +4,7 @@ import { new_order } from '@/server/merch_order'
 import { buffer } from "micro";
 import Stripe from "stripe";
 import { new_signup_email } from '@/server/email_token'
+import addMailchimp from "@/server/mailchimp";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {});
 // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {});
@@ -72,6 +73,9 @@ export default async function handler(
       // we use this to grab the shirt size
       // weirdly the only stipe API call that forwards custom fields
       case 'checkout.session.completed':
+
+        console.log('NEW CHECKOUT')
+
         const checkout: any = api_event.data.object;
 
         if (checkout.mode != 'subscription') {
@@ -95,6 +99,23 @@ export default async function handler(
           "email": checkout.customer_details.email
         }, checkout_tier)
 
+        addMailchimp(
+          checkout.customer_details.email,
+          {
+            FNAME: checkout.customer_details.name,
+            ADDRESS: {
+              addr1: checkout.shipping_details.address.line1,
+              city: checkout.shipping_details.address.city,
+              state: checkout.shipping_details.address.state,
+              zip: checkout.shipping_details.address.postal_code,
+            },
+            PHONE: checkout.customer_details.phone,
+            MEMBERSHIP: checkout_tier
+          }
+        )
+
+
+
         new_signup_email(checkout.customer_details.email)
 
         res.status(200).end("New Member Succesful");
@@ -108,10 +129,10 @@ export default async function handler(
         const subscriber: any = api_event.data.object;
         const newMember = api_event.type == 'customer.subscription.created' ? true : false
 
-        const check_tier = validateTier(subscriber.plan.amount)  
+        const check_tier = validateTier(subscriber.plan.amount)
 
         console.log(check_tier)
-        
+
         console.log(subscriber.plan.amount)
 
         const prevAmount = api_event?.data?.previous_attributes?.items?.data[0]?.plan?.amount;
@@ -132,9 +153,9 @@ export default async function handler(
 
             const retrieveAllMerch = async (email: string) => {
               const order = await dbHelp.retrieveMerchOrders(email)
-              return(order)
-          }
-  
+              return (order)
+            }
+
             const merch = await retrieveAllMerch(new_member.email)
             const size = merch[0].shirt_size;
             console.log('shirt size', size)
