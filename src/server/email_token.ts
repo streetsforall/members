@@ -212,7 +212,7 @@ const new_signup_email = async (to_email: string) => {
 
                 <p>If the button does not work, try <a target="_blank" rel="noopener noreferrer" href="${process.env.ROOT_URL}/link/${verificationToken}">this link</a> or reach out to membership@streetsforall.org. The link expires in 1 day.</p></br>
 
-                <p>Thank you for supporting our ongoing advocacy, <3 <br/> 
+                <p>Thank you for supporting our ongoing advocacy, <br/> 
                 - The Streets For All team <br/> 
                  🚎 🚲 👩🏻‍🦽🚶🏾🌳
                 </div>
