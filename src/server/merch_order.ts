@@ -78,9 +78,6 @@ export async function new_order(data: any, tier: number) {
     const prevShirt = uniqueOrders.find((e) => e == 'shirt')
     const prevStick = uniqueOrders.find((e) => e == 'sticker')
 
-    console.log(prevHat, prevShirt, prevStick)
-    console.log('tier', tier)
-
     // create order packages
     var orderPackage = {}
     var orderList = {}

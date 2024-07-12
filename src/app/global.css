@@ -399,7 +399,7 @@ a {
     border: 1px dotted var(--light_blue);
     margin-bottom: .5rem;
     border-radius: 1rem;
-    overflow: hidden;
+    overflow: auto;
 }
 
 
