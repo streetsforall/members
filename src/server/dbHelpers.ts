@@ -115,7 +115,7 @@ export async function cancelMember(canceledMember: any) {
     console.log(canceledMember)
 
     const users = await sql`
-    UPDATE merchants SET tier = ${canceledMember.tier}, last_amount = ${canceledMember.amount}, last_donation = ${date} WHERE email = ${canceledMember.email};
+    UPDATE members SET tier = ${canceledMember.tier}, last_amount = ${canceledMember.amount}, last_donation = ${date} WHERE email = ${canceledMember.email};
     `
     console.log('CANCELLED MEMBER', users)
 
