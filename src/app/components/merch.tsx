@@ -19,7 +19,6 @@ const Merch = (member: any) => {
         const retrieveAllMerch = async (email: string) => {
             const order = await retrieveMerchOrders(email)
             setMerch(order)
-            console.log(order)
         }
 
         const merch = retrieveAllMerch(member.member.email)
@@ -36,7 +35,6 @@ const Merch = (member: any) => {
         const retrieveAllMerch = async (email: string) => {
             const order = await retrieveMerchOrders(email)
             setMerch(order)
-            console.log(order)
         }
 
         const merch = retrieveAllMerch(member.member.email)
