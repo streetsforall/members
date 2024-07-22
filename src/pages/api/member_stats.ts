@@ -20,7 +20,6 @@ export default async function handler(
             const tier2 = getDB.reduce((a, b) => b.tier == 2 ? a + 1 : a, 0)
             const tier3 = getDB.reduce((a, b) => b.tier == 3 ? a + 1 : a, 0)
 
-            console.log(sum)
             res.status(200).send({
                 'total monthly income': sum,
                 'total donations': getDB.length,

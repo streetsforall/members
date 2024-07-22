@@ -41,7 +41,7 @@ export async function merch_status(email: string) {
       WHERE email=${email}
       ORDER BY date DESC 
     `
-    // console.log(orders)
+
 
   if (orders) {
 

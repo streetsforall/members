@@ -55,15 +55,12 @@ export async function verify_token(token: string) {
 			`
 
 		const user = select_users[0]
-		
-		console.log(user)
+	
 
 		if (!user || user.email !== first_token.email) {
 			console.log('email does not match')
 			return ('not a matching email')
 		}
-
-		console.log(user.id)
 
 		await auth.lucia.invalidateUserSessions(user.id);
 

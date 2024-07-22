@@ -40,9 +40,7 @@ const Discounts = (member: any) => {
     useEffect(() => {
         const getCurrentCode = async (email: string) => {
             const current_code = await getCurrentPeakCode(email)
-            console.log(member.member.email)
             if (current_code) {
-                console.log(current_code)
                 setCode(current_code.code)
 
                 // set timeout 2 weeks ahead
@@ -51,8 +49,6 @@ const Discounts = (member: any) => {
 
                 const now = new Date();
 
-                console.log('now', now)
-                console.log('then', date_requested)
 
                 // check if code has been requested in the last 4 weeks
                 if (now >= date_requested) {
