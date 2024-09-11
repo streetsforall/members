@@ -3,7 +3,7 @@ import * as dbHelp from '../../server/dbHelpers'
 import addMailchimp from "@/server/mailchimp";
 
 
-// returns total monthly donations
+// 
 
 export default async function handler(
     req: NextApiRequest,
