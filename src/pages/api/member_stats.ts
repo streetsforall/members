@@ -21,11 +21,16 @@ export default async function handler(
             const tier3 = getDB.reduce((a, b) => b.tier == 3 ? a + 1 : a, 0)
 
             res.status(200).send({
-                'total monthly income': sum,
-                'total donations': getDB.length,
+                'estimated yearly income': sum * 12,
+                'current monthly income': sum,
+                'current donations': getDB.length,
+                'average donation': Math.trunc(sum /  getDB.length),
                 'tier 1 donors': tier1,
                 'tier 2 donors': tier2,
-                'tier 3 donors': tier3
+                'tier 3 donors': tier3,
+                'tier 1 income': tier1 * 12,
+                'tier 2 income': tier2 * 24,
+                'tier 3 income': tier3 * 48
         })
 
         } catch (error: any) {
