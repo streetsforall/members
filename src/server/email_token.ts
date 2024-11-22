@@ -116,7 +116,7 @@ const new_token_email = async (to_email: string) => {
         // log email for troubleshooting
         await sql`
         INSERT INTO emails ( date, type, email_address, success)
-          VALUES( ${date}, 'login request', ${to_email}, false)
+          VALUES( ${date}, 'login request', ${to_email}, true)
       `
 
       return ("Success: email was sent")
