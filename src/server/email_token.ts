@@ -116,7 +116,7 @@ const new_token_email = async (to_email: string) => {
         // log email for troubleshooting
         await sql`
         INSERT INTO emails ( date, type, email_address, success)
-          VALUES( ${date}, "login request", ${to_email}, false)
+          VALUES( ${date}, 'login request', ${to_email}, false)
       `
 
       return ("Success: email was sent")
@@ -132,7 +132,7 @@ const new_token_email = async (to_email: string) => {
         // log email for troubleshooting
         await sql`
         INSERT INTO emails ( date, type, email_address, success)
-          VALUES( ${date}, "login request", ${to_email}, false)
+          VALUES( ${date}, 'login request', ${to_email}, false)
       `
   
 
@@ -252,7 +252,7 @@ const new_signup_email = async (to_email: string) => {
       // log email for troubleshooting
       await sql`
       INSERT INTO emails ( date, type, email_address, success)
-        VALUES( ${date}, "welcome email", ${to_email}, true)
+        VALUES( ${date}, 'welcome email', ${to_email}, true)
     `
 
       return ("Success: email was sent")
@@ -266,7 +266,7 @@ const new_signup_email = async (to_email: string) => {
       // log email for troubleshooting
       await sql`
       INSERT INTO emails ( date, type, email_address, success)
-        VALUES( ${date}, "welcome email", ${to_email}, false)
+        VALUES( ${date}, "'elcome email', ${to_email}, false)
     `
 
     return ("COULD NOT SEND MESSAGE")
