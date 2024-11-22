@@ -111,6 +111,8 @@ const new_token_email = async (to_email: string) => {
         }],
       })
 
+      console.log('successful email sent to'+to_email)
+
       // log email for troubleshooting
       await sql`
       INSERT INTO emails (to, date, type, success)
@@ -243,6 +245,8 @@ const new_signup_email = async (to_email: string) => {
           cid: 'logo'
         }],
       })
+
+      console.log('successful email sent to'+to_email)
 
       // log email for troubleshooting
       await sql`
