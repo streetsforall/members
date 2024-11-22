@@ -28,6 +28,8 @@ const new_token_email = async (to_email: string) => {
 
   console.log('valid_email', member)
 
+  const date = (new Date()).toLocaleString("en-US")
+
   if (member.length > 0) {
 
     const verificationToken = await dbHelp.setEmailVerification(to_email)
@@ -109,13 +111,27 @@ const new_token_email = async (to_email: string) => {
         }],
       })
 
+      // log email for troubleshooting
+      await sql`
+      INSERT INTO emails (to, date, type, success)
+        VALUES( ${to_email}, ${date}, "login request", true)
+    `
+
       return ("Success: email was sent")
 
     } catch (error) {
+
+      
       console.log(error)
       return (error)
     }
   } else {
+
+        // log email for troubleshooting
+        await sql`
+        INSERT INTO emails (to, date, type, success)
+          VALUES( ${to_email}, ${date}, "login request", false)
+      `
 
     return ("COULD NOT SEND MESSAGE")
   }
@@ -140,6 +156,8 @@ const new_signup_email = async (to_email: string) => {
       return ('Bus')
     }
   }
+
+  const date = (new Date()).toLocaleString("en-US")
 
   const memebrship_tier = teir_desc(member[0].tier)
 
@@ -226,6 +244,12 @@ const new_signup_email = async (to_email: string) => {
         }],
       })
 
+      // log email for troubleshooting
+      await sql`
+      INSERT INTO emails (to, date, type, success)
+        VALUES( ${to_email}, ${date}, "welcome email", true)
+    `
+
       return ("Success: email was sent")
 
     } catch (error) {
@@ -233,6 +257,12 @@ const new_signup_email = async (to_email: string) => {
       return (error)
     }
   } else {
+
+      // log email for troubleshooting
+      await sql`
+      INSERT INTO emails (to, date, type, success)
+        VALUES( ${to_email}, ${date}, "welcome email", false)
+    `
 
     return ("COULD NOT SEND MESSAGE")
   }
