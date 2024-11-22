@@ -113,11 +113,11 @@ const new_token_email = async (to_email: string) => {
 
       console.log('successful email sent to'+to_email)
 
-      // log email for troubleshooting
-      await sql`
-      INSERT INTO emails (to, date, type, success)
-        VALUES( ${to_email}, ${date}, "login request", true)
-    `
+        // log email for troubleshooting
+        await sql`
+        INSERT INTO emails ( date, type, email_address, success)
+          VALUES( ${date}, "login request", ${to_email}, false)
+      `
 
       return ("Success: email was sent")
 
@@ -131,9 +131,10 @@ const new_token_email = async (to_email: string) => {
 
         // log email for troubleshooting
         await sql`
-        INSERT INTO emails (to, date, type, success)
-          VALUES( ${to_email}, ${date}, "login request", false)
+        INSERT INTO emails ( date, type, email_address, success)
+          VALUES( ${date}, "login request", ${to_email}, false)
       `
+  
 
     return ("COULD NOT SEND MESSAGE")
   }
@@ -250,8 +251,8 @@ const new_signup_email = async (to_email: string) => {
 
       // log email for troubleshooting
       await sql`
-      INSERT INTO emails (to, date, type, success)
-        VALUES( ${to_email}, ${date}, "welcome email", true)
+      INSERT INTO emails ( date, type, email_address, success)
+        VALUES( ${date}, "welcome email", ${to_email}, true)
     `
 
       return ("Success: email was sent")
@@ -264,8 +265,8 @@ const new_signup_email = async (to_email: string) => {
 
       // log email for troubleshooting
       await sql`
-      INSERT INTO emails (to, date, type, success)
-        VALUES( ${to_email}, ${date}, "welcome email", false)
+      INSERT INTO emails ( date, type, email_address, success)
+        VALUES( ${date}, "welcome email", ${to_email}, false)
     `
 
     return ("COULD NOT SEND MESSAGE")
