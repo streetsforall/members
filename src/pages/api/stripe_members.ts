@@ -65,7 +65,7 @@ export default async function handler(
       return (customer)
     }
 
-    console.log(api_event.type)
+    console.log('API call',  api_event.type)
 
     // iterate through various stripe webhook event types
     switch (api_event.type) {
@@ -132,9 +132,9 @@ export default async function handler(
 
         const check_tier = validateTier(subscriber.plan.amount)
 
-        console.log(check_tier)
+        console.log('tier', check_tier)
 
-        console.log(subscriber.plan.amount)
+        console.log('amount:', subscriber.plan.amount)
 
         const prevAmount = api_event?.data?.previous_attributes?.items?.data[0]?.plan?.amount;
 
@@ -206,11 +206,14 @@ export default async function handler(
           address = new_member.shipping.address
         } else {
           address = 'no address'
+
+          console.log('no address')
+
         }
 
         var tier = validateTier(amount)
 
-        console.log(new_member)
+        console.log('new member', new_member)
 
         const memberObj = {
           'tier': tier,
@@ -243,7 +246,7 @@ export default async function handler(
         customerID = canceled_subscriber.customer as string
 
         const canceled_member: any = await retrieveCustomer(customerID)
-        console.log(canceled_member)
+        console.log('canceled_member', canceled_member)
 
         var email = 'test@test.com'
         if (canceled_member.email) {

@@ -18,7 +18,7 @@ export default async function handler(
 
                 const parsed_address = JSON.parse(member.shipping_address)
 
-                console.log(parsed_address)
+                console.log('parsed_address', parsed_address)
 
                 const shipping  = parsed_address ? 
                 {'ADDRESSYU': {

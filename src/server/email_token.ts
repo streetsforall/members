@@ -150,6 +150,7 @@ const new_signup_email = async (to_email: string) => {
 			WHERE email = ${to_email}
 			`
 
+
   const teir_desc = (tier: number) => {
     if (tier == 1) {
       return ('Pedestrian')

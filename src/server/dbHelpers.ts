@@ -19,7 +19,7 @@ export async function retrieveValidMembers() {
       FROM members
       WHERE tier > 0;
     `
-  console.log(users)
+  // console.log(users)
   return users
 }
 
@@ -112,7 +112,7 @@ export async function cancelMember(canceledMember: any) {
     // this will cancel a member
     const date = (new Date()).toLocaleString("en-US")
 
-    console.log(canceledMember)
+    console.log('canceledMember', canceledMember)
 
     const users = await sql`
     UPDATE members SET tier = ${canceledMember.tier}, last_amount = ${canceledMember.amount}, last_donation = ${date} WHERE email = ${canceledMember.email};
@@ -186,10 +186,10 @@ export async function getCurrentPeakCode(email: string) {
       ORDER BY date_used DESC 
     `
 
-    console.log(current_code)
+    console.log('current_code', current_code)
     const discount_code = current_code[0]
 
-    console.log(discount_code)
+    console.log('discount_code', discount_code)
     return discount_code
 
   } catch (error) {
@@ -209,7 +209,7 @@ export async function getNextPeakCode(email: any) {
       WHERE email IS NULL
       ORDER BY date_used DESC 
     `
-    console.log(new_code)
+    console.log('new_code', new_code)
 
     const discount_code = new_code[0].code
 
