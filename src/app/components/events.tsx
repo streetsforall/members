@@ -14,7 +14,8 @@ const Events = (member: any) => {
             </div>
 
             <div className={!show ? 'section_content hidden' : 'section_content'}>
-                <p>Fall 2024! Details coming soon!</p>
+                <p>December 13th</p>
+                <p>More details will go out by email.</p>
             </div>
         </div> 
     )

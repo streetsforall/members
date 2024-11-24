@@ -23,7 +23,7 @@ const new_token_email = async (to_email: string) => {
   // make sure email is valid
   const member = await sql`
 			SELECT * FROM members
-			WHERE email = ${to_email}
+			WHERE UPPER(email) LIKE UPPER(${to_email})
 			`
 
   console.log('valid_email', member)
@@ -147,7 +147,7 @@ const new_signup_email = async (to_email: string) => {
   // make sure email is valid
   const member = await sql`
 			SELECT * FROM members
-			WHERE email = ${to_email}
+			WHERE UPPER(email) LIKE UPPER(${to_email})
 			`
 
 
