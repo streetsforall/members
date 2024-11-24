@@ -24,7 +24,7 @@ const new_token_email = async (to_email: string) => {
   // this search is not case sensitive
   const member = await sql`
 			SELECT * FROM members
-			WHERE UPPER(email) LIKE UPPER(%${to_email}%)
+			WHERE UPPER(email) LIKE UPPER(${to_email})
 			`
 
   console.log('valid_email', member)
@@ -149,7 +149,7 @@ const new_signup_email = async (to_email: string) => {
   // this search is not case sensitive
   const member = await sql`
 			SELECT * FROM members
-			WHERE UPPER(email) LIKE UPPER(%${to_email}%)
+			WHERE UPPER(email) LIKE UPPER(${to_email})
 			`
 
 
