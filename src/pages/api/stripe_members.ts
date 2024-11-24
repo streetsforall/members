@@ -18,6 +18,7 @@ export const config = {
 
 const validateTier = (payment: number) => {
   var tier = 0
+  console.log('tier payment', payment)
   // validate payment
   if (payment >= 4800) {
     var tier = 3
@@ -86,6 +87,8 @@ export default async function handler(
 
         const checkout_tier = await validateTier(checkout.amount_total)
 
+        console.log('checkout_tier', checkout_tier, checkout.amount_total)
+
         new_order({
           "size": checkout.custom_fields[0].dropdown.value,
           "name": checkout.customer_details.name,
@@ -99,23 +102,25 @@ export default async function handler(
           "email": checkout.customer_details.email
         }, checkout_tier)
 
-        addMailchimp(
+        try {addMailchimp(
           checkout.customer_details.email,
           {
             FNAME: checkout.customer_details.name.split(" ")[0],
             LNAME: checkout.customer_details.name.split(" ")[1],
             ADDRESSYU: {
-              addr1: checkout.shipping_details.address.line1,
-              addr2: checkout.shipping_details.address.line2,
-              city: checkout.shipping_details.address.city,
-              state: checkout.shipping_details.address.state,
-              zip: checkout.shipping_details.address.postal_code,
-              country: checkout.shipping_details.address.country
+              addr1: checkout.shipping_details.address.line1 ? checkout.shipping_details.address.line1 : ' ',
+              addr2: checkout.shipping_details.address.line2 ? checkout.shipping_details.address.line2 : ' ',
+              city: checkout.shipping_details.address.city ? checkout.shipping_details.address.city : ' ',
+              state: checkout.shipping_details.address.state ?  checkout.shipping_details.address.state : ' ',
+              zip: checkout.shipping_details.address.postal_code ? checkout.shipping_details.address.postal_code : ' ',
+              country: checkout.shipping_details.address.country ? checkout.shipping_details.address.country : ' '
             },
             PHONE: checkout.customer_details.phone,
             MEMBERSHIP: checkout_tier
           }
-        )
+        )} catch (error) {
+          console.log('error with mailchimop', error);
+        }
 
         new_signup_email(checkout.customer_details.email)
 
