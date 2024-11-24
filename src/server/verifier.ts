@@ -51,7 +51,7 @@ export async function verify_token(token: string) {
 
 		const select_users = await sql`
 			SELECT * FROM members
-			WHERE email = ${first_token.user_id}
+			WHERE UPPER(email) LIKE UPPER(${first_token.user_id})
 			`
 
 		const user = select_users[0]

@@ -168,10 +168,6 @@ export async function new_order(data: any, tier: number) {
         };
         const response = await fetch('https://api.printful.com/v2/orders', requestOptions);
         const order_details = await response.json();
-        console.log('order created')
-
-
-
 
         // add order to database
         const date = (new Date()).toLocaleString("en-US")
