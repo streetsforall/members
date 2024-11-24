@@ -142,26 +142,26 @@ const new_token_email = async (to_email: string) => {
 
 }
 
+const teir_desc = (tier: number) => {
+  if (tier == 1) {
+    return ('Pedestrian')
+  } else if (tier == 2) {
+    return ('Cargo Bike')
+  } else {
+    return ('Bus')
+  }
+}
+
 
 const new_signup_email = async (to_email: string) => {
 
+  console.log('preparing email')
   // make sure email is valid
   // this search is not case sensitive
   const member = await sql`
 			SELECT * FROM members
 			WHERE UPPER(email) LIKE UPPER(${to_email})
 			`
-
-
-  const teir_desc = (tier: number) => {
-    if (tier == 1) {
-      return ('Pedestrian')
-    } else if (tier == 2) {
-      return ('Cargo Bike')
-    } else {
-      return ('Bus')
-    }
-  }
 
   const date = (new Date()).toLocaleString("en-US")
 

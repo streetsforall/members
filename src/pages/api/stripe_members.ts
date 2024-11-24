@@ -28,6 +28,8 @@ const validateTier = (payment: number) => {
     var tier = 1
   }
 
+  console.log('tier', tier)
+
   return (tier)
 }
 
@@ -122,6 +124,7 @@ export default async function handler(
           console.log('error with mailchimop', error);
         }
 
+        
         new_signup_email(checkout.customer_details.email)
 
         res.status(200).end("New Member Succesful");
