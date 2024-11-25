@@ -70,7 +70,7 @@ export async function new_order(data: any, tier: number) {
 
     // get any unique items ordered 
     let justPackages = merch_orders.flatMap(a => JSON.parse(a.order_package));
-    const uniqueOrders = ([... new Set(justPackages)])    
+    const uniqueOrders = ([... new Set(justPackages)])
 
 
     // these return undefined unless previously ordered, so we can use as bools
@@ -83,9 +83,9 @@ export async function new_order(data: any, tier: number) {
     var orderList = {}
 
 
-    // this is how we filter out historic merch orders
+    // this is nasty but how we filter out historic merch orders
 
-    if (tier == 1 ) {
+    if (tier == 1) {
         if (prevStick) {
             console.log('tier 1: sticker already ordered')
         } else {
@@ -94,7 +94,7 @@ export async function new_order(data: any, tier: number) {
             orderPackage = [sticker]
         }
 
-    } else if (tier == 2 ) {
+    } else if (tier == 2) {
         if (prevShirt && prevStick) {
             console.log('tier 2: sticker and shirt ordered')
         } else if (prevStick) {
@@ -107,10 +107,10 @@ export async function new_order(data: any, tier: number) {
             orderPackage = [sticker, shirt]
         }
 
-    } else if (tier == 3 ) {
-        if  (prevShirt && prevStick && prevHat) {
+    } else if (tier == 3) {
+        if (prevShirt && prevStick && prevHat) {
             console.log('tier 3: sticker and shirt and hat already ordered')
-        } else if ( prevStick && shirt) {
+        } else if (prevStick && shirt) {
             console.log('tier 3: sticker and shirt already ordered')
             orderList = ['hat']
             orderPackage = [hat]
@@ -125,86 +125,90 @@ export async function new_order(data: any, tier: number) {
         }
     } else {
         console.log('no valid orders')
-        return('no valid orders')
+        return ('no valid orders')
     }
 
     console.log('orderPackage', orderPackage)
-    
 
-    const request_body = {
-        "external_id": "",
-        "shipping": "STANDARD",
-        "recipient": {
-            "name": data.name,
-            "company": "",
-            "address1": data.address1,
-            "address2": data.address2,
-            "city": data.city,
-            "state_name": data.state_name,
-            "state_code": data.state_name,
-            "country_name": data.country_name,
-            "country_code": data.country_name,
-            "zip": data.zip,
-            "phone": data.phone,
-            "email": data.email
-        },
-        "order_items": orderPackage,
-        "customization": {},
-        "retail_costs": {}
-    }
+    // don't create empty orders
+    if (orderPackage) {
 
-    console.log(request_body)
-
-    try {
-
-        // create order with printful
-        const requestOptions = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.PRINTFUL_KEY}`
+        const request_body = {
+            "external_id": "",
+            "shipping": "STANDARD",
+            "recipient": {
+                "name": data.name,
+                "company": "",
+                "address1": data.address1,
+                "address2": data.address2,
+                "city": data.city,
+                "state_name": data.state_name,
+                "state_code": data.state_name,
+                "country_name": data.country_name,
+                "country_code": data.country_name,
+                "zip": data.zip,
+                "phone": data.phone,
+                "email": data.email
             },
-            body: JSON.stringify(request_body)
-        };
-        const response = await fetch('https://api.printful.com/v2/orders', requestOptions);
-        const order_details = await response.json();
+            "order_items": orderPackage,
+            "customization": {},
+            "retail_costs": {}
+        }
 
-        // add order to database
-        const date = (new Date()).toLocaleString("en-US")
+        console.log(request_body)
 
-        const order_pack = JSON.stringify(orderList)
 
-        await sql`
-        INSERT INTO merch_orders (email, order_tier, date, order_id, delivered, shirt_size, order_package, order_status)
-        VALUES(${data.email}, ${tier}, ${date}, ${order_details.data.id}, false, ${shirt_size} , ${order_pack}, ${order_details.data.status})
-        `
+        try {
 
-        const retrieve_order = async ( ) => {
-            const orderHeader = {
+            // create order with printful
+            const requestOptions = {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${process.env.PRINTFUL_KEY}`
-                }
+                },
+                body: JSON.stringify(request_body)
             };
-            const order_response = await fetch(`https://api.printful.com/v2/orders/${order_details.data.id}/confirmation`, orderHeader);
-            const order = await order_response.json();
-            console.log('order created', order)
+            const response = await fetch('https://api.printful.com/v2/orders', requestOptions);
+            const order_details = await response.json();
+
+            // add order to database
+            const date = (new Date()).toLocaleString("en-US")
+
+            const order_pack = JSON.stringify(orderList)
+
+            await sql`
+        INSERT INTO merch_orders (email, order_tier, date, order_id, delivered, shirt_size, order_package, order_status)
+        VALUES(${data.email}, ${tier}, ${date}, ${order_details.data.id}, false, ${shirt_size} , ${order_pack}, ${order_details.data.status})
+        `
+
+            const retrieve_order = async () => {
+                const orderHeader = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${process.env.PRINTFUL_KEY}`
+                    }
+                };
+                const order_response = await fetch(`https://api.printful.com/v2/orders/${order_details.data.id}/confirmation`, orderHeader);
+                const order = await order_response.json();
+                console.log('order created', order)
+            }
+
+            setTimeout(function () {
+                // submit order to printful 
+                // takes a sec for them to create pricing
+                // so we give it 10 seconds
+                retrieve_order()
+            }, 12000);
+
+        } catch (err: any) {
+            // On error, log and return the error message
+            console.log(`❌ Error message: ${err.message}`);
         }
-
-        setTimeout(function(){
-        // submit order to printful 
-        // takes a sec for them to create pricing
-        // so we give it 10 seconds
-            retrieve_order()
-        }, 12000);
-       
-
-    } catch (err: any) {
-        // On error, log and return the error message
-        console.log(`❌ Error message: ${err.message}`);
+    } else {
+        console.log('order is empty - likely already ordered')
     }
-
 
     // add order to database
 
