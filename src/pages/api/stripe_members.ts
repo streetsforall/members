@@ -49,9 +49,9 @@ export default async function handler(
 
     try {
       // validate webook came frome stripe
-      console.log(buf, sig, STRIPE_HOOK)
+      // console.log(buf, sig, STRIPE_HOOK)
       api_event = await stripe.webhooks.constructEvent(buf, sig, STRIPE_HOOK);
-      console.log('api_event', api_event)
+      // console.log('api_event', api_event)
     } catch (err: any) {
       // On error, log and return the error message
       console.log(`❌ Error message: ${err.message}`);
@@ -73,6 +73,10 @@ export default async function handler(
     // iterate through various stripe webhook event types
     switch (api_event.type) {
 
+
+      // NEW CHECKOUT
+      // This fires at the end of someone signing up
+      //
       // we use this to grab the shirt size
       // weirdly the only stipe API call that forwards custom fields
       case 'checkout.session.completed':
@@ -91,6 +95,10 @@ export default async function handler(
 
         console.log('checkout_tier', checkout_tier, checkout.amount_total)
 
+        console.log('sending email')
+        new_signup_email(checkout.customer_details.email)
+
+        console.log('creating order')
         new_order({
           "size": checkout.custom_fields[0].dropdown.value,
           "name": checkout.customer_details.name,
@@ -104,6 +112,8 @@ export default async function handler(
           "email": checkout.customer_details.email
         }, checkout_tier)
 
+        
+        console.log('adding to mailchimp')
         try {addMailchimp(
           checkout.customer_details.email,
           {
@@ -124,13 +134,14 @@ export default async function handler(
           console.log('error with mailchimop', error);
         }
 
-        
-        new_signup_email(checkout.customer_details.email)
+      
 
         res.status(200).end("New Member Succesful");
 
         break;
 
+      //
+      //
       // NEW MEMBER SUBSCRIPTION or UPDATED
       case 'customer.subscription.created':
       case 'customer.subscription.updated':
@@ -151,6 +162,10 @@ export default async function handler(
 
         const new_member: any = await retrieveCustomer(customerID)
         const amount = subscriber.plan.amount
+
+        if (api_event.type == 'customer.subscription.created') {
+          console.log('------------- NEW SUBSCRIPTION --------------')
+        }
 
         // this is used to order new merch if someone upgrades
         if (api_event.type == 'customer.subscription.updated') {
@@ -221,8 +236,10 @@ export default async function handler(
 
         var tier = validateTier(amount)
 
-        console.log('new member', new_member)
+        console.log('new member', new_member, tier)
 
+
+        // update member database
         const memberObj = {
           'tier': tier,
           'name': new_member.name,
