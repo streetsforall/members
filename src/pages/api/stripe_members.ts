@@ -96,10 +96,12 @@ export default async function handler(
         console.log('checkout_tier', checkout_tier, checkout.amount_total)
 
         console.log('sending email')
-        new_signup_email(checkout.customer_details.email)
+        const new_email = await new_signup_email(checkout.customer_details.email)
+        console.log(new_email)
 
         console.log('creating order')
-        new_order({
+
+        const order = await new_order({
           "size": checkout.custom_fields[0].dropdown.value,
           "name": checkout.customer_details.name,
           "address1": checkout.shipping_details.address.line1,
@@ -111,6 +113,8 @@ export default async function handler(
           "phone": checkout.customer_details.phone,
           "email": checkout.customer_details.email
         }, checkout_tier)
+
+        console.log(order)
 
         
         console.log('adding to mailchimp')
