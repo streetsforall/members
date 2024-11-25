@@ -79,7 +79,7 @@ export async function new_order(data: any, tier: number) {
     const prevStick = uniqueOrders.find((e) => e == 'sticker')
 
     // create order packages
-    var orderPackage = {}
+    var orderPackage: any[] = []
     var orderList = {}
 
 
@@ -128,10 +128,10 @@ export async function new_order(data: any, tier: number) {
         return ('no valid orders')
     }
 
-    console.log('orderPackage', orderPackage)
+    console.log('orderPackage', orderPackage, orderPackage.length)
 
     // don't create empty orders
-    if (orderPackage) {
+    if (orderPackage && orderPackage.length) {
 
         const request_body = {
             "external_id": "",

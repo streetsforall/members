@@ -188,7 +188,7 @@ export default async function handler(
             const size = merch[0].shirt_size;
             console.log('shirt size', size)
 
-            new_order({
+            const order = await new_order({
               "size": size,
               "name": new_member.name,
               "address1": new_member.address.line1,
@@ -200,6 +200,8 @@ export default async function handler(
               "phone": new_member.phone,
               "email": new_member.email
             }, check_tier)
+
+            console.log(order)
 
             // updait mailchimp with any new info (i.e. upgraded tier)
             addMailchimp(
