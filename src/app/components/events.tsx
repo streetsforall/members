@@ -8,8 +8,8 @@ const Events = (member: any) => {
     return (
         <div className='user_section'>
             <div className='section_header'>
-                <h2>Next Member Event</h2>
-                <button onClick={() => setShow(!show)} className='hider'>{!show ? '+' : '-'}</button>
+                <h2>Next Member Event: Dec 13</h2>
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSf2STS8VltZT0ew3QpnBkS2-NMZGXnEAJz6OWftZKKB3FJV6g/viewform?usp=sf_link">RSVP</a>
            
             </div>
 
