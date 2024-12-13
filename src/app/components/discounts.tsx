@@ -28,7 +28,7 @@ const Discounts = (member: any) => {
     const [slide, setSlide] = useState(1)
 
     // set total number of slides
-    const maxSlides = 4
+    const maxSlides = 5
 
     const getCode = async (email: string) => {
         const new_code = await getNextPeakCode(email)
@@ -151,6 +151,16 @@ const Discounts = (member: any) => {
                         <p>Get 15% off all orders through the SFA merch store including shirts, hats, and tote bags.</p>
                         <p>Discount Code: <Copyblock>STREETS_MEMBERS_CLUB</Copyblock></p>
                     </div>
+
+                    <div hidden data-key={5} className="slide">
+                        {/* // SHYED */}
+                        <img src="/shyed.jpg"/>
+                        <p><a target="_blank" rel="noopener noreferrer" href="https://www.sheydbags.com">SHYED Bags</a></p>
+                        <p>Get 10% off all SHYED convertable panier backpacks.</p>
+                        <p><a className="light_butt" href="https://www.amazon.com/promocode/A3IB6TCMYSRDSR">Discount Link</a></p>
+                    </div>
+
+                  
 
                     <p style={{textAlign:'right'}}>{slide}/{maxSlides}</p>
                 </div>
