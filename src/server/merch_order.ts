@@ -53,6 +53,13 @@ export async function new_order(data: any, tier: number) {
         "name": "Members Dad Hat"
     }
 
+    const tote = {
+        "source": 'sync',
+        "sync_variant_id": 297207915,
+        "quantity": 1,
+        "name": "Streets For All Tote Bag "
+    }
+
 
     // retrieve past orders
     // we need to make sure we aren't re-ordering merch to the same user
@@ -100,11 +107,11 @@ export async function new_order(data: any, tier: number) {
         } else if (prevStick) {
             console.log('tier 2: sticker already ordered')
             orderList = ['shirt']
-            orderPackage = [shirt]
+            orderPackage = [shirt, tote]
         } else {
             console.log('tier 2: full order')
             orderList = ['sticker', 'shirt']
-            orderPackage = [sticker, shirt]
+            orderPackage = [sticker, shirt, tote]
         }
 
     } else if (tier == 3) {
@@ -113,15 +120,15 @@ export async function new_order(data: any, tier: number) {
         } else if (prevStick && shirt) {
             console.log('tier 3: sticker and shirt already ordered')
             orderList = ['hat']
-            orderPackage = [hat]
+            orderPackage = [hat, tote]
         } else if (prevStick) {
             console.log('tier 3: sticker already ordered')
             orderList = ['shirt', 'hat']
-            orderPackage = [shirt, hat]
+            orderPackage = [shirt, hat, tote]
         } else {
             console.log('tier 3: full order')
             orderList = ['sticker', 'shirt', 'hat']
-            orderPackage = [sticker, shirt, hat]
+            orderPackage = [sticker, shirt, hat, tote]
         }
     } else {
         console.log('no valid orders')
