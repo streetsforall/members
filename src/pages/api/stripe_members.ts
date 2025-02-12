@@ -200,19 +200,25 @@ export default async function handler(
             console.log(order)
 
             // updait mailchimp with any new info (i.e. upgraded tier)
+            // UPDATED for 2025 Mailchimp redux
             addMailchimp(
               new_member.email,
               {
                 FNAME: new_member.name.split(" ")[0],
                 LNAME: new_member.name.split(" ")[1],
-                ADDRESSYU: {
-                  addr1: new_member.address.line1,
-                  addr2: new_member.address.line2,
-                  city: new_member.address.city,
-                  state: new_member.address.state,
-                  zip: new_member.address.postal_code,
-                  country: new_member.address.country,
-                },
+                // ADDRESSYU: {
+                //   addr1: new_member.address.line1,
+                //   addr2: new_member.address.line2,
+                //   city: new_member.address.city,
+                //   state: new_member.address.state,
+                //   zip: new_member.address.postal_code,
+                //   country: new_member.address.country,
+                // },
+                ADD_ST: new_member.address1,
+                ADD_ST_2: new_member.address2,
+                ADD_CITY: new_member.city,
+                ADD_ZIP: new_member.zip,
+                ADD_COUNTRY: new_member.country,
                 PHONE: new_member.phone,
                 MEMBERSHIP: check_tier
               }
