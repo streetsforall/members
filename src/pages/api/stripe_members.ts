@@ -123,14 +123,12 @@ export default async function handler(
           {
             FNAME: checkout.customer_details.name.split(" ")[0],
             LNAME: checkout.customer_details.name.split(" ")[1],
-            ADDRESSYU: {
-              addr1: checkout.shipping_details.address.line1 ? checkout.shipping_details.address.line1 : ' ',
-              addr2: checkout.shipping_details.address.line2 ? checkout.shipping_details.address.line2 : ' ',
-              city: checkout.shipping_details.address.city ? checkout.shipping_details.address.city : ' ',
-              state: checkout.shipping_details.address.state ?  checkout.shipping_details.address.state : ' ',
-              zip: checkout.shipping_details.address.postal_code ? checkout.shipping_details.address.postal_code : ' ',
-              country: checkout.shipping_details.address.country ? checkout.shipping_details.address.country : ' '
-            },
+            ADD_ST:  checkout.shipping_details.address.line1 ? checkout.shipping_details.address.line1 : ' ',
+            ADD_ST_2: checkout.shipping_details.address.line2 ? checkout.shipping_details.address.line2 : ' ',
+            ADD_CITY: checkout.shipping_details.address.city ? checkout.shipping_details.address.city : ' ',
+            ADD_ZIP: checkout.shipping_details.address.postal_code ? checkout.shipping_details.address.postal_code : ' ',
+            ADD_COUNTRY: checkout.shipping_details.address.country ? checkout.shipping_details.address.country : ' ',
+
             PHONE: checkout.customer_details.phone,
             MEMBERSHIP: checkout_tier
           }
@@ -206,19 +204,12 @@ export default async function handler(
               {
                 FNAME: new_member.name.split(" ")[0],
                 LNAME: new_member.name.split(" ")[1],
-                // ADDRESSYU: {
-                //   addr1: new_member.address.line1,
-                //   addr2: new_member.address.line2,
-                //   city: new_member.address.city,
-                //   state: new_member.address.state,
-                //   zip: new_member.address.postal_code,
-                //   country: new_member.address.country,
-                // },
                 ADD_ST: new_member.address1,
                 ADD_ST_2: new_member.address2,
                 ADD_CITY: new_member.city,
                 ADD_ZIP: new_member.zip,
                 ADD_COUNTRY: new_member.country,
+
                 PHONE: new_member.phone,
                 MEMBERSHIP: check_tier
               }
