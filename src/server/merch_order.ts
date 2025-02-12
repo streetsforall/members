@@ -16,6 +16,11 @@ export async function new_order(data: any, tier: number) {
     // by requesting all items from that product ID from the Printful API
     // GET /sync/products/{ID}
 
+    // example formatting from BDSM shirt
+    // id 97286569
+    // sync_variant_id 4702140382
+    // external_id 679bcd6caec4700697940058
+
     var shirtID = 0
     if (shirt_size == 's') {
         shirtID = 4433819851
@@ -55,7 +60,7 @@ export async function new_order(data: any, tier: number) {
 
     const tote = {
         "source": 'sync',
-        "sync_variant_id": 297207915,
+        "sync_variant_id": 3700186093,
         "quantity": 1,
         "name": "Streets For All Tote Bag "
     }
