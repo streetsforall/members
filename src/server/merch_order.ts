@@ -112,11 +112,11 @@ export async function new_order(data: any, tier: number) {
         } else if (prevStick) {
             console.log('tier 2: sticker already ordered')
             orderList = ['shirt']
-            orderPackage = [shirt, tote]
+            orderPackage = [shirt]
         } else {
             console.log('tier 2: full order')
             orderList = ['sticker', 'shirt']
-            orderPackage = [sticker, shirt, tote]
+            orderPackage = [sticker, shirt]
         }
 
     } else if (tier == 3) {
@@ -125,15 +125,15 @@ export async function new_order(data: any, tier: number) {
         } else if (prevStick && shirt) {
             console.log('tier 3: sticker and shirt already ordered')
             orderList = ['hat']
-            orderPackage = [hat, tote]
+            orderPackage = [hat]
         } else if (prevStick) {
             console.log('tier 3: sticker already ordered')
             orderList = ['shirt', 'hat']
-            orderPackage = [shirt, hat, tote]
+            orderPackage = [shirt, hat]
         } else {
             console.log('tier 3: full order')
             orderList = ['sticker', 'shirt', 'hat']
-            orderPackage = [sticker, shirt, hat, tote]
+            orderPackage = [sticker, shirt, hat]
         }
     } else {
         console.log('no valid orders')
