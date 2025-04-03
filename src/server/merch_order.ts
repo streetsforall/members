@@ -21,49 +21,99 @@ export async function new_order(data: any, tier: number) {
     // sync_variant_id 4702140382
     // external_id 679bcd6caec4700697940058
 
-    var shirtID = 0
+    // this has now shifted to product template
+
+
+    // create products from sync variant
+
+    // var shirtID = 0
+    // if (shirt_size == 's') {
+    //     shirtID = 4433819851
+    // } else if (shirt_size == 'm') {
+    //     shirtID = 4433819852
+    // } else if (shirt_size == 'l') {
+    //     shirtID = 4433819853
+    // } else if (shirt_size == 'xl') {
+    //     shirtID = 4433819854
+    // } else if (shirt_size == '2xl') {
+    //     shirtID = 4433819855
+    // }
+
+
+
+    // // create products
+    // const shirt = {
+    //     "source": 'sync',
+    //     "sync_variant_id": shirtID,
+    //     "quantity": 1,
+    //     "name": "Membership T-Shirt"
+    // }
+
+    // const sticker = {
+    //     "source": 'sync',
+    //     "sync_variant_id": 4433819998,
+    //     "quantity": 1,
+    //     "name": "Members Sticker sheet"
+    // }
+
+    // const hat = {
+    //     "source": 'sync',
+    //     "sync_variant_id": 4434444449,
+    //     "quantity": 1,
+    //     "name": "Members Dad Hat"
+    // }
+
+    // const tote = {
+    //     "source": 'sync',
+    //     "sync_variant_id": 3700186093,
+    //     "quantity": 1,
+    //     "name": "Streets For All Tote Bag "
+    // }
+
+
+    // NEW
+    // create products from Product Template 
+
+    var shirtID = ''
     if (shirt_size == 's') {
-        shirtID = 4433819851
+        shirtID = '27636855-fe47-4702-8a97-2a8e03b9768c'
     } else if (shirt_size == 'm') {
-        shirtID = 4433819852
+        shirtID = 'd32be939-cb43-467b-900e-6ae21e5a3598'
     } else if (shirt_size == 'l') {
-        shirtID = 4433819853
+        shirtID = '9a029bf3-ad3d-4992-8b6a-fd934363333e'
     } else if (shirt_size == 'xl') {
-        shirtID = 4433819854
+        shirtID = 'b5c3950b-10cf-46d1-882a-e4e6f802586a'
     } else if (shirt_size == '2xl') {
-        shirtID = 4433819855
+        shirtID = '3a02c650-806c-4159-95ca-44981f96076c'
     }
 
-
-
-    // create products
     const shirt = {
-        "source": 'sync',
-        "sync_variant_id": shirtID,
+        "source": 'product_template',
+        "variant_id": shirtID,
         "quantity": 1,
         "name": "Membership T-Shirt"
     }
 
     const sticker = {
-        "source": 'sync',
-        "sync_variant_id": 4433819998,
+        "source": 'product_template',
+        "variant_id": '401aad0c-b1f0-46e5-b8ea-134f4e362551',
         "quantity": 1,
         "name": "Members Sticker sheet"
     }
 
     const hat = {
-        "source": 'sync',
-        "sync_variant_id": 4434444449,
+        "source": 'product_template',
+        "variant_id": '5f103f57-981c-43ff-b211-7ada1fe09a97',
         "quantity": 1,
         "name": "Members Dad Hat"
     }
 
-    const tote = {
-        "source": 'sync',
-        "sync_variant_id": 3700186093,
-        "quantity": 1,
-        "name": "Streets For All Tote Bag "
-    }
+    // const tote = {
+    //     "source": 'product_template',
+    //     "variant_id": 3700186093,
+    //     "quantity": 1,
+    //     "name": "Streets For All Tote Bag "
+    // }
 
 
     // retrieve past orders
@@ -122,7 +172,7 @@ export async function new_order(data: any, tier: number) {
     } else if (tier == 3) {
         if (prevShirt && prevStick && prevHat) {
             console.log('tier 3: sticker and shirt and hat already ordered')
-        } else if (prevStick && shirt) {
+        } else if (prevStick && prevShirt) {
             console.log('tier 3: sticker and shirt already ordered')
             orderList = ['hat']
             orderPackage = [hat]
