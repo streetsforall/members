@@ -7,7 +7,6 @@ import { new_signup_email } from '@/server/email_token'
 import addMailchimp from "@/server/mailchimp";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {});
-// const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {});
 
 export const config = {
   api: {
@@ -48,7 +47,7 @@ export default async function handler(
     let api_event;
 
     try {
-      // validate webook came frome stripe
+      // validate webhook came frome stripe
       // console.log(buf, sig, STRIPE_HOOK)
       api_event = await stripe.webhooks.constructEvent(buf, sig, STRIPE_HOOK);
       // console.log('api_event', api_event)
@@ -96,8 +95,9 @@ export default async function handler(
         console.log('checkout_tier', checkout_tier, checkout.amount_total)
 
         console.log('sending email')
-        const new_email = await new_signup_email(checkout.customer_details.email)
-        console.log(new_email)
+        // const new_email = await new_signup_email(checkout.customer_details.email)
+        // console.log(new_email)
+
 
         console.log('creating order')
 
