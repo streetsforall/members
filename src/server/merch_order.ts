@@ -150,7 +150,7 @@ export async function new_order(data: any, tier: number) {
             "shipping": "STANDARD",
             "recipient": {
                 "name": data.name,
-                "company": "",
+                // "company": "",
                 "address1": data.address1,
                 "address2": data.address2,
                 "city": data.city,
@@ -167,7 +167,7 @@ export async function new_order(data: any, tier: number) {
             "retail_costs": {}
         }
 
-        console.log(request_body)
+        console.log('order request_body', request_body)
 
 
         try {
@@ -181,8 +181,11 @@ export async function new_order(data: any, tier: number) {
                 },
                 body: JSON.stringify(request_body)
             };
+
             const response = await fetch('https://api.printful.com/v2/orders', requestOptions);
             const order_details = await response.json();
+
+            console.log('order_details response', order_details)
 
             // add order to database
             const date = (new Date()).toLocaleString("en-US")
