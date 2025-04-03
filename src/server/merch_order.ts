@@ -203,7 +203,7 @@ export async function new_order(data: any, tier: number) {
             "shipping": "STANDARD",
             "recipient": {
                 "name": data.name,
-                // "company": "",
+                "company": "",
                 "address1": data.address1,
                 "address2": data.address2,
                 "city": data.city,
