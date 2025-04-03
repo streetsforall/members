@@ -8,7 +8,7 @@ export default async function handler(
     // params: { params: Promise<{ id: string }> }
 ) {
 
-    const product_id = '350858203'
+    const product_id = '350800543'
 
     if (req.method === "GET") {
         try {
