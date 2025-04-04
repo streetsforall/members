@@ -1,11 +1,11 @@
 import { NextApiRequest, NextApiResponse} from "next";
+import { useParams } from 'next/navigation'
 
 // returns total monthly donations
 
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
-    // params: { params: Promise<{ id: string }> }
 ) {
 
     const product_id = '350800543'

@@ -95,8 +95,8 @@ export default async function handler(
         console.log('checkout_tier', checkout_tier, checkout.amount_total)
 
         console.log('sending email')
-        // const new_email = await new_signup_email(checkout.customer_details.email)
-        // console.log(new_email)
+        const new_email = await new_signup_email(checkout.customer_details.email)
+        console.log(new_email)
 
 
         console.log('creating order')

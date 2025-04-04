@@ -214,9 +214,6 @@ export async function new_order(data: any, tier: number) {
     console.log("order request_body", request_body);
 
     try {
-      // FIRST, create empty order with address
-
-      // create order with printful
       const requestOptions = {
         method: "POST",
         headers: {
