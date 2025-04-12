@@ -90,30 +90,6 @@ export async function setEmailVerification(email: string) {
   return tokenId;
 }
 
-// we aren't using this function anywhere
-export async function createEmailVerificationToken(
-  userId: string,
-  email: string
-): Promise<string> {
-  // optionally invalidate all existing tokens
-  // await db.table("email_verification_token").where("user_id", "=", userId).deleteAll();
-
-  const tokenId = generateIdFromEntropySize(25); // 40 characters long
-
-  const timespan = createDate(new TimeSpan(2, "h"));
-
-  const emailtoken = await sql`
-    INSERT INTO email_verification_token (id, email, expires_at)
-      VALUES(${tokenId}, ${email}, ${timespan})
-      ON CONFLICT (email) 
-      DO UPDATE SET id = ${tokenId}, expires_at = ${timespan}
-    `;
-
-  console.log("emailtoken", emailtoken);
-
-  return tokenId;
-}
-
 export async function cancelMember(canceledMember: any) {
   try {
     // this will cancel a member
@@ -156,13 +132,9 @@ export async function setMemberUpdate(memberUpdate: any) {
       // Optionally handle error feedback to the user
     }
 
-    console.log('sql query:', memberUpdate.email, date, memberUpdate.newTier, memberUpdate.update)
-
     await sql`
       INSERT INTO member_updates (email, date, newTier, update)
         VALUES(${memberUpdate.email}, ${date}, ${memberUpdate.newTier}, ${memberUpdate.update})
-        ON CONFLICT (email) 
-	      DO UPDATE SET tier = ${memberUpdate.email}, date = ${date}, newTier = ${memberUpdate.newTier}, update = ${memberUpdate.update}}
     `;
     return "successfully updated member";
   } catch (error) {
@@ -180,7 +152,7 @@ export async function setMemberShirt(memberObj: any) {
       INSERT INTO members (email, shirt_size)
         VALUES(${memberObj.email}, ${memberObj.shirt_size})
         ON CONFLICT (email) 
-	      DO UPDATE SET tier = ${memberObj.email}, shirt_size = ${memberObj.shirt_size}}
+	      DO UPDATE SET email = ${memberObj.email}, shirt_size = ${memberObj.shirt_size}}
     `;
     return "successfully updated member";
   } catch (error) {
@@ -284,4 +256,28 @@ export async function getNextPeakCode(email: any) {
     console.log(error);
     return "no more codes";
   }
+}
+
+// we aren't using this function anywhere
+export async function createEmailVerificationToken(
+  userId: string,
+  email: string
+): Promise<string> {
+  // optionally invalidate all existing tokens
+  // await db.table("email_verification_token").where("user_id", "=", userId).deleteAll();
+
+  const tokenId = generateIdFromEntropySize(25); // 40 characters long
+
+  const timespan = createDate(new TimeSpan(2, "h"));
+
+  const emailtoken = await sql`
+    INSERT INTO email_verification_token (id, email, expires_at)
+      VALUES(${tokenId}, ${email}, ${timespan})
+      ON CONFLICT (email) 
+      DO UPDATE SET id = ${tokenId}, expires_at = ${timespan}
+    `;
+
+  console.log("emailtoken", emailtoken);
+
+  return tokenId;
 }
