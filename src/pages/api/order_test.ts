@@ -80,7 +80,7 @@ export default async function handler(
 
     console.log("order_details response", order_details);
     
-  } catch (err) {
+  } catch (err : any) {
     return res.status(500).json({
       error: true,
       message: err.message || "Unknown error occurred",
