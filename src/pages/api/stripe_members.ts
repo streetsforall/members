@@ -232,7 +232,7 @@ export default async function handler(
         }
 
         const member = await getMember(checkout.customer_details.email);
-        console.log(member)
+        console.log('member', member)
         const mem_tier = member.tier;
         console.log("checkout_tier", mem_tier, checkout.amount_total);
 
@@ -262,7 +262,7 @@ export default async function handler(
 
 
         const updateLog = "Merch ordered for " + checkout.customer_details.name
-        const memberUpdater = {email: checkout.customer_details.email, tier: mem_tier, update: updateLog}
+        const memberUpdater = {email: checkout.customer_details.email, newTier: mem_tier, update: updateLog}
         dbHelp.setMemberUpdate(memberUpdater);
 
 
@@ -305,6 +305,9 @@ export default async function handler(
         res.status(200).end("New Member Succesful");
 
         break;
+
+
+
 
 
       // MEMBER SUBSCRIPTION CANCELED

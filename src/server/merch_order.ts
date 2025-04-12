@@ -245,9 +245,10 @@ export async function new_order(data: any, tier: number) {
       const date = new Date().toLocaleString("en-US");
       const order_pack = JSON.stringify(orderList);
 
+      console.log('adding merch order to DB')
       await sql`
         INSERT INTO merch_orders (email, order_tier, date, order_id, delivered, shirt_size, order_package, order_status)
-        VALUES(${data.email}, ${tier}, ${date}, ${order_details.data.id}, false, ${shirt_size} , ${order_pack}, ${order_details.data.status})
+        VALUES(${data.email}, ${tier}, ${date}, ${order_details.result.id}, false, ${shirt_size} , ${order_pack}, ${order_details.result.status})
         `;
 
       const retrieve_order = async () => {
@@ -259,7 +260,7 @@ export async function new_order(data: any, tier: number) {
           },
         };
         const order_response = await fetch(
-          `https://api.printful.com/orders/${order_details.data.id}/confirmation`,
+          `https://api.printful.com/orders/${order_details.result.id}/confirm`,
           orderHeader
         );
         const order = await order_response.json();
