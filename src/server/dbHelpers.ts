@@ -149,13 +149,13 @@ export async function setMemberUpdate(memberUpdate: any) {
 export async function setMemberShirt(memberObj: any) {
   try {
     // this adds a member shirt size
-    console.log("memberObj", memberObj);
+    console.log("shirt _ memberObj", memberObj);
 
     await sql`
       INSERT INTO members (email, shirt_size)
-        VALUES(${memberObj.email}, ${memberObj.shirt_size})
+        VALUES(${memberObj.email}, ${memberObj.size})
         ON CONFLICT (email) 
-	      DO UPDATE SET email = ${memberObj.email}, shirt_size = ${memberObj.shirt_size}}
+	      DO UPDATE SET email = ${memberObj.email}, shirt_size = ${memberObj.size}}
     `;
     return "successfully updated member";
   } catch (error) {

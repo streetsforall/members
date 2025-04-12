@@ -233,7 +233,7 @@ export default async function handler(
 
         const member = await getMember(checkout.customer_details.email);
         console.log(member)
-        const tier = member.tier;
+        const mem_tier = member.tier;
         console.log("checkout_tier", tier, checkout.amount_total);
 
         // console.log('sending email')
@@ -262,7 +262,7 @@ export default async function handler(
 
 
         const updateLog = "Merch ordered for " + checkout.customer_details.name
-        const memberUpdater = {email: checkout.customer_details.email, tier: 0, update: updateLog}
+        const memberUpdater = {email: checkout.customer_details.email, tier: mem_tier, update: updateLog}
         dbHelp.setMemberUpdate(memberUpdater);
 
 
