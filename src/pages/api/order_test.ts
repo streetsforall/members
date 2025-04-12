@@ -12,11 +12,11 @@ export default async function handler(
 
   const items = [
     {
-      source: "sync",
-      sync_variant_id: 12917,
-      product_template_id: 	350800543,
-      quantity: 1,
-      name: "Members Sticker sheet",
+      "id": 1,
+      "source": 'sync',
+      "sync_variant_id": 4433819998,
+      "quantity": 1,
+      "name": "Members Sticker sheet"
     },
   ];
 
@@ -37,13 +37,14 @@ export default async function handler(
       phone: "+18325201756",
       email: "ame.no.yoru@gmail.com",
     },
+    items: items,
   };
 
   console.log("order request_body", request_body);
 
   try {
     // Step 1: Create order with address (this part remains the same)
-    const addressRequestOptions = {
+    const requestOptions = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -51,24 +52,23 @@ export default async function handler(
       },
       body: JSON.stringify(request_body),
     };
-    
-    const addressResponse = await fetch(
-      "https://api.printful.com/v2/orders",
-      addressRequestOptions
+
+    const response = await fetch(
+      "https://api.printful.com/orders",
+      requestOptions
     );
     
-    if (!addressResponse.ok) {
-      const errorText = await addressResponse.text();
-      return res.status(addressResponse.status).json({
+    if (!response.ok) {
+      const errorText = await response.text();
+      return res.status(response.status).json({
         error: true,
-        status: addressResponse.status,
-        message: `API Error when creating order: ${addressResponse.status}`,
+        status: response.status,
+        message: `API Error when creating order: ${response.status}`,
         details: errorText
       });
     }
     
-    const order_details = await addressResponse.json();
-    const orderId = order_details.data.id;
+    const order_details = await response.json();
     
     console.log('order_details',order_details)
 
@@ -77,60 +77,8 @@ export default async function handler(
     
     // Step 2: Add multiple items to the order    
     // Array to store responses for each item addition
-    const itemResponses = [];
-    
-    // Process each item sequentially
-    for (const item of items) {
-      const itemRequestOptions = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.PRINTFUL_KEY}`,
-        },
-        body: JSON.stringify(item),
-      };
-      
-      const itemResponse = await fetch(
-        `https://api.printful.com/v2/orders/${orderId}/order-items`,
-        itemRequestOptions
-      );
-      
-      const itemResponseData = await itemResponse.text();
-      
-      try {
-        // Try to parse as JSON if possible
-        const itemResponseJson = JSON.parse(itemResponseData);
-        console.log(itemResponseJson)
-        itemResponses.push({
-          success: itemResponse.ok,
-          status: itemResponse.status,
-          data: itemResponseJson,
-          item: item
-        });
-      } catch (e) {
-        // If not valid JSON, store as text
-        itemResponses.push({
-          success: itemResponse.ok,
-          status: itemResponse.status,
-          text: itemResponseData,
-          item: item
-        });
-      }
-      
-      // If an item addition fails, you might want to handle it differently
-      // For now, we continue with the next item regardless
-    }
-    
-    // Check if all items were added successfully
-    const allItemsSuccessful = itemResponses.every(response => response.success);
-    console.log('allItemsSuccessful', allItemsSuccessful)
-    
-    // Return complete response with all results
-    return res.status(allItemsSuccessful ? 200 : 207).json({
-      success: allItemsSuccessful,
-      order_details: order_details,
-      items_results: itemResponses
-    });
+
+    console.log("order_details response", order_details);
     
   } catch (err) {
     return res.status(500).json({
