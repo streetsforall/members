@@ -19,6 +19,16 @@ Resources:
 4. We fire an email to the user with their login link and welcoming them to the program.
 
 
+### Critical checklist for testing any code changes
+[] does the members table receive update?
+[] does the member_updates table receive changes?
+[] does the merch_orders table receive changes?
+[] can users still login?
+[] does Printful build orders?
+[] does mailchimp update user?
 
 
-
+### 4/25 - TO DOs
+[] Improve logging of errors
+[] integrate testing locally (not sure the path)
+[] Members voting still not built out

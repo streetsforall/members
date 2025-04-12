@@ -155,7 +155,7 @@ export async function setMemberShirt(memberObj: any) {
       INSERT INTO members (email, shirt_size)
         VALUES(${memberObj.email}, ${memberObj.size})
         ON CONFLICT (email) 
-	      DO UPDATE SET email = ${memberObj.email}, shirt_size = ${memberObj.size}}
+	      DO UPDATE SET email = ${memberObj.email}, shirt_size = ${memberObj.size}
     `;
     return "successfully updated member";
   } catch (error) {
