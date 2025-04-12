@@ -233,7 +233,7 @@ export default async function handler(
 
         const member = await getMember(checkout.customer_details.email);
         console.log(member)
-        const tier = member[0].tier;
+        const tier = member.tier;
         console.log("checkout_tier", tier, checkout.amount_total);
 
         // console.log('sending email')
