@@ -2,12 +2,12 @@
 
 import * as auth from './auth'
 import { cookies } from "next/headers";
-import {cache} from 'react';
+import { cache } from 'react';
 import { redirect } from "next/navigation";
-import { retrieveMember} from "./dbHelpers"
+import { retrieveMemberByID } from "./dbHelpers"
 
 
-// validate that a user is signed in
+// validate user session cookie for login
 
 const getUser = cache(async () => {
 	const sessionId = cookies().get(auth.lucia.sessionCookieName)?.value ?? null;
@@ -37,9 +37,13 @@ export async function validate_user() {
 		redirect("/");
 	} else {
 
-		const memberData = await retrieveMember(user.id)
-		console.log(memberData)
+		const memberData = await retrieveMemberByID(user.id)
 
 		return memberData;
 	}
+}
+
+export async function sign_out_user() {
+	const sessionCookie = auth.lucia.createBlankSessionCookie();
+	cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
 }

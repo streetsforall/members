@@ -8,6 +8,10 @@ import { cookies } from 'next/headers'
 import * as auth from './auth'
 import sql from './db'
 
+
+// verify email token for user login
+// create session cookie 
+
 export async function verify_token(token: string) {
 
 	if (token) {
@@ -22,41 +26,42 @@ export async function verify_token(token: string) {
 		
 		const first_token = check_token[0]
 
-		console.log(first_token)
-
 		if (!first_token) {
-			return ('Please request a new email token')
+			return ('Invalid Token. Please request a new email link')
 		}
 		
+
+		// Commenting this out - causes some problems on mobile
+		// where a preview window is created before goiing to the url
+		// but that burns the cookie and login fails
+
 		// delete token from table (it's been cooked!)
 
-		await sql`
-			DELETE FROM email_verification_token
-			WHERE id = ${first_token.id};
-			`
+		// await sql`
+		// 	DELETE FROM email_verification_token
+		// 	WHERE id = ${first_token.id};
+		// 	`
 		
 
 
 		if (!token || !isWithinExpirationDate(first_token.expires_at)) {
-			return ('email token expired')
+			return ('Token expired. Please request a new email link.')
 		}
 
 
 		const select_users = await sql`
 			SELECT * FROM members
-			WHERE email = ${first_token.user_id}
+			WHERE UPPER(email) LIKE UPPER(${first_token.user_id})
 			`
 
 		const user = select_users[0]
-		
-		console.log(user)
+		console.log('logging in', user)
+	
 
-		if (!user || user.email !== first_token.email) {
+		if (!user) {
 			console.log('email does not match')
 			return ('not a matching email')
 		}
-
-		console.log(user.id)
 
 		await auth.lucia.invalidateUserSessions(user.id);
 
