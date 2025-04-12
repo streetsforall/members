@@ -49,8 +49,10 @@ export async function retrieveMemberByEmail(email: string) {
         last_amount,
         last_donation,
         tier,
+        shipping_address,
         customer_id,
         joined_date,
+        shirt_size,
         subscription_id
       FROM members
       WHERE email = ${email};

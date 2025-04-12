@@ -1,5 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { useParams } from "next/navigation";
+import * as dbHelp from "../../server/dbHelpers";
+import { new_order } from "@/server/merch_order";
 
 // returns total monthly donations
 
@@ -7,84 +9,66 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-//   const prod_id = req.query.prod_id || "";
-//   const cat_id = req.query.cat_id || "";
-
-  const items = [
-    {
-      "id": 1,
-      "source": 'sync',
-      "sync_variant_id": 4433819998,
-      "quantity": 1,
-      "name": "Members Sticker sheet"
-    },
+  const memberOrders = [
+    "l.a.ridings@gmail.com",
+    "chrisbrandi@me.com",
+    "lichray@gmail.com",
+    "raquel.a.centeno@gmail.com",
+    "grahamrossmore@ucla.edu",
+    "roman@romanjaster.com",
+    "creed.ben@gmail.com",
+    "danlipson1@gmail.com",
+    "rafaelsanchez12700@gmail.com",
+    "rsvprobin@gmail.com",
+    "labellepaulj@gmail.com",
   ];
 
-  const request_body = {
-    external_id: "",
-    shipping: "STANDARD",
-    recipient: {
-      name: "Constance Jiang",
-      company: "",
-      address1: "358 S GRAMERCY PL APT 211",
-      address2: "",
-      city: "Los Angeles",
-      state_name: "CA",
-      state_code: "CA",
-      country_name: "US",
-      country_code: "US",
-      zip: "90020",
-      phone: "+18325201756",
-      email: "ame.no.yoru@gmail.com",
-    },
-    items: items,
+  // check user order tier
+  const getMember = async (email: string) => {
+    const member = await dbHelp.retrieveMemberByEmail(email);
+    return member;
   };
 
-  console.log("order request_body", request_body);
+  memberOrders.forEach(async (email) => {
+    try {
+      const member = await getMember(email);
+      console.log("member", member);
+      const mem_tier = member.tier;
 
-  try {
-    // Step 1: Create order with address (this part remains the same)
-    const requestOptions = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.PRINTFUL_KEY}`,
-      },
-      body: JSON.stringify(request_body),
-    };
+      const address = JSON.parse(member.shipping_address)
 
-    const response = await fetch(
-      "https://api.printful.com/orders",
-      requestOptions
-    );
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      return res.status(response.status).json({
+
+      const order = await new_order(
+        {
+          size: member.shirt_size,
+          name: member.name,
+          address1: address.line1,
+          address2: address.line2,
+          city: address.city,
+          state_name: address.state,
+          country_name: address.country,
+          zip: address.postal_code,
+          phone: member.phone,
+          email: member.email,
+        },
+        member.tier
+      );
+
+      console.log(order);
+
+      const updateLog = "Merch ordered for " + member.name;
+      const memberUpdater = {
+        email: member.email,
+        newTier: mem_tier,
+        update: updateLog,
+      };
+      dbHelp.setMemberUpdate(memberUpdater);
+    } catch (err: any) {
+      return res.status(500).json({
         error: true,
-        status: response.status,
-        message: `API Error when creating order: ${response.status}`,
-        details: errorText
+        message: err.message || "Unknown error occurred",
+        stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
       });
     }
-    
-    const order_details = await response.json();
-    
-    console.log('order_details',order_details)
-
-    // Wait if needed
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    
-    // Step 2: Add multiple items to the order    
-    // Array to store responses for each item addition
-
-    console.log("order_details response", order_details);
-    
-  } catch (err : any) {
-    return res.status(500).json({
-      error: true,
-      message: err.message || "Unknown error occurred",
-      stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
-    });
-  }
+  });
 }

@@ -29,7 +29,7 @@ const validateTier = (payment: number, interval: string) => {
     } else if (payment >= 1200) {
       var tier = 1;
     }
-  } else if (interval == 'year') {
+  } else if (interval == "year") {
     if (payment >= 55000) {
       var tier = 3;
     } else if (payment >= 27000) {
@@ -86,9 +86,6 @@ export default async function handler(
 
     // iterate through various stripe webhook event types
     switch (api_event.type) {
-
-
-    
       //
       //
       //
@@ -104,7 +101,6 @@ export default async function handler(
 
         const memberTier = validateTier(amount, interval);
 
-
         const prevAmount =
           api_event?.data?.previous_attributes?.items?.data[0]?.plan?.amount;
         customerID = subscriber.customer as string;
@@ -115,8 +111,15 @@ export default async function handler(
         if (api_event.type == "customer.subscription.created") {
           console.log("------------- NEW SUBSCRIPTION --------------");
 
-          const update = new_member.name+ " joined the membership program at tier " + memberTier
-          const memberUpdate = {email: new_member.email, newTier: memberTier, update: update}
+          const update =
+            new_member.name +
+            " joined the membership program at tier " +
+            memberTier;
+          const memberUpdate = {
+            email: new_member.email,
+            newTier: memberTier,
+            update: update,
+          };
           dbHelp.setMemberUpdate(memberUpdate);
         }
 
@@ -150,17 +153,24 @@ export default async function handler(
 
         res.status(200).end("New Subscriber Successful");
 
-
         // this is used to order new merch if someone upgrades
         if (api_event.type == "customer.subscription.updated") {
-
           // if event is a cancel
           if (subscriber.canceled_at) {
             console.log("------ SUBSCRIPTION CANCELLED --------");
-            const reason = subscriber.cancellation_details.reason
-            const cancel_text = new_member.name+ " set their membership to end on "+Date.parse(subscriber.cancel_at)+ " because " + reason
+            const reason = subscriber.cancellation_details.reason;
+            const cancel_text =
+              new_member.name +
+              " set their membership to end on " +
+              Date.parse(subscriber.cancel_at) +
+              " because " +
+              reason;
 
-            const memberUpdate = {new_member: new_member.email, newTier: memberTier, update: cancel_text}
+            const memberUpdate = {
+              new_member: new_member.email,
+              newTier: memberTier,
+              update: cancel_text,
+            };
             dbHelp.setMemberUpdate(memberUpdate);
           }
 
@@ -168,8 +178,17 @@ export default async function handler(
           if (subscriber.amount != prevAmount) {
             console.log("------ SUBSCRIPTION CHANGE --------");
 
-            const update = new_member.name+ " changed their membership from " + subscriber.amount + " to " + prevAmount
-            const memberUpdate = {email: new_member.email, newTier: memberTier, update: update}
+            const update =
+              new_member.name +
+              " changed their membership from " +
+              subscriber.amount +
+              " to " +
+              prevAmount;
+            const memberUpdate = {
+              email: new_member.email,
+              newTier: memberTier,
+              update: update,
+            };
             dbHelp.setMemberUpdate(memberUpdate);
 
             const member = await getMember(new_member.email);
@@ -193,27 +212,28 @@ export default async function handler(
             );
 
             console.log(order);
-            // updait mailchimp with any new info (i.e. upgraded tier)
-            // UPDATED for 2025 Mailchimp redux
-            addMailchimp(new_member.email, {
-              FNAME: new_member.name.split(" ")[0],
-              LNAME: new_member.name.split(" ")[1],
-              ADD_ST: new_member.address1,
-              ADD_ST_2: new_member.address2,
-              ADD_CITY: new_member.city,
-              ADD_ZIP: new_member.zip,
-              ADD_COUNTRY: new_member.country,
-
-              PHONE: new_member.phone,
-              MEMBERSHIP: memberTier,
-            });
+            try {
+              // update mailchimp with any new info (i.e. upgraded tier)
+              // UPDATED for 2025 Mailchimp redux
+              addMailchimp(new_member.email, {
+                FNAME: new_member.name.split(" ")[0] || "",
+                LNAME: new_member.name.split(" ")[1] || "",
+                ADD_ST: new_member.address1 || "",
+                ADD_ST_2: new_member.address2 || "",
+                ADD_CITY: new_member.city || "",
+                ADD_ZIP: new_member.zip || "",
+                ADD_COUNTR: new_member.country || "",
+                PHONE: new_member.phone || "",
+                MEMBERSHIP: memberTier || "",
+              });
+            } catch (error) {
+              console.error("Error with Mailchimp update:", error);
+            }
           }
         }
 
         break;
 
-
-       
       // NEW CHECKOUT
       // This fires at the end of someone signing up
       // After a new subscriber is logged
@@ -232,13 +252,13 @@ export default async function handler(
         }
 
         const member = await getMember(checkout.customer_details.email);
-        console.log('member', member)
+        console.log("member", member);
         const mem_tier = member.tier;
         console.log("checkout_tier", mem_tier, checkout.amount_total);
 
-        // console.log('sending email')
-        // const new_email = await new_signup_email(checkout.customer_details.email)
-        // console.log(new_email)
+        console.log('sending email')
+        const new_email = await new_signup_email(checkout.customer_details.email)
+        console.log(new_email)
 
         console.log("creating order");
 
@@ -260,11 +280,13 @@ export default async function handler(
 
         console.log(order);
 
-
-        const updateLog = "Merch ordered for " + checkout.customer_details.name
-        const memberUpdater = {email: checkout.customer_details.email, newTier: mem_tier, update: updateLog}
+        const updateLog = "Merch ordered for " + checkout.customer_details.name;
+        const memberUpdater = {
+          email: checkout.customer_details.email,
+          newTier: mem_tier,
+          update: updateLog,
+        };
         dbHelp.setMemberUpdate(memberUpdater);
-
 
         const memberShirtAdd = {
           email: checkout.customer_details.email,
@@ -291,7 +313,7 @@ export default async function handler(
             ADD_ZIP: checkout.shipping_details.address.postal_code
               ? checkout.shipping_details.address.postal_code
               : " ",
-            ADD_COUNTRY: checkout.shipping_details.address.country
+            ADD_COUNTR: checkout.shipping_details.address.country
               ? checkout.shipping_details.address.country
               : " ",
 
@@ -306,10 +328,6 @@ export default async function handler(
 
         break;
 
-
-
-
-
       // MEMBER SUBSCRIPTION CANCELED
       // this fires not when the member cancels, but when the last billing cycle is complete
       // i.e. a canceled member can still access their page until a month after canceling
@@ -322,11 +340,14 @@ export default async function handler(
 
         const canceled_member: any = await retrieveCustomer(customerID);
 
-        const update = canceled_member.name+ " has been cancelled"
-        const memberUpdate = {email: canceled_member.email, newTier: 0, update: update}
+        const update = canceled_member.name + " has been cancelled";
+        const memberUpdate = {
+          email: canceled_member.email,
+          newTier: 0,
+          update: update,
+        };
         dbHelp.setMemberUpdate(memberUpdate);
 
-    
         console.log("canceled_member", canceled_member);
 
         var email = "test@test.com";
@@ -355,5 +376,3 @@ export default async function handler(
     res.status(405).end("Method Not Allowed");
   }
 }
-
-
