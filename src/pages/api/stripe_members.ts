@@ -102,7 +102,8 @@ export default async function handler(
         const memberTier = validateTier(amount, interval);
 
         const prevAmount =
-          api_event?.data?.previous_attributes?.items?.data[0]?.plan?.amount;
+        api_event?.data?.previous_attributes?.items?.data[0]?.plan?.amount;
+        console.log('prevAmount', prevAmount)
         customerID = subscriber.customer as string;
 
         // retrieve from stripe
@@ -175,15 +176,15 @@ export default async function handler(
           }
 
           // only fire if sub amount changes
-          if (subscriber.amount != prevAmount) {
+          if (amount != prevAmount) {
             console.log("------ SUBSCRIPTION CHANGE --------");
 
             const update =
               new_member.name +
               " changed their membership from " +
-              subscriber.amount +
+              prevAmount +
               " to " +
-              prevAmount;
+              amount;
             const memberUpdate = {
               email: new_member.email,
               newTier: memberTier,

@@ -9,7 +9,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const memberOrders = [
+  const memberOrders = [{}
   ];
 
   // check user order tier
