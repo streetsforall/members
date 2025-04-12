@@ -156,11 +156,13 @@ export async function setMemberUpdate(memberUpdate: any) {
       // Optionally handle error feedback to the user
     }
 
+    console.log('sql query:', memberUpdate.email, date, memberUpdate.newTier, memberUpdate.update)
+
     await sql`
       INSERT INTO member_updates (email, date, newTier, update)
         VALUES(${memberUpdate.email}, ${date}, ${memberUpdate.newTier}, ${memberUpdate.update})
         ON CONFLICT (email) 
-	      DO UPDATE SET tier = ${memberUpdate.email}, ${date}, ${memberUpdate.newTier}, ${memberUpdate.update}}
+	      DO UPDATE SET tier = ${memberUpdate.email}, date = ${date}, newTier = ${memberUpdate.newTier}, update = ${memberUpdate.update}}
     `;
     return "successfully updated member";
   } catch (error) {
