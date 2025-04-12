@@ -4,7 +4,7 @@ import * as auth from './auth'
 import { cookies } from "next/headers";
 import { cache } from 'react';
 import { redirect } from "next/navigation";
-import { retrieveMember } from "./dbHelpers"
+import { retrieveMemberByID } from "./dbHelpers"
 
 
 // validate user session cookie for login
@@ -37,7 +37,7 @@ export async function validate_user() {
 		redirect("/");
 	} else {
 
-		const memberData = await retrieveMember(user.id)
+		const memberData = await retrieveMemberByID(user.id)
 
 		return memberData;
 	}

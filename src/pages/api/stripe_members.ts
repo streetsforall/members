@@ -44,6 +44,12 @@ const validateTier = (payment: number, interval: string) => {
   return tier;
 };
 
+// check user order tier
+const getMember = async (email: string) => {
+  const member = await dbHelp.retrieveMemberByEmail(email);
+  return member;
+};
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -107,6 +113,10 @@ export default async function handler(
 
         if (api_event.type == "customer.subscription.created") {
           console.log("------------- NEW SUBSCRIPTION --------------");
+
+          const update = new_member.name+ " joined the membership program at tier " + memberTier
+          const memberUpdate = {new_member: new_member.email, memberTier: memberTier, update: update}
+          dbHelp.setMemberUpdate(memberUpdate);
         }
 
         var address = {};
@@ -142,16 +152,26 @@ export default async function handler(
 
         // this is used to order new merch if someone upgrades
         if (api_event.type == "customer.subscription.updated") {
+
+          // if event is a cancel
+          if (subscriber.canceled_at) {
+            console.log("------ SUBSCRIPTION CANCELLED --------");
+            const reason = subscriber.cancellation_details.reason
+            const cancel_text = new_member.name+ " set their membership to end on "+Date.parse(subscriber.cancel_at)+ " because " + reason
+
+            const memberUpdate = {new_member: new_member.email, memberTier: memberTier, update: cancel_text}
+            dbHelp.setMemberUpdate(memberUpdate);
+          }
+
           // only fire if sub amount changes
           if (subscriber.amount != prevAmount) {
-            console.log("------ SUBSCRIPTION UPGRADE MERCH ORDER --------");
+            console.log("------ SUBSCRIPTION CHANGE --------");
 
-            const retrieveMember = async (email: string) => {
-              const member = await dbHelp.retrieveMember(email);
-              return member;
-            };
+            const update = new_member.name+ " changed their membership from " + subscriber.amount + " to " + prevAmount
+            const memberUpdate = {new_member: new_member.email, memberTier: memberTier, update: update}
+            dbHelp.setMemberUpdate(memberUpdate);
 
-            const member = await retrieveMember(new_member.email);
+            const member = await getMember(new_member.email);
             const size = member[0].shirt_size;
             console.log("shirt size", size);
 
@@ -211,13 +231,7 @@ export default async function handler(
           break;
         }
 
-        // check user order tier
-        const retrieveMember = async (email: string) => {
-          const member = await dbHelp.retrieveMember(email);
-          return member;
-        };
-
-        const member = await retrieveMember(checkout.customer_details.email);
+        const member = await getMember(checkout.customer_details.email);
         const tier = member[0].tier;
         console.log("checkout_tier", tier, checkout.amount_total);
 
@@ -297,6 +311,12 @@ export default async function handler(
         customerID = canceled_subscriber.customer as string;
 
         const canceled_member: any = await retrieveCustomer(customerID);
+
+        const update = new_member.name+ " has been cancelled"
+        const memberUpdate = {new_member: new_member.email, memberTier: 0, update: update}
+        dbHelp.setMemberUpdate(memberUpdate);
+
+    
         console.log("canceled_member", canceled_member);
 
         var email = "test@test.com";

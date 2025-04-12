@@ -22,7 +22,7 @@ export async function retrieveValidMembers() {
   return users;
 }
 
-export async function retrieveMember(id: string) {
+export async function retrieveMemberByID(id: string) {
   const user = await sql`
       SELECT
         name,
@@ -39,6 +39,25 @@ export async function retrieveMember(id: string) {
     `;
   return user[0];
 }
+
+export async function retrieveMemberByEmail(email: string) {
+  const user = await sql`
+      SELECT
+        name,
+        email,
+        id,
+        last_amount,
+        last_donation,
+        tier,
+        customer_id,
+        joined_date,
+        subscription_id
+      FROM members
+      WHERE email = ${email};
+    `;
+  return user[0];
+}
+
 
 export async function retrieveMerchOrders(email: string) {
   const orders = await sql`
@@ -116,16 +135,37 @@ export async function cancelMember(canceledMember: any) {
 }
 
 
-export async function setMemberUpdate(memberObj: any) {
+export async function setMemberUpdate(memberUpdate: any) {
   try {
-    // adds a row to the update member table
-    console.log("memberObj", memberObj);
+    // adds a row to the member_update table
+    const date = new Date().toLocaleString("en-US");
+    console.log("memberObj", memberUpdate.update);
+
+    const zapURL:string = process.env.Member_Update_Zap!
+
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(memberUpdate.update),
+    };
+
+    const response = await fetch(
+      zapURL,
+      requestOptions
+    );
+
+    if (!response.ok) {
+      console.log('update to zap',response.text());
+    }
+  
 
     await sql`
-      INSERT INTO members (email, shirt_size)
-        VALUES(${memberObj.email}, ${memberObj.shirt_size})
+      INSERT INTO member_updates (email, date, memberTier, update)
+        VALUES(${memberUpdate.email}, ${date}, ${memberUpdate.memberTier}, ${memberUpdate.update})
         ON CONFLICT (email) 
-	      DO UPDATE SET tier = ${memberObj.email}, shirt_size = ${memberObj.shirt_size}}
+	      DO UPDATE SET tier = ${memberUpdate.email}, ${date}, ${memberUpdate.memberTier}, ${memberUpdate.update}}
     `;
     return "successfully updated member";
   } catch (error) {
