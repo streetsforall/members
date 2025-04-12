@@ -260,6 +260,12 @@ export default async function handler(
 
         console.log(order);
 
+
+        const updateLog = "Merch ordered for " + checkout.customer_details.name
+        const memberUpdater = {new_member: checkout.customer_details.email, tier: 0, update: updateLog}
+        dbHelp.setMemberUpdate(memberUpdater);
+
+
         const memberShirtAdd = {
           email: checkout.customer_details.email,
           size: checkout.custom_fields[0].dropdown.value,

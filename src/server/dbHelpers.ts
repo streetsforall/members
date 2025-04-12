@@ -132,15 +132,17 @@ export async function setMemberUpdate(memberUpdate: any) {
       // Optionally handle error feedback to the user
     }
 
-    await sql`
-      INSERT INTO member_updates (email, date, newTier, update)
+    console.log(memberUpdate.email, date, memberUpdate.newTier, memberUpdate.update)
+      await sql`
+        INSERT INTO member_updates (email, date, newTier, update)
         VALUES(${memberUpdate.email}, ${date}, ${memberUpdate.newTier}, ${memberUpdate.update})
-    `;
-    return "successfully updated member";
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
+      `;
+      return "successfully added new member update";
+    } catch (error) {
+        console.error("Error inserting member update:", error);
+        return "failed to add new member update"; // Generic error message
+      }
+
 }
 
 export async function setMemberShirt(memberObj: any) {
