@@ -135,7 +135,7 @@ export async function setMemberUpdate(memberUpdate: any) {
 
     console.log(memberUpdate.email, date, memberUpdate.newTier, memberUpdate.update)
       await sql`
-        INSERT INTO member_updates (email, date, newTier, update)
+        INSERT INTO member_updates (email, date, newtier, update)
         VALUES(${memberUpdate.email}, ${date}, ${memberUpdate.newTier}, ${memberUpdate.update})
       `;
       return "successfully added new member update";
