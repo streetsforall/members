@@ -141,7 +141,7 @@ export async function setMemberUpdate(memberUpdate: any) {
     const date = new Date().toLocaleString("en-US");
     console.log("memberObj", memberUpdate.update);
 
-    const zapURL:string = process.env.Member_Update_Zap!
+    const zapURL:string = process.env.MEMBER_ZAP!
 
     const requestOptions = {
       method: "POST",

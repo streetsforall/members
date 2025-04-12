@@ -192,7 +192,6 @@ export default async function handler(
             );
 
             console.log(order);
-
             // updait mailchimp with any new info (i.e. upgraded tier)
             // UPDATED for 2025 Mailchimp redux
             addMailchimp(new_member.email, {
