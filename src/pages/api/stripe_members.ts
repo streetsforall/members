@@ -104,6 +104,7 @@ export default async function handler(
 
         const memberTier = validateTier(amount, interval);
 
+
         const prevAmount =
           api_event?.data?.previous_attributes?.items?.data[0]?.plan?.amount;
         customerID = subscriber.customer as string;
@@ -231,6 +232,7 @@ export default async function handler(
         }
 
         const member = await getMember(checkout.customer_details.email);
+        console.log(member)
         const tier = member[0].tier;
         console.log("checkout_tier", tier, checkout.amount_total);
 

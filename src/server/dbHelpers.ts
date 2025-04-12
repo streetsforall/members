@@ -139,7 +139,7 @@ export async function setMemberUpdate(memberUpdate: any) {
   try {
     // adds a row to the member_update table
     const date = new Date().toLocaleString("en-US");
-    console.log("memberObj", memberUpdate.update);
+    console.log("memberObj", memberUpdate);
 
     const zapURL:string = process.env.MEMBER_ZAP!
 
@@ -162,7 +162,7 @@ export async function setMemberUpdate(memberUpdate: any) {
   
 
     await sql`
-      INSERT INTO member_updates (email, date, memberTier, update)
+      INSERT INTO member_updates (email, date, newTier, update)
         VALUES(${memberUpdate.email}, ${date}, ${memberUpdate.memberTier}, ${memberUpdate.update})
         ON CONFLICT (email) 
 	      DO UPDATE SET tier = ${memberUpdate.email}, ${date}, ${memberUpdate.memberTier}, ${memberUpdate.update}}
