@@ -6,7 +6,9 @@ The members data lives in a Digital Ocean PostgreSQL database.
 
 Resources:
 [Printful API](https://developers.printful.com/docs/#tag/Orders-API/operation/createOrder)
+
 [Stripe API](https://docs.stripe.com/api/subscriptions)
+
 [Mailchimp API](https://github.com/mailchimp/mailchimp-marketing-node/)
 
 ### Simplified New Member Lifecycle
@@ -20,15 +22,15 @@ Resources:
 
 
 ### Critical checklist for testing any code changes
-[] does the members table receive update?
-[] does the member_updates table receive changes?
-[] does the merch_orders table receive changes?
-[] can users still login?
-[] does Printful build orders?
-[] does mailchimp update user?
+- does the members table receive update?
+- does the member_updates table receive changes?
+- does the merch_orders table receive changes?
+- can users still login?
+- does Printful build orders?
+- does mailchimp update user?
 
 
 ### 4/25 - TO DOs
-[] Improve logging of errors
-[] integrate testing locally (not sure the path)
-[] Members voting still not built out
+* [ ] Improve logging of errors
+* [ ] integrate testing locally (not sure the path)
+* [ ] Members voting still not built out

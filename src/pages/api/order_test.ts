@@ -10,17 +10,6 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const memberOrders = [
-    "l.a.ridings@gmail.com",
-    "chrisbrandi@me.com",
-    "lichray@gmail.com",
-    "raquel.a.centeno@gmail.com",
-    "grahamrossmore@ucla.edu",
-    "roman@romanjaster.com",
-    "creed.ben@gmail.com",
-    "danlipson1@gmail.com",
-    "rafaelsanchez12700@gmail.com",
-    "rsvprobin@gmail.com",
-    "labellepaulj@gmail.com",
   ];
 
   // check user order tier
