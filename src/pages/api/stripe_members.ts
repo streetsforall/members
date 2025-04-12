@@ -234,7 +234,7 @@ export default async function handler(
         const member = await getMember(checkout.customer_details.email);
         console.log(member)
         const mem_tier = member.tier;
-        console.log("checkout_tier", tier, checkout.amount_total);
+        console.log("checkout_tier", mem_tier, checkout.amount_total);
 
         // console.log('sending email')
         // const new_email = await new_signup_email(checkout.customer_details.email)
@@ -255,7 +255,7 @@ export default async function handler(
             phone: checkout.customer_details.phone,
             email: checkout.customer_details.email,
           },
-          tier
+          mem_tier
         );
 
         console.log(order);
@@ -296,7 +296,7 @@ export default async function handler(
               : " ",
 
             PHONE: checkout.customer_details.phone,
-            MEMBERSHIP: tier,
+            MEMBERSHIP: mem_tier,
           });
         } catch (error) {
           console.log("error with mailchimop", error);
