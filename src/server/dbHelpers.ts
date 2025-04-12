@@ -58,7 +58,6 @@ export async function retrieveMemberByEmail(email: string) {
   return user[0];
 }
 
-
 export async function retrieveMerchOrders(email: string) {
   const orders = await sql`
       SELECT
@@ -134,38 +133,34 @@ export async function cancelMember(canceledMember: any) {
   }
 }
 
-
 export async function setMemberUpdate(memberUpdate: any) {
   try {
     // adds a row to the member_update table
     const date = new Date().toLocaleString("en-US");
-    console.log("memberObj", memberUpdate);
+    console.log("memberUpdate", memberUpdate);
 
-    const zapURL:string = process.env.MEMBER_ZAP!
+    const zapURL: string = process.env.MEMBER_ZAP!;
 
-    const requestOptions = {
+    const response = await fetch(zapURL, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(memberUpdate.update),
-    };
-
-    const response = await fetch(
-      zapURL,
-      requestOptions
-    );
-
-    if (!response.ok) {
-      console.log('update to zap',response.text());
+      body: JSON.stringify(memberUpdate),
+    });
+    if (response.ok) {
+      console.log("Data sent to Zapier successfully!");
+      // Optionally handle success feedback to the user
+    } else {
+      console.error("Failed to send data to Zapier:", response.status);
+      // Optionally handle error feedback to the user
     }
-  
 
     await sql`
       INSERT INTO member_updates (email, date, newTier, update)
-        VALUES(${memberUpdate.email}, ${date}, ${memberUpdate.memberTier}, ${memberUpdate.update})
+        VALUES(${memberUpdate.email}, ${date}, ${memberUpdate.newTier}, ${memberUpdate.update})
         ON CONFLICT (email) 
-	      DO UPDATE SET tier = ${memberUpdate.email}, ${date}, ${memberUpdate.memberTier}, ${memberUpdate.update}}
+	      DO UPDATE SET tier = ${memberUpdate.email}, ${date}, ${memberUpdate.newTier}, ${memberUpdate.update}}
     `;
     return "successfully updated member";
   } catch (error) {
@@ -173,7 +168,6 @@ export async function setMemberUpdate(memberUpdate: any) {
     return null;
   }
 }
-
 
 export async function setMemberShirt(memberObj: any) {
   try {
@@ -192,7 +186,6 @@ export async function setMemberShirt(memberObj: any) {
     return null;
   }
 }
-
 
 export async function setMember(memberObj: any) {
   try {

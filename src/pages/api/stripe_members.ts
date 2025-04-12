@@ -116,7 +116,7 @@ export default async function handler(
           console.log("------------- NEW SUBSCRIPTION --------------");
 
           const update = new_member.name+ " joined the membership program at tier " + memberTier
-          const memberUpdate = {new_member: new_member.email, memberTier: memberTier, update: update}
+          const memberUpdate = {new_member: new_member.email, newTier: memberTier, update: update}
           dbHelp.setMemberUpdate(memberUpdate);
         }
 
@@ -160,7 +160,7 @@ export default async function handler(
             const reason = subscriber.cancellation_details.reason
             const cancel_text = new_member.name+ " set their membership to end on "+Date.parse(subscriber.cancel_at)+ " because " + reason
 
-            const memberUpdate = {new_member: new_member.email, memberTier: memberTier, update: cancel_text}
+            const memberUpdate = {new_member: new_member.email, newTier: memberTier, update: cancel_text}
             dbHelp.setMemberUpdate(memberUpdate);
           }
 
@@ -169,7 +169,7 @@ export default async function handler(
             console.log("------ SUBSCRIPTION CHANGE --------");
 
             const update = new_member.name+ " changed their membership from " + subscriber.amount + " to " + prevAmount
-            const memberUpdate = {new_member: new_member.email, memberTier: memberTier, update: update}
+            const memberUpdate = {new_member: new_member.email, newTier: memberTier, update: update}
             dbHelp.setMemberUpdate(memberUpdate);
 
             const member = await getMember(new_member.email);
@@ -314,7 +314,7 @@ export default async function handler(
         const canceled_member: any = await retrieveCustomer(customerID);
 
         const update = new_member.name+ " has been cancelled"
-        const memberUpdate = {new_member: new_member.email, memberTier: 0, update: update}
+        const memberUpdate = {new_member: new_member.email, newTier: 0, update: update}
         dbHelp.setMemberUpdate(memberUpdate);
 
     

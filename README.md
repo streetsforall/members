@@ -1,48 +1,24 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Membership Program
 
-## Getting Started
+This is a webapp for managing the SFA membership program. It is both the front facing application that members can sign into and also acts as an API endpoint for multiple utilities.
 
-First, run the development server:
+The members data lives in a Digital Ocean PostgreSQL database. 
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Resources:
+[Printful API](https://developers.printful.com/docs/#tag/Orders-API/operation/createOrder)
+[Stripe API](https://docs.stripe.com/api/subscriptions)
+[Mailchimp API](https://github.com/mailchimp/mailchimp-marketing-node/)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Simplified New Member Lifecycle
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. A new member signs up. This is done using Stripe and will call `membership.streetsforall.org/api/stipe_members`
+2. We check the member payment and assign them a tier (1, 2, 3). We log the user to our database (table: `members` and `member_updates`)
+3. We place an API call to [Printful](https://developers.printful.com/docs/#tag/Orders-API/operation/createOrder) to order merch depending on the tier of the user. We log the order in our database (table: `merch_orders`)
+4. We update the user in our [Mailchimp]((https://github.com/mailchimp/mailchimp-marketing-node/) Audience 
+4. We generate an email verification and post it to our database (table: `email_verification_tokens`)
+4. We fire an email to the user with their login link and welcoming them to the program.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
-
-## Project Document
-[SFA Membership Passes](https://docs.google.com/document/d/1NoupkaDPMYsf_IbPjY2ySlOS2CVNmDd_X0Z4TIurdxY/edit?usp=sharing)
-
-## .env.local
-You will need to set up a .env.local file. Reach out to Max Fung for more info.
-
-## References
-https://secure.actblue.com/docs/csv_api
-https://secure.actblue.com/docs/custom_integrations
-https://vercel.com/guides/how-to-setup-cron-jobs-on-vercel
-https://vercel.com/guides/using-databases-with-vercel
