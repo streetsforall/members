@@ -116,7 +116,7 @@ export default async function handler(
           console.log("------------- NEW SUBSCRIPTION --------------");
 
           const update = new_member.name+ " joined the membership program at tier " + memberTier
-          const memberUpdate = {new_member: new_member.email, newTier: memberTier, update: update}
+          const memberUpdate = {email: new_member.email, newTier: memberTier, update: update}
           dbHelp.setMemberUpdate(memberUpdate);
         }
 
@@ -169,7 +169,7 @@ export default async function handler(
             console.log("------ SUBSCRIPTION CHANGE --------");
 
             const update = new_member.name+ " changed their membership from " + subscriber.amount + " to " + prevAmount
-            const memberUpdate = {new_member: new_member.email, newTier: memberTier, update: update}
+            const memberUpdate = {email: new_member.email, newTier: memberTier, update: update}
             dbHelp.setMemberUpdate(memberUpdate);
 
             const member = await getMember(new_member.email);
@@ -262,7 +262,7 @@ export default async function handler(
 
 
         const updateLog = "Merch ordered for " + checkout.customer_details.name
-        const memberUpdater = {new_member: checkout.customer_details.email, tier: 0, update: updateLog}
+        const memberUpdater = {email: checkout.customer_details.email, tier: 0, update: updateLog}
         dbHelp.setMemberUpdate(memberUpdater);
 
 
@@ -319,8 +319,8 @@ export default async function handler(
 
         const canceled_member: any = await retrieveCustomer(customerID);
 
-        const update = new_member.name+ " has been cancelled"
-        const memberUpdate = {new_member: new_member.email, newTier: 0, update: update}
+        const update = canceled_member.name+ " has been cancelled"
+        const memberUpdate = {email: canceled_member.email, newTier: 0, update: update}
         dbHelp.setMemberUpdate(memberUpdate);
 
     
@@ -352,3 +352,5 @@ export default async function handler(
     res.status(405).end("Method Not Allowed");
   }
 }
+
+

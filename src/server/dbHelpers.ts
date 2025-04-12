@@ -132,6 +132,7 @@ export async function setMemberUpdate(memberUpdate: any) {
       // Optionally handle error feedback to the user
     }
 
+
     console.log(memberUpdate.email, date, memberUpdate.newTier, memberUpdate.update)
       await sql`
         INSERT INTO member_updates (email, date, newTier, update)
