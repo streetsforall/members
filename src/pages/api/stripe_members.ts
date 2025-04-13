@@ -341,7 +341,7 @@ export default async function handler(
 
         const canceled_member: any = await retrieveCustomer(customerID);
 
-        const update = canceled_member.name + " has been cancelled";
+        const update = `${canceled_member.name}'s ${canceled_subscriber.items.data[0].plan.amount} plan has been cancelled`;
         const memberUpdate = {
           email: canceled_member.email,
           newTier: 0,
