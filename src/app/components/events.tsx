@@ -9,7 +9,7 @@ const Events = (member: any) => {
         <div className='user_section'>
             <div className='section_header'>
                 <h2>Next Member Event: April 17</h2>
-                <a href="https://docs.google.com/forms/d/e/1FAIpQLSf2STS8VltZT0ew3QpnBkS2-NMZGXnEAJz6OWftZKKB3FJV6g/viewform?usp=sf_link">RSVP</a>
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSeKOlQJf2uJvtam4LhDSOe86tnY2_z5jHiG0HePHr-bcxl4wQ/viewform">RSVP</a>
            
             </div>
 
