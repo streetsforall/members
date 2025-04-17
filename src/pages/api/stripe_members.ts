@@ -44,6 +44,12 @@ const validateTier = (payment: number, interval: string) => {
   return tier;
 };
 
+const dollar = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+});
+
+
 // check user order tier
 const getMember = async (email: string) => {
   const member = await dbHelp.retrieveMemberByEmail(email);
@@ -156,7 +162,7 @@ export default async function handler(
 
         // this is used to order new merch if someone upgrades
         if (api_event.type == "customer.subscription.updated") {
-          
+
           // if event is a cancel
           if (subscriber.canceled_at) {
             console.log("------ SUBSCRIPTION CANCELLED --------");
@@ -183,9 +189,10 @@ export default async function handler(
             const update =
               new_member.name +
               " changed their membership from " +
-              prevAmount +
+              dollar.format(prevAmount*.01) +
               " to " +
-              amount;
+              dollar.format(amount*.01);
+
             const memberUpdate = {
               email: new_member.email,
               newTier: memberTier,
@@ -341,8 +348,10 @@ export default async function handler(
         customerID = canceled_subscriber.customer as string;
 
         const canceled_member: any = await retrieveCustomer(customerID);
+        const canceled_amount = canceled_subscriber.items.data[0].plan.amount ? canceled_subscriber.items.data[0].plan.amount : 0
 
-        const update = `${canceled_member.name}'s ${canceled_subscriber.items.data[0].plan.amount} plan has been cancelled`;
+        const update = `${canceled_member.name}'s ${dollar.format(canceled_amount * .01 )} plan has been cancelled`;
+        
         const memberUpdate = {
           email: canceled_member.email,
           newTier: 0,
@@ -363,6 +372,7 @@ export default async function handler(
           status: canceled_member.status ? canceled_member.status : "canceled",
           amount: 0,
         };
+
         dbHelp.cancelMember(canceledMember);
 
         res.status(200).end("Subscriber Canceled Successful");
