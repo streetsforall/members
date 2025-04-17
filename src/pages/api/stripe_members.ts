@@ -156,6 +156,7 @@ export default async function handler(
 
         // this is used to order new merch if someone upgrades
         if (api_event.type == "customer.subscription.updated") {
+          
           // if event is a cancel
           if (subscriber.canceled_at) {
             console.log("------ SUBSCRIPTION CANCELLED --------");
@@ -175,8 +176,8 @@ export default async function handler(
             dbHelp.setMemberUpdate(memberUpdate);
           }
 
-          // only fire if sub amount changes
-          if (amount != prevAmount) {
+          // only fire if sub amount actually changes
+          if (prevAmount && amount != prevAmount) {
             console.log("------ SUBSCRIPTION CHANGE --------");
 
             const update =
