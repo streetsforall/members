@@ -265,15 +265,17 @@ export default async function handler(
         const mem_tier = member.tier;
         console.log("checkout_tier", mem_tier, checkout.amount_total);
 
-        console.log('sending email')
-        const new_email = await new_signup_email(checkout.customer_details.email)
-        console.log(new_email)
+        // console.log('sending email')
+        // const new_email = await new_signup_email(checkout.customer_details.email)
+        // console.log(new_email)
 
         console.log("creating order");
 
+        const shirt_size = checkout.custom_fields[0].dropdown.value ? checkout.custom_fields[0].dropdown.value : 'L'
+
         const order = await new_order(
           {
-            size: checkout.custom_fields[0].dropdown.value,
+            size: shirt_size,
             name: checkout.customer_details.name,
             address1: checkout.shipping_details.address.line1,
             address2: checkout.shipping_details.address.line2,
@@ -299,7 +301,7 @@ export default async function handler(
 
         const memberShirtAdd = {
           email: checkout.customer_details.email,
-          size: checkout.custom_fields[0].dropdown.value,
+          size: shirt_size,
         };
 
         // pass member to database
@@ -351,7 +353,7 @@ export default async function handler(
         const canceled_amount = canceled_subscriber.items.data[0].plan.amount ? canceled_subscriber.items.data[0].plan.amount : 0
 
         const update = `${canceled_member.name}'s ${dollar.format(canceled_amount * .01 )} plan has been cancelled`;
-        
+
         const memberUpdate = {
           email: canceled_member.email,
           newTier: 0,
