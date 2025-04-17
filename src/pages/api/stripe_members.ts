@@ -271,7 +271,7 @@ export default async function handler(
 
         console.log("creating order");
 
-        const shirt_size = checkout.custom_fields[0].dropdown.value ? checkout.custom_fields[0].dropdown.value : 'L'
+        const shirt_size = checkout?.custom_fields?.[0]?.dropdown?.value || 'L';
 
         const order = await new_order(
           {
@@ -350,7 +350,7 @@ export default async function handler(
         customerID = canceled_subscriber.customer as string;
 
         const canceled_member: any = await retrieveCustomer(customerID);
-        const canceled_amount = canceled_subscriber.items.data[0].plan.amount ? canceled_subscriber.items.data[0].plan.amount : 0
+        const canceled_amount = canceled_subscriber?.items.data[0]?.plan.amount || 0
 
         const update = `${canceled_member.name}'s ${dollar.format(canceled_amount * .01 )} plan has been cancelled`;
 
