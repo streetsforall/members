@@ -33,7 +33,6 @@ export default async function handler(
             // }
 
 
-            console.log(getDB)
             // const sum = getDB.reduce((a, b) => a + b.last_amount, 0)
 
 
@@ -41,17 +40,19 @@ export default async function handler(
             const tier2 = getDB.reduce((a, b) => b.tier == 2 ? a + 1 : a, 0)
             const tier3 = getDB.reduce((a, b) => b.tier == 3 ? a + 1 : a, 0)
 
+
             const tier1dollar = tier1 * 12
             const tier2dollar = tier2 * 24
             const tier3dollar = tier3 * 48
 
-
+            console.log(tier1, tier2, tier3)
+            console.log(tier1dollar, tier2dollar, tier3dollar)
 
             res.status(200).send({
-                'estimated yearly income': (tier3dollar + tier2dollar + tier3dollar) * 12,
-                'current monthly income': (tier3dollar + tier2dollar + tier3dollar),
+                'estimated yearly income': (tier1dollar + tier2dollar + tier3dollar) * 12,
+                'current monthly income': (tier1dollar + tier2dollar + tier3dollar),
                 'current donations': getDB.length,
-                'average donation': Math.trunc((tier3dollar + tier2dollar + tier3dollar) /  getDB.length),
+                'average donation': Math.trunc((tier1dollar + tier2dollar + tier3dollar) /  getDB.length),
                 'tier 1 donors': tier1,
                 'tier 2 donors': tier2,
                 'tier 3 donors': tier3,
