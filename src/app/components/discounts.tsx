@@ -167,6 +167,14 @@ const Discounts = (member: any) => {
                         <p>Get 15% off at Red Shift Sports high quality bike components including LED pedals.</p>
                         <p><a className="light_butt" href="https://redshiftsports.com/discount/SFA15">Discount Link</a></p>
                     </div>
+
+                    <div hidden data-key={7} className="slide">
+                        {/* // WOMBI */}
+                        <img src="/wombi.png"/>
+                        <p><a target="_blank" rel="noopener noreferrer" href="https://wombi.us/pages/refer-a-friend?f=fZstHIjQasUGDfQ48Ay3pcc1G9nXPmTZh8ncUawyv2Ra3uw9v_Ua1kVBaGJEGgxvID75uh0RSXJpL2lB-ilSew">WOMBI DISCOUNT</a></p>
+                        <p>Get 50% off your first month of an e-bike subscription through Wombi!</p>
+                        <p><a className="light_butt" href="https://wombi.us/pages/refer-a-friend?f=fZstHIjQasUGDfQ48Ay3pcc1G9nXPmTZh8ncUawyv2Ra3uw9v_Ua1kVBaGJEGgxvID75uh0RSXJpL2lB-ilSew">Discount Link</a></p>
+                    </div>
                   
 
                     <p style={{textAlign:'right'}}>{slide}/{maxSlides}</p>
