@@ -2,8 +2,7 @@ import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 
 export default async function LoginPage() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-  const data = await fetch(`${baseUrl}/api/stats`);
+  const data = await fetch(`https://members.streetsforall.org/api/stats`);
   const members = await data.json();
 
   console.log(members);
@@ -13,7 +12,7 @@ export default async function LoginPage() {
       <div className="login_page">
         <div>
           
-          <h3>Members Dashboard</h3>
+          <h1>Dashboard</h1>
           <table>
             <thead>
   
@@ -42,7 +41,7 @@ export default async function LoginPage() {
             </tbody>
           </table>
 
-          <h3 style={{borderTop: "1px solid blue", paddingTop: "1rem" }}>Regional Stats</h3>
+          <h2 style={{borderTop: "1px solid blue", paddingTop: "2rem" }}>Regional Stats</h2>
           <table>
             <thead style={{textAlign: "left"}}>
               <tr style={{color: "gray"}}>
@@ -69,6 +68,9 @@ export default async function LoginPage() {
               </tr>
             </tbody>
           </table>
+
+          <h2 style={{borderTop: "1px solid blue", paddingTop: "2rem" }}>Merch Stats</h2s>
+
         </div>
       </div>
     );

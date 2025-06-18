@@ -126,6 +126,15 @@ a {
 }
 
 
+tbody tr {
+    padding: .5rem;
+}
+
+tbody tr:nth-child(odd) {
+    background-color: rgb(245, 240, 240);
+  }
+
+
 .footer {
     max-width: 100%;
     padding: 3rem;
