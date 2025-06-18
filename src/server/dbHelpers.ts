@@ -13,6 +13,7 @@ export async function retrieveValidMembers() {
         email,
         last_amount,
         tier,
+        branch,
         shipping_address,
         phone
       FROM members
