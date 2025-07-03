@@ -1,0 +1,18 @@
+.data_container {
+    margin: 2rem;
+    max-width: 200rem;
+}
+
+table {
+    min-width: 100%;
+    font-size: .8rem;
+}
+
+.summary {
+    color: var(--blue);
+    margin-top: 1rem;
+}
+
+.json {
+    font-size: .7rem;
+}
