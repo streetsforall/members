@@ -312,10 +312,6 @@ tbody tr:nth-child(odd) {
     max-width: 10rem;
 }
 
-.discounts {
-
-}
-
 .order {
     padding: .5rem 0rem;
     border-bottom: 1px dotted var(--light_blue);

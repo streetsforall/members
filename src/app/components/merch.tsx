@@ -51,11 +51,11 @@ const Merch = (member: any) => {
             </div>
             <div className={!show ? 'section_content hidden' : 'section_content'}>
 
-                {merch ? merch.map((item) => (
+                {merch ? merch.map((item, key) => (
 
                     item.order_status ?
 
-                        <div className="order">
+                        <div key={key} className="order">
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <span>Order: {item.order_id}</span>
                                 <span>{item.order_status == 'fulfilled' ? <a target="_blank" rel="noopener noreferrer" href={item.delivery_status} ><button className="light_butt">Tracking Link</button></a> : 'Status: '+item.order_status}</span>
@@ -64,13 +64,13 @@ const Merch = (member: any) => {
                             <div className="merch_grid">
 
 
-                            { JSON.parse(item.order_package).length > 0 ? JSON.parse(item.order_package).map((pack : any) => {
+                            { JSON.parse(item.order_package).length > 0 ? JSON.parse(item.order_package).map((pack : any, key) => {
                                 
                                 console.log('pack', pack )
 
                                 if (pack == 'shirt') {
                                     return(
-                                    <div className="merch_item">
+                                    <div key={key} className="merch_item">
                                         <img src="/merch_shirt.jpg" />
                                         1x Members Club T-Shirt
                                     </div>
@@ -80,7 +80,7 @@ const Merch = (member: any) => {
 
                                 if (pack == 'hat') {
                                     return(
-                                    <div className="merch_item">
+                                    <div key={key} className="merch_item">
                                         <img src="/merch_hat.jpg" />
                                         1x Members Club Hat
                                     </div>
@@ -90,7 +90,7 @@ const Merch = (member: any) => {
 
                                 if (pack == 'sticker') {
                                     return(
-                                    <div className="merch_item">
+                                    <div key={key} className="merch_item">
                                         <img src="/merch_stickers.jpg" />
                                         1x Members Club Sticker Sheet
                                     </div>
