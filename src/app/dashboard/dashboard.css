@@ -1,6 +1,7 @@
 .data_container {
     margin: 2rem;
     max-width: 200rem;
+    font-size: .9rem;
 }
 
 table {
@@ -15,4 +16,10 @@ table {
 
 .json {
     font-size: .7rem;
+}
+
+.section {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dotted var(--blue);
 }

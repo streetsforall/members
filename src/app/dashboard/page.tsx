@@ -54,6 +54,8 @@ export default function LoginPage() {
   const [sfMerch, setSFMerch] = useState<number>(0);
   const [flatMembers, setFlatMembers] = useState<Member[]>([]);
 
+  const [totals, setTotals] = useState<any>([]);
+
   const handleSubmit = async (): Promise<void> => {
     // Clear previous results and errors
     setResults(null);
@@ -119,6 +121,14 @@ export default function LoginPage() {
         return total + merch.sf_profits;
       }, 0) || 0;
 
+      let flatMembers = Object.values(results.memberArray).flat()
+
+      const membersTotal = flatMembers?.reduce((total: number, member : any) => {
+        return total + member.amount
+      }, 0) || 0;
+
+      setTotals({"membersTotal": membersTotal, "sumMerch": sumMerch})
+
       setFlatMembers(Object.values(results.memberArray).flat());
 
       setSFMerch(sumSfMerch);
@@ -155,7 +165,7 @@ export default function LoginPage() {
 
   return (
     <div className="data_container">
-      <h1 className="title">Date Range Data Request</h1>
+      <h3 className="title"> Select Date Range</h3>
 
       <div className="form">
         <div className="field">
@@ -200,6 +210,14 @@ export default function LoginPage() {
 
       {results && (
         <div className="results">
+
+<div className="section">
+            <h3>Org Totals </h3>
+            <p>Membership Total: ${totals?.membersTotal?.toFixed(2)}</p>
+            <p>Merch Total: ${totals?.sumMerch?.toFixed(2)}</p>
+          </div>
+
+
           <div className="section">
             <h3>SF Chapter Totals </h3>
             <p>SF Chapter Membership Total: ${sfMember.toFixed(2)}</p>
