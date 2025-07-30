@@ -448,6 +448,13 @@ export default async function handler(
           const total_sf_customer = sf_merch_costs.retail.reduce((a: number, b: number) => a + b, 0);
           const total_sf_printful = sf_merch_costs.price.reduce((a: number, b: number) => a + b, 0);
 
+          // extra fees = fees paid by customer added by squarespace but not included per item (i.e tax) - this is additional revenue for us
+          // shared costs = net fees charged by printful (shipping + tax - discount) 
+          // stripe fee = fee charged by stripe (.29% + $00.30) per transaction
+          // sf_share = (shared_costs - extra_fees + stripe_fee) * ratio of San Francisco items per order;
+
+          // sf_profits = sf_merch_items_retail - sf_merch_items_printful_costs - sf_share
+
           // this finds the total extra fees charged to the customer not captured when itemized 
           // this is calculated for ALL merch (not just SF)
           const merch_marg = merch_margin.reduce((a: number, b: number) => a + b, 0);
@@ -457,11 +464,13 @@ export default async function handler(
           // these are all shared costs for shipping and fees
           const shared_costs = Number(merchOrder.costs.shipping) + Number(merchOrder.costs.tax) - Number(merchOrder.costs.discount);
 
+          // stripe fee
           const stripe_fee = ((merchOrder.pricing_breakdown[0]?.customer_pays || 0) * 0.029) + 0.3;
 
           // this is the approximation for how much of the extra fees for both customers and us are from SF merch
           const sf_share = (shared_costs - extra_fees + stripe_fee) * sf_ratio;
 
+          // sf profit is the profit for all items, with SF's share of fees subtracted
           merch_body.sf_profits = total_sf_customer - total_sf_printful - sf_share;
 
           console.log({
