@@ -65,7 +65,7 @@ export default function LoginPage() {
             <br /><br />
             If you are having difficulties, reach out to membership@streetsforall.org
           </div>
-        }å
+        }
         <p className="sub">Don&apos;t have an account? <a href="/new">Sign up here</a></p>
       </div>
     )
