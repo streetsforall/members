@@ -17,7 +17,7 @@ export async function retrieveValidMembers() {
         shipping_address,
         phone
       FROM members
-      WHERE tier > 0;
+      WHERE tier > 0 AND tier < 4;
     `;
   // console.log(users)
   return users;
