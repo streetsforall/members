@@ -5,6 +5,7 @@ import { TimeSpan, createDate } from "oslo";
 import { generateIdFromEntropySize } from "lucia";
 import * as auth from "./auth";
 import { cookies } from "next/headers";
+import { getChapterFromZip } from "./zipUtils";
 
 export async function retrieveValidMembers() {
   const users = await sql`
@@ -176,10 +177,10 @@ export async function setMember(memberObj: any) {
     console.log("memberObj", memberObj);
 
     await sql`
-      INSERT INTO members (name, email, tier, last_amount, shipping_address, last_donation, customer_id, phone, subscription_ID)
-        VALUES(${memberObj.name}, ${memberObj.email}, ${memberObj.tier}, ${memberObj.amount}, ${memberObj.shipping_address}, ${date}, ${memberObj.customer_id}, ${memberObj.phone},  ${memberObj.subID})
-        ON CONFLICT (email) 
-	      DO UPDATE SET tier = ${memberObj.tier}, last_amount = ${memberObj.amount}, last_donation = ${date}, shipping_address = ${memberObj.shipping_address}, customer_id = ${memberObj.customer_id},  subscription_ID = ${memberObj.subID}
+      INSERT INTO members (name, email, tier, last_amount, shipping_address, last_donation, customer_id, phone, subscription_ID, branch)
+        VALUES(${memberObj.name}, ${memberObj.email}, ${memberObj.tier}, ${memberObj.amount}, ${memberObj.shipping_address}, ${date}, ${memberObj.customer_id}, ${memberObj.phone},  ${memberObj.subID}, ${memberObj.branch})
+        ON CONFLICT (email)
+	      DO UPDATE SET tier = ${memberObj.tier}, last_amount = ${memberObj.amount}, last_donation = ${date}, shipping_address = ${memberObj.shipping_address}, customer_id = ${memberObj.customer_id},  subscription_ID = ${memberObj.subID}, branch = ${memberObj.branch}
     `;
     console.log("updated member");
 

@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import * as dbHelp from "../../server/dbHelpers";
+import { getChapterFromZip } from "../../server/zipUtils";
 import { new_order } from "@/server/merch_order";
 import { buffer } from "micro";
 import Stripe from "stripe";
@@ -141,6 +142,17 @@ export default async function handler(
 
         console.log("new member", new_member, memberTier);
 
+        // Extract ZIP code for branch assignment
+        let zipCode;
+        if (new_member.shipping && new_member.shipping.address) {
+          zipCode = new_member.shipping.address.postal_code;
+        } else if (new_member.address) {
+          zipCode = new_member.address.postal_code;
+        }
+
+        // Determine branch based on ZIP code
+        const branch = getChapterFromZip(zipCode);
+
         // update member database
         const memberObj = {
           tier: memberTier,
@@ -153,6 +165,7 @@ export default async function handler(
           customer_id: customerID,
           newMember: newMember,
           subID: subscriber.id,
+          branch: branch,
         };
 
         // pass member to database
