@@ -10,17 +10,20 @@ import { retrieveMemberByID } from "./dbHelpers"
 // validate user session cookie for login
 
 const getUser = cache(async () => {
-	const sessionId = cookies().get(auth.lucia.sessionCookieName)?.value ?? null;
+	const cookieStore = await cookies();
+	const sessionId = cookieStore.get(auth.lucia.sessionCookieName)?.value ?? null;
 	if (!sessionId) return null;
 	const { user, session } = await auth.lucia.validateSession(sessionId);
 	try {
 		if (session && session.fresh) {
 			const sessionCookie = auth.lucia.createSessionCookie(session.id);
-			cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+			const freshCookieStore = await cookies();
+			freshCookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
 		}
 		if (!session) {
 			const sessionCookie = auth.lucia.createBlankSessionCookie();
-			cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+			const blankCookieStore = await cookies();
+			blankCookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
 		}
 	} catch {
 		console.log('cookie error')
@@ -45,5 +48,6 @@ export async function validate_user() {
 
 export async function sign_out_user() {
 	const sessionCookie = auth.lucia.createBlankSessionCookie();
-	cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+	const cookieStore = await cookies();
+	cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
 }

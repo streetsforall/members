@@ -1,9 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { useParams } from "next/navigation";
-import * as dbHelp from "../../server/dbHelpers";
-import { new_order } from "@/server/merch_order";
 
 // returns total monthly donations
+
+export default async function handler(
+  _req: NextApiRequest,
+  res: NextApiResponse
+) {
+  res.status(200).json({ message: "Test endpoint - currently disabled" });
+}
 
 // export default async function handler(
 //   req: NextApiRequest,

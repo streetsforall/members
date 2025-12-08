@@ -23,7 +23,10 @@ export interface member {
 
 // this needs to be a server component to preserve data
 
-const updateViews = async ({ params }: { params: { slug: string } }) => {
+const updateViews = async ({ params }: { params: Promise<{ slug: string }> }) => {
+
+    // await params for Next.js 15+
+    const { slug } = await params;
 
     // validating user cookies
     const memberData = await validate_user()
@@ -64,7 +67,7 @@ const updateViews = async ({ params }: { params: { slug: string } }) => {
                 }
             </p>
 
-            {member.tier > 0 ? <a href={params.slug + '/card'}><button>Member Card</button></a> :  <a href={'../../new'}><button>Sign Up Again</button></a>}
+            {member.tier > 0 ? <a href={slug + '/card'}><button>Member Card</button></a> :  <a href={'../../new'}><button>Sign Up Again</button></a>}
 
             <br />
 

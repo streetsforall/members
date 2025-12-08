@@ -203,7 +203,8 @@ export async function setMember(memberObj: any) {
 }
 
 export async function getSessionCookie() {
-  const sessionId = cookies().get("auth_session");
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get("auth_session");
   if (sessionId) {
     const { session, user } = await auth.lucia.validateSession(sessionId.value);
     return { session, user };
