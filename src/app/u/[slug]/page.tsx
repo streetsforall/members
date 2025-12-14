@@ -11,6 +11,8 @@ import Voting from '@/app/components/voting';
 import { SignOut } from '@/app/components/signout'
 import Events from '@/app/components/events';
 
+import Card from './card' 
+
 
 
 export interface member {
@@ -60,14 +62,16 @@ const updateViews = async ({ params }: { params: Promise<{ slug: string }> }) =>
             8 = test, full access
             10 = volunteer */}
 
-            <img className="tier_img" src={member.tier == 1 ? '../pedestrian.png' : member.tier == 2 ? '../bike.png' : member.tier == 0 ? '../tree.png' : member.tier == 3 ? '../bus.png' : '../walkers.png'} />
-            <p>Hi {member.name}, <br /><br />
+            {/* <img className="tier_img" src={member.tier == 1 ? '../pedestrian.png' : member.tier == 2 ? '../bike.png' : member.tier == 0 ? '../tree.png' : member.tier == 3 ? '../bus.png' : '../walkers.png'} /> */}
+            <Card/>
+
+            <p>
                 {member.tier > 0 ? `Thank you for supporting Streets for All. Welcome to your active ${teir_desc(member.tier)} Tier membership.` :
                     'Your membership is currently canceled. Please subscribe again to access member perks.'
                 }
             </p>
 
-            {member.tier > 0 ? <a href={slug + '/card'}><button>Member Card</button></a> :  <a href={'../../new'}><button>Sign Up Again</button></a>}
+            {member.tier > 0 ? "" :  <a href={'../../new'}><button>Sign Up Again</button></a>}
 
             <br />
 

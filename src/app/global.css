@@ -218,8 +218,8 @@ tbody tr:nth-child(odd) {
 .user_card {
     background-color: var(--blue);
     color: white;
-    width: 30rem;
-    max-width: calc(100% - 3rem);
+    /* width: 30rem; */
+    max-width: calc(100%);
     aspect-ratio: 1.75;
     margin: auto;
     border-radius: 1rem;
@@ -230,6 +230,7 @@ tbody tr:nth-child(odd) {
     position: relative;
     box-shadow: 0 0 2rem grey;
     transition: .5s;
+    margin-bottom: 2rem;
 }
 
 .user_card:hover  { 
