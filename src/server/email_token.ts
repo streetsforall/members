@@ -107,7 +107,7 @@ const new_token_email = async (to_email: string) => {
         `,
         attachments: [{
           filename: 'members_club_logo.png',
-          path: `${process.env.ROOT_URL}/members_club_logo.png`,
+          path: `https://members.streetsforall.org/members_club_logo.png`,
           cid: 'logo'
         }],
       })

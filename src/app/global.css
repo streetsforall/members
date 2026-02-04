@@ -126,6 +126,15 @@ a {
 }
 
 
+tbody tr {
+    padding: .5rem;
+}
+
+tbody tr:nth-child(odd) {
+    background-color: rgb(245, 240, 240);
+  }
+
+
 .footer {
     max-width: 100%;
     padding: 3rem;
@@ -209,8 +218,8 @@ a {
 .user_card {
     background-color: var(--blue);
     color: white;
-    width: 30rem;
-    max-width: calc(100% - 3rem);
+    /* width: 30rem; */
+    max-width: calc(100%);
     aspect-ratio: 1.75;
     margin: auto;
     border-radius: 1rem;
@@ -221,6 +230,7 @@ a {
     position: relative;
     box-shadow: 0 0 2rem grey;
     transition: .5s;
+    margin-bottom: 2rem;
 }
 
 .user_card:hover  { 
@@ -301,10 +311,6 @@ a {
 .tier_img {
     margin: auto;
     max-width: 10rem;
-}
-
-.discounts {
-
 }
 
 .order {

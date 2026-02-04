@@ -28,7 +28,7 @@ const Discounts = (member: any) => {
     const [slide, setSlide] = useState(1)
 
     // set total number of slides
-    const maxSlides = 6
+    const maxSlides = 8
 
     const getCode = async (email: string) => {
         const new_code = await getNextPeakCode(email)
@@ -166,6 +166,22 @@ const Discounts = (member: any) => {
                         <p><a target="_blank" rel="noopener noreferrer" href="https://redshiftsports.com/discount/SFA15">RED SHIFT SPORTS</a></p>
                         <p>Get 15% off at Red Shift Sports high quality bike components including LED pedals.</p>
                         <p><a className="light_butt" href="https://redshiftsports.com/discount/SFA15">Discount Link</a></p>
+                    </div>
+
+                    <div hidden data-key={7} className="slide">
+                        {/* // WOMBI */}
+                        <img src="/wombi.png"/>
+                        <p><a target="_blank" rel="noopener noreferrer" href="https://wombi.us/pages/refer-a-friend?f=fZstHIjQasUGDfQ48Ay3pcc1G9nXPmTZh8ncUawyv2Ra3uw9v_Ua1kVBaGJEGgxvID75uh0RSXJpL2lB-ilSew">WOMBI DISCOUNT</a></p>
+                        <p>Get 50% off your first month of an e-bike subscription through Wombi!</p>
+                        <p><a className="light_butt" href="https://wombi.us/pages/refer-a-friend?f=fZstHIjQasUGDfQ48Ay3pcc1G9nXPmTZh8ncUawyv2Ra3uw9v_Ua1kVBaGJEGgxvID75uh0RSXJpL2lB-ilSew">Discount Link</a></p>
+                    </div>
+
+                    <div hidden data-key={8} className="slide">
+                        {/* // UPWAY */}
+                        <img src="/upway.jpg"/>
+                        <p><a target="_blank" rel="noopener noreferrer" href="https://upway.co/">Upway</a></p>
+                        <p>$150 off your next e-Bike. Buying, trading-in, or trading up. Brand-new and certified pre-owned. 14-day returns. One-year warranty.</p>
+                        <p>Discount Code: <Copyblock>SFAMEMBER</Copyblock></p>
                     </div>
                   
 

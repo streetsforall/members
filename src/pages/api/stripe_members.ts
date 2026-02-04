@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import * as dbHelp from "../../server/dbHelpers";
+import { getChapterFromZip } from "../../server/zipUtils";
 import { new_order } from "@/server/merch_order";
 import { buffer } from "micro";
 import Stripe from "stripe";
@@ -43,6 +44,12 @@ const validateTier = (payment: number, interval: string) => {
 
   return tier;
 };
+
+const dollar = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+});
+
 
 // check user order tier
 const getMember = async (email: string) => {
@@ -102,7 +109,8 @@ export default async function handler(
         const memberTier = validateTier(amount, interval);
 
         const prevAmount =
-          api_event?.data?.previous_attributes?.items?.data[0]?.plan?.amount;
+        api_event?.data?.previous_attributes?.items?.data[0]?.plan?.amount;
+        console.log('prevAmount', prevAmount)
         customerID = subscriber.customer as string;
 
         // retrieve from stripe
@@ -134,6 +142,17 @@ export default async function handler(
 
         console.log("new member", new_member, memberTier);
 
+        // Extract ZIP code for branch assignment
+        let zipCode;
+        if (new_member.shipping && new_member.shipping.address) {
+          zipCode = new_member.shipping.address.postal_code;
+        } else if (new_member.address) {
+          zipCode = new_member.address.postal_code;
+        }
+
+        // Determine branch based on ZIP code
+        const branch = getChapterFromZip(zipCode);
+
         // update member database
         const memberObj = {
           tier: memberTier,
@@ -146,6 +165,7 @@ export default async function handler(
           customer_id: customerID,
           newMember: newMember,
           subID: subscriber.id,
+          branch: branch,
         };
 
         // pass member to database
@@ -155,6 +175,7 @@ export default async function handler(
 
         // this is used to order new merch if someone upgrades
         if (api_event.type == "customer.subscription.updated") {
+
           // if event is a cancel
           if (subscriber.canceled_at) {
             console.log("------ SUBSCRIPTION CANCELLED --------");
@@ -174,16 +195,17 @@ export default async function handler(
             dbHelp.setMemberUpdate(memberUpdate);
           }
 
-          // only fire if sub amount changes
-          if (subscriber.amount != prevAmount) {
+          // only fire if sub amount actually changes
+          if (prevAmount && amount != prevAmount) {
             console.log("------ SUBSCRIPTION CHANGE --------");
 
             const update =
               new_member.name +
               " changed their membership from " +
-              subscriber.amount +
+              dollar.format(prevAmount*.01) +
               " to " +
-              prevAmount;
+              dollar.format(amount*.01);
+
             const memberUpdate = {
               email: new_member.email,
               newTier: memberTier,
@@ -262,9 +284,11 @@ export default async function handler(
 
         console.log("creating order");
 
+        const shirt_size = checkout?.custom_fields?.[0]?.dropdown?.value || 'L';
+
         const order = await new_order(
           {
-            size: checkout.custom_fields[0].dropdown.value,
+            size: shirt_size,
             name: checkout.customer_details.name,
             address1: checkout.shipping_details.address.line1,
             address2: checkout.shipping_details.address.line2,
@@ -290,7 +314,7 @@ export default async function handler(
 
         const memberShirtAdd = {
           email: checkout.customer_details.email,
-          size: checkout.custom_fields[0].dropdown.value,
+          size: shirt_size,
         };
 
         // pass member to database
@@ -339,8 +363,10 @@ export default async function handler(
         customerID = canceled_subscriber.customer as string;
 
         const canceled_member: any = await retrieveCustomer(customerID);
+        const canceled_amount = canceled_subscriber?.items.data[0]?.plan.amount || 0
 
-        const update = canceled_member.name + " has been cancelled";
+        const update = `${canceled_member.name}'s ${dollar.format(canceled_amount * .01 )} plan has been cancelled`;
+
         const memberUpdate = {
           email: canceled_member.email,
           newTier: 0,
@@ -361,6 +387,7 @@ export default async function handler(
           status: canceled_member.status ? canceled_member.status : "canceled",
           amount: 0,
         };
+
         dbHelp.cancelMember(canceledMember);
 
         res.status(200).end("Subscriber Canceled Successful");

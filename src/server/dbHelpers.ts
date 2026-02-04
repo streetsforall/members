@@ -5,6 +5,7 @@ import { TimeSpan, createDate } from "oslo";
 import { generateIdFromEntropySize } from "lucia";
 import * as auth from "./auth";
 import { cookies } from "next/headers";
+import { getChapterFromZip } from "./zipUtils";
 
 export async function retrieveValidMembers() {
   const users = await sql`
@@ -13,10 +14,11 @@ export async function retrieveValidMembers() {
         email,
         last_amount,
         tier,
+        branch,
         shipping_address,
         phone
       FROM members
-      WHERE tier > 0;
+      WHERE tier > 0 AND tier < 4;
     `;
   // console.log(users)
   return users;
@@ -175,10 +177,10 @@ export async function setMember(memberObj: any) {
     console.log("memberObj", memberObj);
 
     await sql`
-      INSERT INTO members (name, email, tier, last_amount, shipping_address, last_donation, customer_id, phone, subscription_ID)
-        VALUES(${memberObj.name}, ${memberObj.email}, ${memberObj.tier}, ${memberObj.amount}, ${memberObj.shipping_address}, ${date}, ${memberObj.customer_id}, ${memberObj.phone},  ${memberObj.subID})
-        ON CONFLICT (email) 
-	      DO UPDATE SET tier = ${memberObj.tier}, last_amount = ${memberObj.amount}, last_donation = ${date}, shipping_address = ${memberObj.shipping_address}, customer_id = ${memberObj.customer_id},  subscription_ID = ${memberObj.subID}
+      INSERT INTO members (name, email, tier, last_amount, shipping_address, last_donation, customer_id, phone, subscription_ID, branch)
+        VALUES(${memberObj.name}, ${memberObj.email}, ${memberObj.tier}, ${memberObj.amount}, ${memberObj.shipping_address}, ${date}, ${memberObj.customer_id}, ${memberObj.phone},  ${memberObj.subID}, ${memberObj.branch})
+        ON CONFLICT (email)
+	      DO UPDATE SET tier = ${memberObj.tier}, last_amount = ${memberObj.amount}, last_donation = ${date}, shipping_address = ${memberObj.shipping_address}, customer_id = ${memberObj.customer_id},  subscription_ID = ${memberObj.subID}, branch = ${memberObj.branch}
     `;
     console.log("updated member");
 
@@ -201,7 +203,8 @@ export async function setMember(memberObj: any) {
 }
 
 export async function getSessionCookie() {
-  const sessionId = cookies().get("auth_session");
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get("auth_session");
   if (sessionId) {
     const { session, user } = await auth.lucia.validateSession(sessionId.value);
     return { session, user };

@@ -11,7 +11,7 @@ export interface member {
 }
 
 
-const updateViews = async () => {
+const Card = async () => {
 
     // validating user cookies
     const memberData = await validate_user()
@@ -56,11 +56,6 @@ const updateViews = async () => {
 
 
     return (
-        <>
-            <div className="card_page">
-
-
-
 
 
                 <div className={'user_card ' + (member.tier == 0 ? 'canceled_member' : '')}>
@@ -72,7 +67,7 @@ const updateViews = async () => {
 
                     <div style={{flexDirection: 'column'}}>
                         <img style={{ margin: 'auto' }} src="/members_logo_white.png" />
-                        <p style={{ margin: 'auto' }}>CLUB MEMBER</p>
+                        <p style={{ margin: 'auto' }}>MEMBER</p>
                     </div>
 
 
@@ -82,16 +77,13 @@ const updateViews = async () => {
                     </div>
                 </div>
 
-                <p style={{ maxWidth: 'max-content', margin: 'auto', marginTop: '2rem' }}>
-                    <a href={'../' + memberData.id}>
-                        User Page
-                    </a>
-                </p>
-
-            </div>
-        </>
+                // <p style={{ maxWidth: 'max-content', margin: 'auto', marginTop: '2rem' }}>
+                //     <a href={'../' + memberData.id}>
+                //         User Page
+                //     </a>
+                // </p>
 
     )
 }
 
-export default updateViews
+export default Card
