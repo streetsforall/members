@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import pino, { type Logger } from "pino";
 import * as dbHelp from "../../server/dbHelpers";
 import { getChapterFromZip } from "../../server/zipUtils";
 import { new_order } from "@/server/merch_order";
@@ -6,6 +7,8 @@ import { buffer } from "micro";
 import Stripe from "stripe";
 import { new_signup_email } from "@/server/email_token";
 import addMailchimp from "@/server/mailchimp";
+
+const parentLogger = pino();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {});
 
@@ -15,12 +18,12 @@ export const config = {
   },
 };
 
-const validateTier = (payment: number, interval: string) => {
+const validateTier = (payment: number, interval: string, logger: Logger) => {
   // interval either month or year
 
   var tier = 0;
 
-  console.log("tier payment", payment, "interval", interval);
+  logger.info(`tier payment ${payment} interval ${interval}`);
   // validate payment
   if (interval == "month") {
     if (payment >= 4800) {
@@ -40,7 +43,7 @@ const validateTier = (payment: number, interval: string) => {
     }
   }
 
-  console.log("tier", tier);
+  logger.info("tier " + tier);
 
   return tier;
 };
@@ -71,14 +74,18 @@ export default async function handler(
 
     try {
       // validate webhook came frome stripe
-      // console.log(buf, sig, STRIPE_HOOK)
       api_event = await stripe.webhooks.constructEvent(buf, sig, STRIPE_HOOK);
-      // console.log('api_event', api_event)
     } catch (err: any) {
       // On error, log and return the error message
-      console.log(`❌ Error message: ${err.message}`);
+      parentLogger.error(`❌ Error message: ${err.message}`);
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
+
+    const logger = parentLogger.child({
+      request_id: api_event.request?.id,
+      event_id: api_event.id,
+      event_type: api_event.type,
+    });
 
     var customerID = "";
 
@@ -89,7 +96,7 @@ export default async function handler(
       return customer;
     };
 
-    console.log("API call", api_event.type);
+    logger.info("API call " + api_event.type);
 
     // iterate through various stripe webhook event types
     switch (api_event.type) {
@@ -106,18 +113,18 @@ export default async function handler(
         const amount = subscriber.plan.amount;
         const interval = subscriber.plan.interval;
 
-        const memberTier = validateTier(amount, interval);
+        const memberTier = validateTier(amount, interval, logger);
 
         const prevAmount =
         api_event?.data?.previous_attributes?.items?.data[0]?.plan?.amount;
-        console.log('prevAmount', prevAmount)
+        logger.info('prevAmount ' + prevAmount)
         customerID = subscriber.customer as string;
 
         // retrieve from stripe
         const new_member: any = await retrieveCustomer(customerID);
 
         if (api_event.type == "customer.subscription.created") {
-          console.log("------------- NEW SUBSCRIPTION --------------");
+          logger.info("------------- NEW SUBSCRIPTION --------------");
 
           const update =
             new_member.name +
@@ -137,10 +144,10 @@ export default async function handler(
           address = new_member.shipping.address;
         } else {
           address = "no address";
-          console.log("no address");
+          logger.info("no address");
         }
 
-        console.log("new member", new_member, memberTier);
+        logger.info(new_member, "new member");
 
         // Extract ZIP code for branch assignment
         let zipCode;
@@ -178,7 +185,7 @@ export default async function handler(
 
           // if event is a cancel
           if (subscriber.canceled_at) {
-            console.log("------ SUBSCRIPTION CANCELLED --------");
+            logger.info("------ SUBSCRIPTION CANCELLED --------");
             const reason = subscriber.cancellation_details.reason;
             const cancel_text =
               new_member.name +
@@ -197,7 +204,7 @@ export default async function handler(
 
           // only fire if sub amount actually changes
           if (prevAmount && amount != prevAmount) {
-            console.log("------ SUBSCRIPTION CHANGE --------");
+            logger.info("------ SUBSCRIPTION CHANGE --------");
 
             const update =
               new_member.name +
@@ -215,7 +222,7 @@ export default async function handler(
 
             const member = await getMember(new_member.email);
             const size = member[0].shirt_size;
-            console.log("shirt size", size);
+            logger.info("shirt size " + size);
 
             const order = await new_order(
               {
@@ -233,7 +240,7 @@ export default async function handler(
               memberTier
             );
 
-            console.log(order);
+            logger.info(order);
             try {
               // update mailchimp with any new info (i.e. upgraded tier)
               // UPDATED for 2025 Mailchimp redux
@@ -249,7 +256,7 @@ export default async function handler(
                 MEMBERSHIP: memberTier || "",
               });
             } catch (error) {
-              console.error("Error with Mailchimp update:", error);
+              logger.error(error, "Error with Mailchimp update");
             }
           }
         }
@@ -263,7 +270,7 @@ export default async function handler(
       // we use this to grab the shirt size
       // weirdly the only stipe API call that forwards custom fields
       case "checkout.session.completed":
-        console.log("NEW CHECKOUT");
+        logger.info("NEW CHECKOUT");
 
         const checkout: any = api_event.data.object;
 
@@ -274,15 +281,15 @@ export default async function handler(
         }
 
         const member = await getMember(checkout.customer_details.email);
-        console.log("member", member);
+        logger.info(member, "member");
         const mem_tier = member.tier;
-        console.log("checkout_tier", mem_tier, checkout.amount_total);
+        logger.info(`checkout_tier ${mem_tier} ${checkout.amount_total}`);
 
-        console.log('sending email')
+        logger.info('sending email')
         const new_email = await new_signup_email(checkout.customer_details.email)
-        console.log(new_email)
+        logger.info(new_email)
 
-        console.log("creating order");
+        logger.info("creating order");
 
         const shirt_size = checkout?.custom_fields?.[0]?.dropdown?.value || 'L';
 
@@ -302,7 +309,7 @@ export default async function handler(
           mem_tier
         );
 
-        console.log(order);
+        logger.info(order);
 
         const updateLog = "Merch ordered for " + checkout.customer_details.name;
         const memberUpdater = {
@@ -320,7 +327,7 @@ export default async function handler(
         // pass member to database
         dbHelp.setMemberShirt(memberShirtAdd);
 
-        console.log("adding to mailchimp");
+        logger.info("adding to mailchimp");
         try {
           addMailchimp(checkout.customer_details.email, {
             FNAME: checkout.customer_details.name.split(" ")[0],
@@ -345,7 +352,7 @@ export default async function handler(
             MEMBERSHIP: mem_tier,
           });
         } catch (error) {
-          console.log("error with mailchimop", error);
+          logger.error(error, "error with mailchimp");
         }
 
         res.status(200).end("New Member Succesful");
@@ -357,9 +364,9 @@ export default async function handler(
       // i.e. a canceled member can still access their page until a month after canceling
 
       case "customer.subscription.deleted":
-        console.log("SUBSCRIPTION CANCELING");
+        logger.info("SUBSCRIPTION CANCELING");
         const canceled_subscriber = api_event.data.object;
-        console.log("canceled_subscriber", canceled_subscriber);
+        logger.info(canceled_subscriber, "canceled_subscriber");
         customerID = canceled_subscriber.customer as string;
 
         const canceled_member: any = await retrieveCustomer(customerID);
@@ -374,7 +381,7 @@ export default async function handler(
         };
         dbHelp.setMemberUpdate(memberUpdate);
 
-        console.log("canceled_member", canceled_member);
+        logger.info(canceled_member, "canceled_member");
 
         var email = "test@test.com";
         if (canceled_member.email) {
