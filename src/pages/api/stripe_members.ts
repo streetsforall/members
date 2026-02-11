@@ -104,10 +104,17 @@ export default async function handler(
     const STRIPE_HOOK = process.env.STRIPE_HOOK_SECRET as string;
 
     let api_event;
-
     try {
       // Validate webhook came frome Stripe
-      api_event = await stripe.webhooks.constructEvent(buf, sig, STRIPE_HOOK);
+      api_event = (await stripe.webhooks.constructEvent(
+        buf,
+        sig,
+        STRIPE_HOOK,
+      )) as
+        | Stripe.CheckoutSessionCompletedEvent
+        | Stripe.CustomerSubscriptionCreatedEvent
+        | Stripe.CustomerSubscriptionDeletedEvent
+        | Stripe.CustomerSubscriptionUpdatedEvent;
     } catch (err: any) {
       // On error log and return the error message
       parentLogger.error(`❌ Error message: ${err.message}`);
