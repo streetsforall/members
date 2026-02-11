@@ -195,7 +195,7 @@ export default async function handler(
               reason;
 
             const memberUpdate = {
-              new_member: new_member.email,
+              email: new_member.email,
               newTier: memberTier,
               update: cancel_text,
             };
@@ -221,7 +221,7 @@ export default async function handler(
             dbHelp.setMemberUpdate(memberUpdate);
 
             const member = await getMember(new_member.email);
-            const size = member[0].shirt_size;
+            const size = member.shirt_size;
             logger.info("shirt size " + size);
 
             const order = await new_order(
