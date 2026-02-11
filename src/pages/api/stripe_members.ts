@@ -1,15 +1,14 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import pino, { type Logger } from "pino";
-import * as dbHelp from "../../server/dbHelpers";
-import { getChapterFromZip } from "../../server/zipUtils";
-import { new_order } from "@/server/merch_order";
-import { buffer } from "micro";
-import Stripe from "stripe";
-import { new_signup_email } from "@/server/email_token";
-import addMailchimp from "@/server/mailchimp";
+import { NextApiRequest, NextApiResponse } from 'next';
+import { buffer } from 'micro';
+import Stripe from 'stripe';
+import pino, { type Logger } from 'pino';
+import * as dbHelp from '@/server/dbHelpers';
+import { new_signup_email } from '@/server/email_token';
+import addMailchimp from '@/server/mailchimp';
+import { new_order } from '@/server/merch_order';
+import { getChapterFromZip } from '@/server/zipUtils';
 
 const parentLogger = pino();
-
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {});
 
 export const config = {
@@ -25,11 +24,15 @@ export const config = {
  * @param logger - Instance used for logging
  * @returns Tier level
  */
-function validateTier(payment: number, interval: 'month' | 'year', logger: Logger): number {
+function validateTier(
+  payment: number,
+  interval: 'month' | 'year',
+  logger: Logger,
+): number {
   let tier = 0;
 
   // validate payment
-  if (interval == "month") {
+  if (interval == 'month') {
     if (payment >= 4800) {
       tier = 3;
     } else if (payment >= 2400) {
@@ -37,7 +40,7 @@ function validateTier(payment: number, interval: 'month' | 'year', logger: Logge
     } else if (payment >= 1200) {
       tier = 1;
     }
-  } else if (interval == "year") {
+  } else if (interval == 'year') {
     if (payment >= 55000) {
       tier = 3;
     } else if (payment >= 27000) {
@@ -47,7 +50,10 @@ function validateTier(payment: number, interval: 'month' | 'year', logger: Logge
     }
   }
 
-  logger.debug({ step: 'determine_tier', payment, interval, tier }, `Determined Tier ${tier} based on amount and term`);
+  logger.debug(
+    { step: 'determine_tier', payment, interval, tier },
+    `Determined Tier ${tier} based on amount and term`,
+  );
 
   return tier;
 }
@@ -84,17 +90,17 @@ const dollar = new Intl.NumberFormat('en-US', {
  * Main request handler
  * @param req - Request object
  * @param res - Response object
- * @returns 
+ * @returns
  */
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
-  if (req.method === "POST") {
+  if (req.method === 'POST') {
     // Workaround because Stripe validation requires raw body which Next.js automatically parses
     const buf = await buffer(req);
 
-    const sig = req.headers["stripe-signature"] as string;
+    const sig = req.headers['stripe-signature'] as string;
     const STRIPE_HOOK = process.env.STRIPE_HOOK_SECRET as string;
 
     let api_event;
@@ -124,29 +130,34 @@ export default async function handler(
       /**
        * New member or updated subscription
        */
-      case "customer.subscription.created":
-      case "customer.subscription.updated": {
+      case 'customer.subscription.created':
+      case 'customer.subscription.updated': {
         const subscriber: any = api_event.data.object;
 
         const customerID = subscriber.customer as string;
         const isNewMember =
-          api_event.type == "customer.subscription.created" ? true : false;
+          api_event.type == 'customer.subscription.created' ? true : false;
         const amount = subscriber.plan.amount;
         const interval = subscriber.plan.interval;
         const memberTier = validateTier(amount, interval, logger);
         const prevAmount =
-        api_event?.data?.previous_attributes?.items?.data[0]?.plan?.amount;
+          api_event?.data?.previous_attributes?.items?.data[0]?.plan?.amount;
 
         // Retrieve from Stripe
         const customer: any = await retrieveCustomer(customerID);
         logger.debug(customer, 'Retrieved customer');
 
-         // Get addresses
+        // Get addresses
         const billingAddress = customer.address;
-        const shippingAddress = customer.shipping ? customer.shipping.address : "no address";
+        const shippingAddress = customer.shipping
+          ? customer.shipping.address
+          : 'no address';
 
         // Determine chapter based on ZIP code; try shipping address, fall back to billing address
-        const zipCode = shippingAddress.postal_code || billingAddress.postal_code || undefined;
+        const zipCode =
+          shippingAddress.postal_code ||
+          billingAddress.postal_code ||
+          undefined;
         const chapter = getChapterFromZip(zipCode);
 
         // Update member in DB
@@ -166,13 +177,21 @@ export default async function handler(
         dbHelp.setMember(memberObj);
 
         // New member
-        if (api_event.type == "customer.subscription.created") {
-          logger.info({ step: "initiate_new_subscription", amount: (amount * 0.01), interval, tier: memberTier }, 'New subscription received');
+        if (api_event.type == 'customer.subscription.created') {
+          logger.info(
+            {
+              step: 'initiate_new_subscription',
+              amount: amount * 0.01,
+              interval,
+              tier: memberTier,
+            },
+            'New subscription received',
+          );
 
           // Record update in DB
           const update =
             customer.name +
-            " joined the membership program at tier " +
+            ' joined the membership program at tier ' +
             memberTier;
           const memberUpdate = {
             email: customer.email,
@@ -181,24 +200,27 @@ export default async function handler(
           };
           dbHelp.setMemberUpdate(memberUpdate);
 
-          return res.status(200).send("Subscription created");
+          return res.status(200).send('Subscription created');
         }
 
         // Used to order new merch if someone upgrades
-        if (api_event.type == "customer.subscription.updated") {
+        if (api_event.type == 'customer.subscription.updated') {
           // Future-dated cancelation
           if (subscriber.canceled_at) {
             const cancel_date = new Date(subscriber.cancel_at * 1000);
             const reason = subscriber.cancellation_details.reason;
 
-            logger.info({ step: 'initiate_cancelation', cancel_date, reason }, 'Subscription scheduled to cancel');
-            
+            logger.info(
+              { step: 'initiate_cancelation', cancel_date, reason },
+              'Subscription scheduled to cancel',
+            );
+
             // Record update in DB
             const cancel_text =
               customer.name +
-              " set their membership to end on " +
+              ' set their membership to end on ' +
               cancel_date +
-              " because " +
+              ' because ' +
               reason;
             const memberUpdate = {
               email: customer.email,
@@ -215,15 +237,24 @@ export default async function handler(
             const size = member.shirt_size;
             logger.debug({ size }, 'Retrieved shirt size');
 
-            logger.info({ step: 'update_subscription', prev_amount: (prevAmount * 0.01), new_amount: (amount * 0.01), prev_tier: prevTier, new_tier: memberTier }, 'Subscription updated');
+            logger.info(
+              {
+                step: 'update_subscription',
+                prev_amount: prevAmount * 0.01,
+                new_amount: amount * 0.01,
+                prev_tier: prevTier,
+                new_tier: memberTier,
+              },
+              'Subscription updated',
+            );
 
             // Record update in DB
             const update =
               customer.name +
-              " changed their membership from " +
-              dollar.format(prevAmount*.01) +
-              " to " +
-              dollar.format(amount*.01);
+              ' changed their membership from ' +
+              dollar.format(prevAmount * 0.01) +
+              ' to ' +
+              dollar.format(amount * 0.01);
             const memberUpdate = {
               email: customer.email,
               newTier: memberTier,
@@ -245,29 +276,29 @@ export default async function handler(
                 phone: customer.phone,
                 email: customer.email,
               },
-              memberTier
+              memberTier,
             );
             logger.debug(order, 'Placed merch order');
 
             // Update mailchimp with any new info (i.e. upgraded tier)
             try {
               addMailchimp(customer.email, {
-                FNAME: customer.name.split(" ")[0] || "",
-                LNAME: customer.name.split(" ")[1] || "",
-                ADD_ST: customer.address1 || "",
-                ADD_ST_2: customer.address2 || "",
-                ADD_CITY: customer.city || "",
-                ADD_ZIP: customer.zip || "",
-                ADD_COUNTR: customer.country || "",
-                PHONE: customer.phone || "",
-                MEMBERSHIP: memberTier || "",
+                FNAME: customer.name.split(' ')[0] || '',
+                LNAME: customer.name.split(' ')[1] || '',
+                ADD_ST: customer.address1 || '',
+                ADD_ST_2: customer.address2 || '',
+                ADD_CITY: customer.city || '',
+                ADD_ZIP: customer.zip || '',
+                ADD_COUNTR: customer.country || '',
+                PHONE: customer.phone || '',
+                MEMBERSHIP: memberTier || '',
               });
             } catch (error) {
-              logger.error(error, "Error with Mailchimp update");
+              logger.error(error, 'Error with Mailchimp update');
             }
           }
 
-          return res.status(200).send("Subscription updated");
+          return res.status(200).send('Subscription updated');
         }
 
         break;
@@ -278,12 +309,12 @@ export default async function handler(
        * Fires at the end of someone signing up and after the new subscriber is logged
        * This is when the shirt size is set for new members (weirdly the only Stipe API call that forwards custom fields).
        */
-      case "checkout.session.completed": {
+      case 'checkout.session.completed': {
         const checkout: any = api_event.data.object;
 
         // Make sure checkout is a subscription
-        if (checkout.mode != "subscription") {
-          return res.status(200).send("Not a member subscription");
+        if (checkout.mode != 'subscription') {
+          return res.status(200).send('Not a member subscription');
         }
 
         const member = await getMember(checkout.customer_details.email);
@@ -291,10 +322,19 @@ export default async function handler(
 
         const mem_tier = member.tier;
 
-        logger.info({ step: 'complete_checkout', amount: (checkout.amount_total * 0.01), tier: mem_tier }, 'Checkout completed' );
+        logger.info(
+          {
+            step: 'complete_checkout',
+            amount: checkout.amount_total * 0.01,
+            tier: mem_tier,
+          },
+          'Checkout completed',
+        );
 
-        const new_email = await new_signup_email(checkout.customer_details.email)
-        logger.debug(new_email, 'Sent email')
+        const new_email = await new_signup_email(
+          checkout.customer_details.email,
+        );
+        logger.debug(new_email, 'Sent email');
 
         // Create merch order
         const shirt_size = checkout?.custom_fields?.[0]?.dropdown?.value || 'L';
@@ -311,12 +351,12 @@ export default async function handler(
             phone: checkout.customer_details.phone,
             email: checkout.customer_details.email,
           },
-          mem_tier
+          mem_tier,
         );
         logger.debug(order, 'Placed merch order');
 
         // Record update in DB
-        const updateLog = "Merch ordered for " + checkout.customer_details.name;
+        const updateLog = 'Merch ordered for ' + checkout.customer_details.name;
         const memberUpdater = {
           email: checkout.customer_details.email,
           newTier: mem_tier,
@@ -333,32 +373,32 @@ export default async function handler(
 
         try {
           addMailchimp(checkout.customer_details.email, {
-            FNAME: checkout.customer_details.name.split(" ")[0],
-            LNAME: checkout.customer_details.name.split(" ")[1],
+            FNAME: checkout.customer_details.name.split(' ')[0],
+            LNAME: checkout.customer_details.name.split(' ')[1],
             ADD_ST: checkout.shipping_details.address.line1
               ? checkout.shipping_details.address.line1
-              : " ",
+              : ' ',
             ADD_ST_2: checkout.shipping_details.address.line2
               ? checkout.shipping_details.address.line2
-              : " ",
+              : ' ',
             ADD_CITY: checkout.shipping_details.address.city
               ? checkout.shipping_details.address.city
-              : " ",
+              : ' ',
             ADD_ZIP: checkout.shipping_details.address.postal_code
               ? checkout.shipping_details.address.postal_code
-              : " ",
+              : ' ',
             ADD_COUNTR: checkout.shipping_details.address.country
               ? checkout.shipping_details.address.country
-              : " ",
+              : ' ',
 
             PHONE: checkout.customer_details.phone,
             MEMBERSHIP: mem_tier,
           });
         } catch (error) {
-          logger.error(error, "error with mailchimp");
+          logger.error(error, 'error with mailchimp');
         }
 
-        return res.status(200).send("Checkout completed");
+        return res.status(200).send('Checkout completed');
       }
 
       /**
@@ -366,20 +406,24 @@ export default async function handler(
        * Fires not when the member performs a cancel action but when the last billing cycle is complete
        * i.e. a canceled member can still access their page until a month after canceling
        */
-      case "customer.subscription.deleted": {
+      case 'customer.subscription.deleted': {
         const canceled_subscriber = api_event.data.object;
 
         const customerID = canceled_subscriber.customer as string;
-        const canceled_amount = canceled_subscriber?.items.data[0]?.plan.amount || 0;
+        const canceled_amount =
+          canceled_subscriber?.items.data[0]?.plan.amount || 0;
 
-        logger.info({ step: 'end_subscription', amount: (canceled_amount * 0.01) }, 'Subscription ended');
+        logger.info(
+          { step: 'end_subscription', amount: canceled_amount * 0.01 },
+          'Subscription ended',
+        );
 
         // Retrieve from Stripe
         const canceled_member: any = await retrieveCustomer(customerID);
         logger.debug(canceled_member, 'Retrieved customer');
 
         // Record update in DB
-        const update = `${canceled_member.name}'s ${dollar.format(canceled_amount * 0.01 )} plan has ended`;
+        const update = `${canceled_member.name}'s ${dollar.format(canceled_amount * 0.01)} plan has ended`;
         const memberUpdate = {
           email: canceled_member.email,
           newTier: 0,
@@ -391,21 +435,21 @@ export default async function handler(
         const canceledMember = {
           tier: 0,
           email: canceled_member.email,
-          status: canceled_member.status ? canceled_member.status : "canceled",
+          status: canceled_member.status ? canceled_member.status : 'canceled',
           amount: 0,
         };
 
         dbHelp.cancelMember(canceledMember);
 
-        return res.status(200).send("Subscription ended");
+        return res.status(200).send('Subscription ended');
       }
       default:
-        return res.status(405).send("Invalid or unneeded event type");
+        return res.status(405).send('Invalid or unneeded event type');
     }
 
     // create new email verification token
   } else {
-    res.setHeader("Allow", "POST");
-    return res.status(405).send("Method Not Allowed");
+    res.setHeader('Allow', 'POST');
+    return res.status(405).send('Method Not Allowed');
   }
 }
