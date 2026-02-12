@@ -5,7 +5,10 @@ import { TimeSpan, createDate } from "oslo";
 import { generateIdFromEntropySize } from "lucia";
 import * as auth from "./auth";
 import { cookies } from "next/headers";
+import pino from 'pino';
 import { getChapterFromZip } from "./zipUtils";
+
+const logger = pino();
 
 export async function retrieveValidMembers() {
   const users = await sql`
@@ -20,7 +23,6 @@ export async function retrieveValidMembers() {
       FROM members
       WHERE tier > 0 AND tier < 4;
     `;
-  // console.log(users)
   return users;
 }
 
@@ -90,7 +92,7 @@ export async function setEmailVerification(email: string) {
     INSERT INTO email_verification_token (id, user_id, email, expires_at, created)
       VALUES( ${tokenId}, ${email}, ${email}, ${expiration}, ${date})
   `;
-  console.log(`new login token for ${email}`);
+  logger.info(`new login token for ${email}`);
   return tokenId;
 }
 
@@ -99,16 +101,16 @@ export async function cancelMember(canceledMember: any) {
     // this will cancel a member
     const date = new Date().toLocaleString("en-US");
 
-    console.log("canceledMember", canceledMember);
+    logger.info(canceledMember, "canceledMember");
 
     const users = await sql`
     UPDATE members SET tier = ${canceledMember.tier}, last_amount = ${canceledMember.amount}, last_donation = ${date} WHERE email = ${canceledMember.email};
     `;
-    console.log("CANCELLED MEMBER", users);
+    logger.info(users, "CANCELLED MEMBER");
 
     return users;
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     return null;
   }
 }
@@ -117,7 +119,7 @@ export async function setMemberUpdate(memberUpdate: any) {
   try {
     // adds a row to the member_update table
     const date = new Date().toLocaleString("en-US");
-    console.log("memberUpdate", memberUpdate);
+    logger.info(memberUpdate, "memberUpdate");
 
     const zapURL: string = process.env.MEMBER_ZAP!;
 
@@ -129,22 +131,22 @@ export async function setMemberUpdate(memberUpdate: any) {
       body: JSON.stringify(memberUpdate),
     });
     if (response.ok) {
-      console.log("Data sent to Zapier successfully!");
+      logger.info("Data sent to Zapier successfully!");
       // Optionally handle success feedback to the user
     } else {
-      console.error("Failed to send data to Zapier:", response.status);
+      logger.info("Failed to send data to Zapier: " + response.status);
       // Optionally handle error feedback to the user
     }
 
 
-    console.log(memberUpdate.email, date, memberUpdate.newTier, memberUpdate.update)
+    logger.info(`${memberUpdate.email} ${date} ${memberUpdate.newTier} ${memberUpdate.update}`)
       await sql`
         INSERT INTO member_updates (email, date, newtier, update)
         VALUES(${memberUpdate.email}, ${date}, ${memberUpdate.newTier}, ${memberUpdate.update})
       `;
       return "successfully added new member update";
     } catch (error) {
-        console.error("Error inserting member update:", error);
+        logger.error(error, "Error inserting member update:");
         return "failed to add new member update"; // Generic error message
       }
 
@@ -153,7 +155,7 @@ export async function setMemberUpdate(memberUpdate: any) {
 export async function setMemberShirt(memberObj: any) {
   try {
     // this adds a member shirt size
-    console.log("shirt _ memberObj", memberObj);
+    logger.info(memberObj, "shirt _ memberObj");
 
     await sql`
       INSERT INTO members (email, shirt_size)
@@ -163,7 +165,7 @@ export async function setMemberShirt(memberObj: any) {
     `;
     return "successfully updated member";
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     return null;
   }
 }
@@ -174,7 +176,7 @@ export async function setMember(memberObj: any) {
     // if email field matches an email in our database it will update
 
     const date = new Date().toLocaleString("en-US");
-    console.log("memberObj", memberObj);
+    logger.info(memberObj, "memberObj");
 
     await sql`
       INSERT INTO members (name, email, tier, last_amount, shipping_address, last_donation, customer_id, phone, subscription_ID, branch)
@@ -182,7 +184,7 @@ export async function setMember(memberObj: any) {
         ON CONFLICT (email)
 	      DO UPDATE SET tier = ${memberObj.tier}, last_amount = ${memberObj.amount}, last_donation = ${date}, shipping_address = ${memberObj.shipping_address}, customer_id = ${memberObj.customer_id},  subscription_ID = ${memberObj.subID}, branch = ${memberObj.branch}
     `;
-    console.log("updated member");
+    logger.info("updated member");
 
     // if member is new we make sure they get a data added
     if (memberObj.newMember) {
@@ -192,12 +194,12 @@ export async function setMember(memberObj: any) {
         ON CONFLICT (email) 
 	      DO UPDATE SET joined_date = ${date}
   `;
-      console.log("created member added date");
+      logger.info("created member added date");
     }
 
     return "successfully updated member";
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     return null;
   }
 }
@@ -222,10 +224,10 @@ export async function getCurrentPeakCode(email: string) {
       ORDER BY date_used DESC 
     `;
 
-    console.log("current_code", current_code);
+    logger.info(current_code, "current_code");
     const discount_code = current_code[0];
 
-    console.log("discount_code", discount_code);
+    logger.info(discount_code, "discount_code");
     return discount_code;
   } catch (error) {
     return null;
@@ -241,16 +243,16 @@ export async function getNextPeakCode(email: any) {
       WHERE email IS NULL
       ORDER BY date_used DESC 
     `;
-    console.log("new_code", new_code);
+    logger.info(new_code, "new_code");
 
     const discount_code = new_code[0].code;
 
     const updated = new Date().toLocaleString("en-US");
 
-    console.log("email", email);
+    logger.info("email " + email);
 
-    console.log("updated", updated);
-    console.log("discount_code", discount_code);
+    logger.info("updated " + updated);
+    logger.info(discount_code, "discount_code");
 
     await sql`
     INSERT INTO peak_discounts (code, email, date_used)
@@ -258,10 +260,10 @@ export async function getNextPeakCode(email: any) {
     ON CONFLICT (code) 
     DO UPDATE SET email = ${email}, date_used = ${updated}
   `;
-    console.log(discount_code);
+    logger.info(discount_code);
     return discount_code;
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     return "no more codes";
   }
 }
@@ -285,7 +287,7 @@ export async function createEmailVerificationToken(
       DO UPDATE SET id = ${tokenId}, expires_at = ${timespan}
     `;
 
-  console.log("emailtoken", emailtoken);
+  logger.info(emailtoken, "emailtoken");
 
   return tokenId;
 }
