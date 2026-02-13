@@ -181,7 +181,9 @@ export default async function handler(
           subID: subscriber.id,
           branch: chapter,
         };
-        dbHelp.setMember(memberObj);
+        dbHelp.setMember(memberObj, logger);
+
+        // TODO: Log when a subscription renews
 
         // New member
         if (api_event.type == 'customer.subscription.created') {
@@ -205,7 +207,7 @@ export default async function handler(
             newTier: memberTier,
             update: update,
           };
-          dbHelp.setMemberUpdate(memberUpdate);
+          dbHelp.setMemberUpdate(memberUpdate, logger);
 
           return res.status(200).send('Subscription created');
         }
@@ -234,7 +236,7 @@ export default async function handler(
               newTier: memberTier,
               update: cancel_text,
             };
-            dbHelp.setMemberUpdate(memberUpdate);
+            dbHelp.setMemberUpdate(memberUpdate, logger);
           }
 
           // Consider update only if amount actually changes
@@ -267,7 +269,7 @@ export default async function handler(
               newTier: memberTier,
               update: update,
             };
-            dbHelp.setMemberUpdate(memberUpdate);
+            dbHelp.setMemberUpdate(memberUpdate, logger);
 
             // Create merch order
             const order = await new_order(
@@ -369,14 +371,14 @@ export default async function handler(
           newTier: mem_tier,
           update: updateLog,
         };
-        dbHelp.setMemberUpdate(memberUpdater);
+        dbHelp.setMemberUpdate(memberUpdater, logger);
 
         // Update member's shirt size in DB
         const memberShirtAdd = {
           email: checkout.customer_details.email,
           size: shirt_size,
         };
-        dbHelp.setMemberShirt(memberShirtAdd);
+        dbHelp.setMemberShirt(memberShirtAdd, logger);
 
         try {
           addMailchimp(checkout.customer_details.email, {
@@ -436,7 +438,7 @@ export default async function handler(
           newTier: 0,
           update: update,
         };
-        dbHelp.setMemberUpdate(memberUpdate);
+        dbHelp.setMemberUpdate(memberUpdate, logger);
 
         // Update member in DB
         const canceledMember = {
@@ -446,7 +448,7 @@ export default async function handler(
           amount: 0,
         };
 
-        dbHelp.cancelMember(canceledMember);
+        dbHelp.cancelMember(canceledMember, logger);
 
         return res.status(200).send('Subscription ended');
       }

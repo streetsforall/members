@@ -5,11 +5,15 @@ import { TimeSpan, createDate } from "oslo";
 import { generateIdFromEntropySize } from "lucia";
 import * as auth from "./auth";
 import { cookies } from "next/headers";
-import pino from 'pino';
-import { getChapterFromZip } from "./zipUtils";
+import pino, { type Logger } from 'pino';
 
-const logger = pino();
+// Used for any loggers not passed as arguments
+const parentLogger = pino();
 
+/**
+ * Get members in Tiers 1-3
+ * @returns Member record
+ */
 export async function retrieveValidMembers() {
   const users = await sql`
       SELECT
@@ -23,9 +27,15 @@ export async function retrieveValidMembers() {
       FROM members
       WHERE tier > 0 AND tier < 4;
     `;
+
   return users;
 }
 
+/**
+ * Get member based on ID
+ * @param id - ID of member in the database
+ * @returns Member record
+ */
 export async function retrieveMemberByID(id: string) {
   const user = await sql`
       SELECT
@@ -41,9 +51,15 @@ export async function retrieveMemberByID(id: string) {
       FROM members
       WHERE id = ${id};
     `;
+
   return user[0];
 }
 
+/**
+ * Get member based on email
+ * @param email - Email of member in the database
+ * @returns Member record
+ */
 export async function retrieveMemberByEmail(email: string) {
   const user = await sql`
       SELECT
@@ -61,9 +77,15 @@ export async function retrieveMemberByEmail(email: string) {
       FROM members
       WHERE email = ${email};
     `;
+
   return user[0];
 }
 
+/**
+ * Get merch orders by email
+ * @param email - Email associated with the order in the database
+ * @returns All matching order records
+ */
 export async function retrieveMerchOrders(email: string) {
   const orders = await sql`
       SELECT
@@ -81,191 +103,27 @@ export async function retrieveMerchOrders(email: string) {
   return orders;
 }
 
+/**
+ * Generate unique session token
+ * @param email - Email to be associated with the sessionsetEmailVerification
+ * @returns Generated token
+ */
 export async function setEmailVerification(email: string) {
-  const tokenId = generateIdFromEntropySize(25); // 40 characters long
   const date = new Date().toLocaleString("en-US");
 
-  // valid for 1 day
+  // 40 characters long
+  const tokenId = generateIdFromEntropySize(25);
+  
+  // Valid for 1 day
   const expiration = createDate(new TimeSpan(1, "d"));
 
   await sql`
     INSERT INTO email_verification_token (id, user_id, email, expires_at, created)
       VALUES( ${tokenId}, ${email}, ${email}, ${expiration}, ${date})
   `;
-  logger.info(`new login token for ${email}`);
+  parentLogger.debug(`New login token for ${email}`);
+
   return tokenId;
-}
-
-export async function cancelMember(canceledMember: any) {
-  try {
-    // this will cancel a member
-    const date = new Date().toLocaleString("en-US");
-
-    logger.info(canceledMember, "canceledMember");
-
-    const users = await sql`
-    UPDATE members SET tier = ${canceledMember.tier}, last_amount = ${canceledMember.amount}, last_donation = ${date} WHERE email = ${canceledMember.email};
-    `;
-    logger.info(users, "CANCELLED MEMBER");
-
-    return users;
-  } catch (error) {
-    logger.error(error);
-    return null;
-  }
-}
-
-export async function setMemberUpdate(memberUpdate: any) {
-  try {
-    // adds a row to the member_update table
-    const date = new Date().toLocaleString("en-US");
-    logger.info(memberUpdate, "memberUpdate");
-
-    const zapURL: string = process.env.MEMBER_ZAP!;
-
-    const response = await fetch(zapURL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(memberUpdate),
-    });
-    if (response.ok) {
-      logger.info("Data sent to Zapier successfully!");
-      // Optionally handle success feedback to the user
-    } else {
-      logger.info("Failed to send data to Zapier: " + response.status);
-      // Optionally handle error feedback to the user
-    }
-
-
-    logger.info(`${memberUpdate.email} ${date} ${memberUpdate.newTier} ${memberUpdate.update}`)
-      await sql`
-        INSERT INTO member_updates (email, date, newtier, update)
-        VALUES(${memberUpdate.email}, ${date}, ${memberUpdate.newTier}, ${memberUpdate.update})
-      `;
-      return "successfully added new member update";
-    } catch (error) {
-        logger.error(error, "Error inserting member update:");
-        return "failed to add new member update"; // Generic error message
-      }
-
-}
-
-export async function setMemberShirt(memberObj: any) {
-  try {
-    // this adds a member shirt size
-    logger.info(memberObj, "shirt _ memberObj");
-
-    await sql`
-      INSERT INTO members (email, shirt_size)
-        VALUES(${memberObj.email}, ${memberObj.size})
-        ON CONFLICT (email) 
-	      DO UPDATE SET email = ${memberObj.email}, shirt_size = ${memberObj.size}
-    `;
-    return "successfully updated member";
-  } catch (error) {
-    logger.error(error);
-    return null;
-  }
-}
-
-export async function setMember(memberObj: any) {
-  try {
-    // this will create a new member or
-    // if email field matches an email in our database it will update
-
-    const date = new Date().toLocaleString("en-US");
-    logger.info(memberObj, "memberObj");
-
-    await sql`
-      INSERT INTO members (name, email, tier, last_amount, shipping_address, last_donation, customer_id, phone, subscription_ID, branch)
-        VALUES(${memberObj.name}, ${memberObj.email}, ${memberObj.tier}, ${memberObj.amount}, ${memberObj.shipping_address}, ${date}, ${memberObj.customer_id}, ${memberObj.phone},  ${memberObj.subID}, ${memberObj.branch})
-        ON CONFLICT (email)
-	      DO UPDATE SET tier = ${memberObj.tier}, last_amount = ${memberObj.amount}, last_donation = ${date}, shipping_address = ${memberObj.shipping_address}, customer_id = ${memberObj.customer_id},  subscription_ID = ${memberObj.subID}, branch = ${memberObj.branch}
-    `;
-    logger.info("updated member");
-
-    // if member is new we make sure they get a data added
-    if (memberObj.newMember) {
-      await sql`
-      INSERT INTO members (joined_date, email)
-        VALUES(${date}, ${memberObj.email})
-        ON CONFLICT (email) 
-	      DO UPDATE SET joined_date = ${date}
-  `;
-      logger.info("created member added date");
-    }
-
-    return "successfully updated member";
-  } catch (error) {
-    logger.error(error);
-    return null;
-  }
-}
-
-export async function getSessionCookie() {
-  const cookieStore = await cookies();
-  const sessionId = cookieStore.get("auth_session");
-  if (sessionId) {
-    const { session, user } = await auth.lucia.validateSession(sessionId.value);
-    return { session, user };
-  }
-}
-
-export async function getCurrentPeakCode(email: string) {
-  try {
-    const current_code = await sql`
-      SELECT
-        code,
-        date_used
-      FROM peak_discounts
-      WHERE email=${email}
-      ORDER BY date_used DESC 
-    `;
-
-    logger.info(current_code, "current_code");
-    const discount_code = current_code[0];
-
-    logger.info(discount_code, "discount_code");
-    return discount_code;
-  } catch (error) {
-    return null;
-  }
-}
-
-export async function getNextPeakCode(email: any) {
-  try {
-    const new_code = await sql`
-      SELECT
-        code
-      FROM peak_discounts
-      WHERE email IS NULL
-      ORDER BY date_used DESC 
-    `;
-    logger.info(new_code, "new_code");
-
-    const discount_code = new_code[0].code;
-
-    const updated = new Date().toLocaleString("en-US");
-
-    logger.info("email " + email);
-
-    logger.info("updated " + updated);
-    logger.info(discount_code, "discount_code");
-
-    await sql`
-    INSERT INTO peak_discounts (code, email, date_used)
-    VALUES(${discount_code}, ${email}, ${updated})
-    ON CONFLICT (code) 
-    DO UPDATE SET email = ${email}, date_used = ${updated}
-  `;
-    logger.info(discount_code);
-    return discount_code;
-  } catch (error) {
-    logger.error(error);
-    return "no more codes";
-  }
 }
 
 // we aren't using this function anywhere
@@ -287,7 +145,255 @@ export async function createEmailVerificationToken(
       DO UPDATE SET id = ${tokenId}, expires_at = ${timespan}
     `;
 
-  logger.info(emailtoken, "emailtoken");
+  parentLogger.info(emailtoken, "emailtoken");
 
   return tokenId;
+}
+
+/**
+ * Update member to be canceled
+ * @param canceledMember - Member subscription information
+ * @param logger - Instance used for logging
+ */
+export async function cancelMember(canceledMember: {
+  tier: number,
+  email: string,
+  status: string,
+  amount: number,
+}, logger: Logger) {
+  const childLogger = logger.child({ step: 'update_member' });
+
+  try {
+    const date = new Date().toLocaleString("en-US");
+
+    await sql`
+    UPDATE members SET tier = ${canceledMember.tier}, last_amount = ${canceledMember.amount}, last_donation = ${date} WHERE email = ${canceledMember.email};
+    `;
+    childLogger.info({ amount: canceledMember.amount, status: canceledMember.status, tier: canceledMember.tier }, 'Updated member in database');
+
+    // TODO: Catch when member not found in DB
+
+    return;
+  } catch (error) {
+    childLogger.error(error);
+
+    return;
+  }
+}
+
+/**
+ * Record actions and updates
+ * @param memberUpdate - Information about the update
+ * @param logger - Instance used for logging
+ * @returns 
+ */
+export async function setMemberUpdate(memberUpdate: {
+  email: string,
+  newTier: number,
+  update: string,
+}, logger: Logger) {
+  // Add update to database
+  let childLogger = logger.child({ step: 'record_update' });
+  try {
+    const date = new Date().toLocaleString("en-US");
+
+    await sql`
+      INSERT INTO member_updates (email, date, newtier, update)
+      VALUES(${memberUpdate.email}, ${date}, ${memberUpdate.newTier}, ${memberUpdate.update})
+    `;
+    childLogger.info('Added update to database');
+  } catch (error) {
+    childLogger.error(error);
+
+    // Stop subsequent step if this one fails
+    return;
+  }
+
+  // Call Zapier to post update
+  childLogger = logger.child({ step: 'post_update' });
+  try {
+    const zapURL: string = process.env.MEMBER_ZAP!;
+
+    const response = await fetch(zapURL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(memberUpdate),
+    });
+
+    if (response.ok) {
+      childLogger.info('Update sent to Zapier');
+      
+      return;
+    } else {
+      const message = (await response.json()).error.message;
+
+      throw new Error(message);
+    }
+  } catch (error) {
+    childLogger.error(error);
+
+    return;
+  }
+}
+
+/**
+ * Add shirt size to member
+ * @param memberObj - Member email and size
+ * @param logger - Instance used for logging
+ * @returns 
+ */
+export async function setMemberShirt(memberObj: {
+  email: string,
+  size: string,
+}, logger: Logger) {
+  const childLogger = logger.child({ step: 'update_shirt_size' });
+
+  try {
+    await sql`
+      INSERT INTO members (email, shirt_size)
+        VALUES(${memberObj.email}, ${memberObj.size})
+        ON CONFLICT (email) 
+	      DO UPDATE SET email = ${memberObj.email}, shirt_size = ${memberObj.size}
+    `;
+    childLogger.info({ size: memberObj.size }, 'Updated shirt size in database');
+
+    return;
+  } catch (error) {
+    childLogger.error(error);
+
+    return;
+  }
+}
+
+/**
+ * Create new member or update if email exists
+ * @param memberObj - Member information
+ * @param logger - Instance used for logging
+ * @returns 
+ */
+export async function setMember(memberObj: {
+  tier: number,
+  name: string,
+  phone: string,
+  email: string,
+  status: string,
+  shipping_address: string,
+  amount: number,
+  customer_id: string,
+  newMember: boolean,
+  subID: string,
+  branch: 'CA' | 'LA' | 'SF',
+}, logger: Logger) {
+  const childLogger = logger.child({ step: 'set_member' });
+
+  try {
+    const date = new Date().toLocaleString("en-US");
+
+    await sql`
+      INSERT INTO members (name, email, tier, last_amount, shipping_address, last_donation, customer_id, phone, subscription_ID, branch)
+        VALUES(${memberObj.name}, ${memberObj.email}, ${memberObj.tier}, ${memberObj.amount}, ${memberObj.shipping_address}, ${date}, ${memberObj.customer_id}, ${memberObj.phone},  ${memberObj.subID}, ${memberObj.branch})
+        ON CONFLICT (email)
+	      DO UPDATE SET tier = ${memberObj.tier}, last_amount = ${memberObj.amount}, last_donation = ${date}, shipping_address = ${memberObj.shipping_address}, customer_id = ${memberObj.customer_id},  subscription_ID = ${memberObj.subID}, branch = ${memberObj.branch}
+    `;
+    childLogger.info({ amount: memberObj.amount, chapter: memberObj.branch, status: memberObj.status, subscription_id: memberObj.subID, tier: memberObj.tier }, "Set member in database");
+
+    // If new member, add join date
+    if (memberObj.newMember) {
+      await sql`
+        INSERT INTO members (joined_date, email)
+          VALUES(${date}, ${memberObj.email})
+          ON CONFLICT (email) 
+          DO UPDATE SET joined_date = ${date}
+      `;
+      childLogger.info("Added join date for new member");
+    }
+
+    return;
+  } catch (error) {
+    childLogger.error(error);
+
+    return;
+  }
+}
+
+/**
+ * Retrieve user session based on cookie
+ * @returns User session
+ */
+export async function getSessionCookie() {
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get("auth_session");
+
+  if (sessionId) {
+    const { session, user } = await auth.lucia.validateSession(sessionId.value);
+
+    return { session, user };
+  }
+}
+
+/**
+ * Retrieve most recently activated Peak Design promo code
+ * @param email - Member email
+ * @returns Promo code
+ */
+export async function getCurrentPeakCode(email: string) {
+  const childLogger = parentLogger.child({ step: 'get_current_peak_code' });
+
+  try {
+    const activatedCodes = await sql`
+      SELECT
+        code,
+        date_used
+      FROM peak_discounts
+      WHERE email=${email}
+      ORDER BY date_used DESC 
+    `;
+
+    const activeCode = activatedCodes[0];
+    childLogger.info({ code: activeCode.code }, 'Retrieved current promo code');
+
+    return activeCode;
+  } catch (error) {
+    childLogger.error(error);
+
+    return;
+  }
+}
+
+/**
+ * Activate next available Peak Design promo code
+ * @param email - Member email
+ * @returns Promo code
+ */
+export async function getNextPeakCode(email: string) {
+  const childLogger = parentLogger.child({ step: 'activate_peak_code' });
+
+  try {
+    const newCodes = await sql`
+      SELECT
+        code
+      FROM peak_discounts
+      WHERE email IS NULL
+      ORDER BY date_used DESC 
+    `;
+
+    const newCode = newCodes[0].code;
+    const updated = new Date().toLocaleString("en-US");
+
+    await sql`
+      INSERT INTO peak_discounts (code, email, date_used)
+      VALUES(${newCode}, ${email}, ${updated})
+      ON CONFLICT (code) 
+      DO UPDATE SET email = ${email}, date_used = ${updated}
+    `;
+    childLogger.info({ code: newCode }, 'Activated new code');
+
+    return newCode;
+  } catch (error) {
+    childLogger.error(error, 'No more codes');
+
+    return 'No more codes';
+  }
 }
