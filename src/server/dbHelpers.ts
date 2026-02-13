@@ -1,11 +1,11 @@
-"use server";
+'use server';
 
-import sql from "./db";
-import { TimeSpan, createDate } from "oslo";
-import { generateIdFromEntropySize } from "lucia";
-import * as auth from "./auth";
-import { cookies } from "next/headers";
+import { cookies } from 'next/headers';
+import { generateIdFromEntropySize } from 'lucia';
+import { TimeSpan, createDate } from 'oslo';
 import pino, { type Logger } from 'pino';
+import * as auth from './auth';
+import sql from './db';
 
 // Used for any loggers not passed as arguments
 const parentLogger = pino();
@@ -109,13 +109,13 @@ export async function retrieveMerchOrders(email: string) {
  * @returns Generated token
  */
 export async function setEmailVerification(email: string) {
-  const date = new Date().toLocaleString("en-US");
+  const date = new Date().toLocaleString('en-US');
 
   // 40 characters long
   const tokenId = generateIdFromEntropySize(25);
-  
+
   // Valid for 1 day
-  const expiration = createDate(new TimeSpan(1, "d"));
+  const expiration = createDate(new TimeSpan(1, 'd'));
 
   await sql`
     INSERT INTO email_verification_token (id, user_id, email, expires_at, created)
@@ -126,50 +126,36 @@ export async function setEmailVerification(email: string) {
   return tokenId;
 }
 
-// we aren't using this function anywhere
-export async function createEmailVerificationToken(
-  userId: string,
-  email: string
-): Promise<string> {
-  // optionally invalidate all existing tokens
-  // await db.table("email_verification_token").where("user_id", "=", userId).deleteAll();
-
-  const tokenId = generateIdFromEntropySize(25); // 40 characters long
-
-  const timespan = createDate(new TimeSpan(2, "h"));
-
-  const emailtoken = await sql`
-    INSERT INTO email_verification_token (id, email, expires_at)
-      VALUES(${tokenId}, ${email}, ${timespan})
-      ON CONFLICT (email) 
-      DO UPDATE SET id = ${tokenId}, expires_at = ${timespan}
-    `;
-
-  parentLogger.info(emailtoken, "emailtoken");
-
-  return tokenId;
-}
-
 /**
  * Update member to be canceled
  * @param canceledMember - Member subscription information
  * @param logger - Instance used for logging
  */
-export async function cancelMember(canceledMember: {
-  tier: number,
-  email: string,
-  status: string,
-  amount: number,
-}, logger: Logger) {
+export async function cancelMember(
+  canceledMember: {
+    tier: number;
+    email: string;
+    status: string;
+    amount: number;
+  },
+  logger: Logger,
+) {
   const childLogger = logger.child({ step: 'update_member' });
 
   try {
-    const date = new Date().toLocaleString("en-US");
+    const date = new Date().toLocaleString('en-US');
 
     await sql`
     UPDATE members SET tier = ${canceledMember.tier}, last_amount = ${canceledMember.amount}, last_donation = ${date} WHERE email = ${canceledMember.email};
     `;
-    childLogger.info({ amount: canceledMember.amount, status: canceledMember.status, tier: canceledMember.tier }, 'Updated member in database');
+    childLogger.info(
+      {
+        amount: canceledMember.amount,
+        status: canceledMember.status,
+        tier: canceledMember.tier,
+      },
+      'Updated member in database',
+    );
 
     // TODO: Catch when member not found in DB
 
@@ -185,17 +171,20 @@ export async function cancelMember(canceledMember: {
  * Record actions and updates
  * @param memberUpdate - Information about the update
  * @param logger - Instance used for logging
- * @returns 
+ * @returns
  */
-export async function setMemberUpdate(memberUpdate: {
-  email: string,
-  newTier: number,
-  update: string,
-}, logger: Logger) {
+export async function setMemberUpdate(
+  memberUpdate: {
+    email: string;
+    newTier: number;
+    update: string;
+  },
+  logger: Logger,
+) {
   // Add update to database
   let childLogger = logger.child({ step: 'record_update' });
   try {
-    const date = new Date().toLocaleString("en-US");
+    const date = new Date().toLocaleString('en-US');
 
     await sql`
       INSERT INTO member_updates (email, date, newtier, update)
@@ -215,16 +204,16 @@ export async function setMemberUpdate(memberUpdate: {
     const zapURL: string = process.env.MEMBER_ZAP!;
 
     const response = await fetch(zapURL, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify(memberUpdate),
     });
 
     if (response.ok) {
       childLogger.info('Update sent to Zapier');
-      
+
       return;
     } else {
       const message = (await response.json()).error.message;
@@ -242,12 +231,15 @@ export async function setMemberUpdate(memberUpdate: {
  * Add shirt size to member
  * @param memberObj - Member email and size
  * @param logger - Instance used for logging
- * @returns 
+ * @returns
  */
-export async function setMemberShirt(memberObj: {
-  email: string,
-  size: string,
-}, logger: Logger) {
+export async function setMemberShirt(
+  memberObj: {
+    email: string;
+    size: string;
+  },
+  logger: Logger,
+) {
   const childLogger = logger.child({ step: 'update_shirt_size' });
 
   try {
@@ -257,7 +249,10 @@ export async function setMemberShirt(memberObj: {
         ON CONFLICT (email) 
 	      DO UPDATE SET email = ${memberObj.email}, shirt_size = ${memberObj.size}
     `;
-    childLogger.info({ size: memberObj.size }, 'Updated shirt size in database');
+    childLogger.info(
+      { size: memberObj.size },
+      'Updated shirt size in database',
+    );
 
     return;
   } catch (error) {
@@ -271,25 +266,28 @@ export async function setMemberShirt(memberObj: {
  * Create new member or update if email exists
  * @param memberObj - Member information
  * @param logger - Instance used for logging
- * @returns 
+ * @returns
  */
-export async function setMember(memberObj: {
-  tier: number,
-  name: string,
-  phone: string,
-  email: string,
-  status: string,
-  shipping_address: string,
-  amount: number,
-  customer_id: string,
-  newMember: boolean,
-  subID: string,
-  branch: 'CA' | 'LA' | 'SF',
-}, logger: Logger) {
+export async function setMember(
+  memberObj: {
+    tier: number;
+    name: string;
+    phone: string;
+    email: string;
+    status: string;
+    shipping_address: string;
+    amount: number;
+    customer_id: string;
+    newMember: boolean;
+    subID: string;
+    branch: 'CA' | 'LA' | 'SF';
+  },
+  logger: Logger,
+) {
   const childLogger = logger.child({ step: 'set_member' });
 
   try {
-    const date = new Date().toLocaleString("en-US");
+    const date = new Date().toLocaleString('en-US');
 
     await sql`
       INSERT INTO members (name, email, tier, last_amount, shipping_address, last_donation, customer_id, phone, subscription_ID, branch)
@@ -297,7 +295,16 @@ export async function setMember(memberObj: {
         ON CONFLICT (email)
 	      DO UPDATE SET tier = ${memberObj.tier}, last_amount = ${memberObj.amount}, last_donation = ${date}, shipping_address = ${memberObj.shipping_address}, customer_id = ${memberObj.customer_id},  subscription_ID = ${memberObj.subID}, branch = ${memberObj.branch}
     `;
-    childLogger.info({ amount: memberObj.amount, chapter: memberObj.branch, status: memberObj.status, subscription_id: memberObj.subID, tier: memberObj.tier }, "Set member in database");
+    childLogger.info(
+      {
+        amount: memberObj.amount,
+        chapter: memberObj.branch,
+        status: memberObj.status,
+        subscription_id: memberObj.subID,
+        tier: memberObj.tier,
+      },
+      'Set member in database',
+    );
 
     // If new member, add join date
     if (memberObj.newMember) {
@@ -307,7 +314,7 @@ export async function setMember(memberObj: {
           ON CONFLICT (email) 
           DO UPDATE SET joined_date = ${date}
       `;
-      childLogger.info("Added join date for new member");
+      childLogger.info('Added join date for new member');
     }
 
     return;
@@ -324,7 +331,7 @@ export async function setMember(memberObj: {
  */
 export async function getSessionCookie() {
   const cookieStore = await cookies();
-  const sessionId = cookieStore.get("auth_session");
+  const sessionId = cookieStore.get('auth_session');
 
   if (sessionId) {
     const { session, user } = await auth.lucia.validateSession(sessionId.value);
@@ -380,7 +387,7 @@ export async function getNextPeakCode(email: string) {
     `;
 
     const newCode = newCodes[0].code;
-    const updated = new Date().toLocaleString("en-US");
+    const updated = new Date().toLocaleString('en-US');
 
     await sql`
       INSERT INTO peak_discounts (code, email, date_used)
