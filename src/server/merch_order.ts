@@ -1,11 +1,15 @@
 "use server";
 
+import pino from 'pino';
 import sql from "./db";
+
+// Used for any loggers not passed as arguments
+const parentLogger = pino();
 
 export async function new_order(data: any, tier: number) {
   // create printful order
 
-  console.log("/// creating printful order");
+  parentLogger.info("/// creating printful order");
 
   const shirt_size = data.size;
 
@@ -85,7 +89,7 @@ export async function new_order(data: any, tier: number) {
   // }
 
   // if (!shirt_size || shirtID === "") {
-  //   console.log("Invalid shirt size");
+  //   parentLogger.info("Invalid shirt size");
   //   return { error: "Invalid shirt size selected" };
   // }
 
@@ -132,7 +136,7 @@ export async function new_order(data: any, tier: number) {
       WHERE email = ${data.email};
     `;
 
-  // console.log('merch_orders', merch_orders)
+  // parentLogger.info(merch_orders, 'merch_orders')
 
   // get any unique items ordered
   let justPackages = merch_orders.flatMap((a) => JSON.parse(a.order_package));
@@ -151,46 +155,46 @@ export async function new_order(data: any, tier: number) {
 
   if (tier == 1) {
     if (prevStick) {
-      console.log("tier 1: sticker already ordered");
+      parentLogger.info("tier 1: sticker already ordered");
     } else {
-      console.log("tier 1: full order");
+      parentLogger.info("tier 1: full order");
       orderList = ["sticker"];
       orderPackage = [sticker];
     }
   } else if (tier == 2) {
     if (prevShirt && prevStick) {
-      console.log("tier 2: sticker and shirt ordered");
+      parentLogger.info("tier 2: sticker and shirt ordered");
     } else if (prevStick) {
-      console.log("tier 2: sticker already ordered");
+      parentLogger.info("tier 2: sticker already ordered");
       orderList = ["shirt"];
       orderPackage = [shirt];
     } else {
-      console.log("tier 2: full order");
+      parentLogger.info("tier 2: full order");
       orderList = ["sticker", "shirt"];
       orderPackage = [sticker, shirt];
     }
   } else if (tier == 3) {
     if (prevShirt && prevStick && prevHat) {
-      console.log("tier 3: sticker and shirt and hat already ordered");
+      parentLogger.info("tier 3: sticker and shirt and hat already ordered");
     } else if (prevStick && prevShirt) {
-      console.log("tier 3: sticker and shirt already ordered");
+      parentLogger.info("tier 3: sticker and shirt already ordered");
       orderList = ["hat"];
       orderPackage = [hat];
     } else if (prevStick) {
-      console.log("tier 3: sticker already ordered");
+      parentLogger.info("tier 3: sticker already ordered");
       orderList = ["shirt", "hat"];
       orderPackage = [shirt, hat];
     } else {
-      console.log("tier 3: full order");
+      parentLogger.info("tier 3: full order");
       orderList = ["sticker", "shirt", "hat"];
       orderPackage = [sticker, shirt, hat];
     }
   } else {
-    console.log("no valid orders");
+    parentLogger.info("no valid orders");
     return "no valid orders";
   }
 
-  console.log("orderPackage", orderPackage, orderPackage.length);
+  parentLogger.info(orderPackage, "orderPackage " + orderPackage.length);
 
   // don't create empty orders
   if (orderPackage && orderPackage.length) {
@@ -214,7 +218,7 @@ export async function new_order(data: any, tier: number) {
       items: orderPackage,
     };
 
-    console.log("order request_body", request_body);
+    parentLogger.info(request_body, "order request_body");
 
     try {
       const requestOptions = {
@@ -235,17 +239,17 @@ export async function new_order(data: any, tier: number) {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.log(`Printful API error: ${response.status}, ${errorText}`);
+        parentLogger.error(`Printful API error: ${response.status}, ${errorText}`);
         return { error: `API Error: ${response.status}` };
       }
 
-      console.log("order_details response", order_details);
+      parentLogger.info(order_details, "order_details response");
 
       // add order to database
       const date = new Date().toLocaleString("en-US");
       const order_pack = JSON.stringify(orderList);
 
-      console.log('adding merch order to DB')
+      parentLogger.info('adding merch order to DB')
       await sql`
         INSERT INTO merch_orders (email, order_tier, date, order_id, delivered, shirt_size, order_package, order_status)
         VALUES(${data.email}, ${tier}, ${date}, ${order_details.result.id}, false, ${shirt_size} , ${order_pack}, ${order_details.result.status})
@@ -264,7 +268,7 @@ export async function new_order(data: any, tier: number) {
           orderHeader
         );
         const order = await order_response.json();
-        console.log("order created", order);
+        parentLogger.info(order, "order created");
       };
 
       setTimeout(function () {
@@ -275,10 +279,10 @@ export async function new_order(data: any, tier: number) {
       }, 12000);
     } catch (err: any) {
       // On error, log and return the error message
-      console.log(`❌ Error message: ${err.message}`);
+      parentLogger.error(`❌ Error message: ${err.message}`);
     }
   } else {
-    console.log("order is empty - likely already ordered");
+    parentLogger.info("order is empty - likely already ordered");
   }
 
   // add order to database
