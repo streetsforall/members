@@ -1,33 +1,33 @@
 "use server";
 
-import pino from 'pino';
+import { Logger } from 'pino';
 import sql from "./db";
 
-// Used for any loggers not passed as arguments
-const parentLogger = pino();
-
-export async function new_order(data: any, tier: number) {
-  // create printful order
-
-  parentLogger.info("/// creating printful order");
-
+/**
+ * Create Printful order
+ * @param data - Customer information
+ * @param tier - Membership tier
+ * @returns 
+ */
+export async function new_order(data: {
+  size: 'S' | 'M' | 'L' | 'XL' | '2XL' | 's' | 'm' |'l' | 'xl' | '2xl',
+  name: string,
+  address1: string,
+  address2: string,
+  city: string,
+  state_name: string,
+  country_name: string,
+  zip: string,
+  phone: string,
+  email: string,
+}, tier: number, logger: Logger) {
+  /**
+   * Prepare shirt for Printful order
+   */
   const shirt_size = data.size;
 
-  // set shirt size
-  // note for future: was painful to figure this out but you can only find the sync_variant_id
-  // by requesting all items from that product ID from the Printful API
-  // GET /sync/products/{ID}
-
-  // example formatting from BDSM shirt
-  // id 97286569
-  // sync_variant_id 4702140382
-  // external_id 679bcd6caec4700697940058
-
-  // this has now shifted to product template
-
-  // create products from sync variant
-
-  var shirtID = 0
+  // Set shirt size variant ID
+  let shirtID = 0;
   if (shirt_size == 's') {
       shirtID = 4433819851
   } else if (shirt_size == 'm') {
@@ -40,7 +40,7 @@ export async function new_order(data: any, tier: number) {
       shirtID = 4433819855
   }
 
-  // create products
+  // Create Printful product structure
   const shirt = {
     "id": 1,
       "source": 'sync',
@@ -69,141 +69,152 @@ export async function new_order(data: any, tier: number) {
       "source": 'sync',
       "sync_variant_id": 3700186093,
       "quantity": 1,
-      "name": "Streets For All Tote Bag "
+      "name": "Streets For All Tote Bag"
   }
 
-  // NEW
-  // create products from Product Template
+  /* NEW
+  Create products from Product Template instead of sync product variants
 
-  // var shirtID = "";
-  // if (shirt_size == "s") {
-  //   shirtID = "27636855-fe47-4702-8a97-2a8e03b9768c";
-  // } else if (shirt_size == "m") {
-  //   shirtID = "d32be939-cb43-467b-900e-6ae21e5a3598";
-  // } else if (shirt_size == "l") {
-  //   shirtID = "9a029bf3-ad3d-4992-8b6a-fd934363333e";
-  // } else if (shirt_size == "xl") {
-  //   shirtID = "b5c3950b-10cf-46d1-882a-e4e6f802586a";
-  // } else if (shirt_size == "2xl") {
-  //   shirtID = "3a02c650-806c-4159-95ca-44981f96076c";
-  // }
+  var shirtID = "";
+  if (shirt_size == "s") {
+    shirtID = "27636855-fe47-4702-8a97-2a8e03b9768c";
+  } else if (shirt_size == "m") {
+    shirtID = "d32be939-cb43-467b-900e-6ae21e5a3598";
+  } else if (shirt_size == "l") {
+    shirtID = "9a029bf3-ad3d-4992-8b6a-fd934363333e";
+  } else if (shirt_size == "xl") {
+    shirtID = "b5c3950b-10cf-46d1-882a-e4e6f802586a";
+  } else if (shirt_size == "2xl") {
+    shirtID = "3a02c650-806c-4159-95ca-44981f96076c";
+  }
 
-  // if (!shirt_size || shirtID === "") {
-  //   parentLogger.info("Invalid shirt size");
-  //   return { error: "Invalid shirt size selected" };
-  // }
+  if (!shirt_size || shirtID === "") {
+    parentLogger.info("Invalid shirt size");
+    return { error: "Invalid shirt size selected" };
+  }
 
-  // const shirt = {
-  //   source: "product_template",
-  //   product_template_id: "6684375a27bc3208286138e1",
-  //   catalog_variant_id: shirtID,
-  //   quantity: 1,
-  //   name: "Membership T-Shirt",
-  // };
+  const shirt = {
+    source: "product_template",
+    product_template_id: "6684375a27bc3208286138e1",
+    catalog_variant_id: shirtID,
+    quantity: 1,
+    name: "Membership T-Shirt",
+  };
 
-  // const sticker = {
-  //   source: "product_template",
-  //   product_template_id: "401aad0c-b1f0-46e5-b8ea-134f4e362551",
-  //   catalog_variant_id: "4433819998",
-  //   quantity: 1,
-  //   name: "Members Sticker sheet",
-  // };
+  const sticker = {
+    source: "product_template",
+    product_template_id: "401aad0c-b1f0-46e5-b8ea-134f4e362551",
+    catalog_variant_id: "4433819998",
+    quantity: 1,
+    name: "Members Sticker sheet",
+  };
 
-  // const hat = {
-  //   source: "product_template",
-  //   product_template_id: "4434444449",
-  //   catalog_variant_id: "7857",
-  //   quantity: 1,
-  //   name: "Members Dad Hat",
-  // };
+  const hat = {
+    source: "product_template",
+    product_template_id: "4434444449",
+    catalog_variant_id: "7857",
+    quantity: 1,
+    name: "Members Dad Hat",
+  };
 
-  // const tote = {
-  //     "source": 'product_template',
-  //     "variant_id": 3700186093,
-  //     "quantity": 1,
-  //     "name": "Streets For All Tote Bag "
-  // }
+  const tote = {
+      "source": 'product_template',
+      "variant_id": 3700186093,
+      "quantity": 1,
+      "name": "Streets For All Tote Bag "
+  } */
 
-  // retrieve past orders
-  // we need to make sure we aren't re-ordering merch to the same user
+  /**
+   * Make sure we aren't re-ordering merch for the same user
+   */
+  let childLogger = logger.child({ step: 'check_previous_orders', tier, include_sticker: false, include_shirt: false, include_hat: false });
 
-  const merch_orders = await sql`
-      SELECT
-        email,
-        order_tier,
-        order_package
-      FROM merch_orders
-      WHERE email = ${data.email};
-    `;
+  // Retrieve past orders
+  const prevOrders = await sql`
+    SELECT
+      email,
+      order_tier,
+      order_package
+    FROM merch_orders
+    WHERE email = ${data.email};
+  `;
+  childLogger.debug(prevOrders, 'Retrieved previous orders');
 
-  // parentLogger.info(merch_orders, 'merch_orders')
+  // Get any unique items ordered
+  let packages = prevOrders.flatMap((a) => JSON.parse(a.order_package));
+  const uniqueOrders = [...new Set(packages)];
 
-  // get any unique items ordered
-  let justPackages = merch_orders.flatMap((a) => JSON.parse(a.order_package));
-  const uniqueOrders = [...new Set(justPackages)];
-
-  // these return undefined unless previously ordered, so we can use as bools
+  // Check if each item has been ordered previously - return undefined unless previously ordered, so we can use as booleans
   const prevHat = uniqueOrders.find((e) => e == "hat");
   const prevShirt = uniqueOrders.find((e) => e == "shirt");
   const prevStick = uniqueOrders.find((e) => e == "sticker");
 
-  // create order packages
-  var orderPackage: any[] = [];
-  var orderList = {};
+  // Create order packages
+  let orderPackage: Array<{ source: string, sync_variant_id: number, quantity: number, name: string }> = [];
+  let orderList = {};
 
-  // this is nasty but how we filter out historic merch orders
-
+  // This is nasty but how we filter out historic merch orders
   if (tier == 1) {
     if (prevStick) {
-      parentLogger.info("tier 1: sticker already ordered");
+      childLogger.info("Sticker already ordered");
     } else {
-      parentLogger.info("tier 1: full order");
+      childLogger.info({ include_sticker: true }, "Full order");
+
       orderList = ["sticker"];
       orderPackage = [sticker];
     }
   } else if (tier == 2) {
     if (prevShirt && prevStick) {
-      parentLogger.info("tier 2: sticker and shirt ordered");
+      childLogger.info("Sticker and shirt ordered");
     } else if (prevStick) {
-      parentLogger.info("tier 2: sticker already ordered");
+      childLogger.info({ include_shirt: true }, "Sticker already ordered");
+
       orderList = ["shirt"];
       orderPackage = [shirt];
     } else {
-      parentLogger.info("tier 2: full order");
+      childLogger.info({ include_shirt: true, include_sticker: true }, "Full order");
+
       orderList = ["sticker", "shirt"];
       orderPackage = [sticker, shirt];
     }
   } else if (tier == 3) {
     if (prevShirt && prevStick && prevHat) {
-      parentLogger.info("tier 3: sticker and shirt and hat already ordered");
+      childLogger.info("Sticker and shirt and hat already ordered");
     } else if (prevStick && prevShirt) {
-      parentLogger.info("tier 3: sticker and shirt already ordered");
+      childLogger.info({ include_hat: true }, "Sticker and shirt already ordered");
+
       orderList = ["hat"];
       orderPackage = [hat];
     } else if (prevStick) {
-      parentLogger.info("tier 3: sticker already ordered");
+      childLogger.info({ include_hat: true, include_shirt: true }, "Sticker already ordered");
+
       orderList = ["shirt", "hat"];
       orderPackage = [shirt, hat];
     } else {
-      parentLogger.info("tier 3: full order");
+      childLogger.info({ include_hat: true, include_shirt: true, include_sticker: true }, "Full order");
+
       orderList = ["sticker", "shirt", "hat"];
       orderPackage = [sticker, shirt, hat];
     }
   } else {
-    parentLogger.info("no valid orders");
-    return "no valid orders";
+    childLogger.info("No valid orders");
+
+    return "No valid orders";
   }
 
-  parentLogger.info(orderPackage, "orderPackage " + orderPackage.length);
-
-  // don't create empty orders
+  /**
+   * Send order to Printful
+   */
+  // Don't create empty orders
   if (orderPackage && orderPackage.length) {
-    const request_body = {
+    logger.debug(orderPackage, "Order package");
+
+    const body = {
       external_id: "",
       shipping: "STANDARD",
       recipient: {
         name: data.name || "",
-        company: data.company || "",
+        company: "",
         address1: data.address1 || "",
         address2: data.address2 || "",
         city: data.city || "",
@@ -218,72 +229,99 @@ export async function new_order(data: any, tier: number) {
       items: orderPackage,
     };
 
-    parentLogger.info(request_body, "order request_body");
+    let orderId: number;
 
+    // Create draft order in Printful
+    childLogger = logger.child({ step: 'create_order' });
     try {
-      const requestOptions = {
+      const options = {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${process.env.PRINTFUL_KEY}`,
         },
-        body: JSON.stringify(request_body),
+        body: JSON.stringify(body),
       };
 
       const response = await fetch(
         "https://api.printful.com/orders",
-        requestOptions
+        options
       );
-      
-      const order_details = await response.json();
+      const draftOrder = await response.json();
 
       if (!response.ok) {
-        const errorText = await response.text();
-        parentLogger.error(`Printful API error: ${response.status}, ${errorText}`);
-        return { error: `API Error: ${response.status}` };
+        const message = draftOrder.error.message;
+
+        throw new Error(message);
       }
 
-      parentLogger.info(order_details, "order_details response");
+      orderId = draftOrder.result.id;
 
-      // add order to database
+      childLogger.info({ order_id: orderId }, 'Created order in Printful');
+
+      // Add order to database
       const date = new Date().toLocaleString("en-US");
       const order_pack = JSON.stringify(orderList);
 
-      parentLogger.info('adding merch order to DB')
       await sql`
         INSERT INTO merch_orders (email, order_tier, date, order_id, delivered, shirt_size, order_package, order_status)
-        VALUES(${data.email}, ${tier}, ${date}, ${order_details.result.id}, false, ${shirt_size} , ${order_pack}, ${order_details.result.status})
-        `;
+        VALUES(${data.email}, ${tier}, ${date}, ${orderId}, false, ${shirt_size} , ${order_pack}, ${draftOrder.result.status})
+      `;
+      childLogger.info({ order_id: orderId, tier, status: draftOrder.result.status }, 'Added order to database');
+    } catch (error) {
+      childLogger.error(error);
 
-      const retrieve_order = async () => {
-        const orderHeader = {
+      // Stop subsequent step if this one fails
+      return;
+    }
+
+    // Confirm order in Printful for fulfillment
+    childLogger = logger.child({ step: 'confirm_order' });
+    try {
+      const confirmOrder = async () => {
+        const options = {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${process.env.PRINTFUL_KEY}`,
           },
         };
-        const order_response = await fetch(
-          `https://api.printful.com/orders/${order_details.result.id}/confirm`,
-          orderHeader
+  
+        const response = await fetch(
+          `https://api.printful.com/orders/${orderId}/confirm`,
+          options
         );
-        const order = await order_response.json();
-        parentLogger.info(order, "order created");
+        const confirmedOrder = await response.json();
+
+        if (!response.ok) {
+          const message = confirmedOrder.error.message;
+
+          throw new Error(message);
+        }
+
+        childLogger.info({ order_id: confirmedOrder.result.id }, 'Confirmed order in Printful');
+
+        // Update order status in database
+        await sql`
+          UPDATE merch_orders set order_status = ${confirmedOrder.result.status} WHERE order_id = ${confirmedOrder.result.id};
+        `;
+        childLogger.info({ order_id: confirmedOrder.result.id, status: confirmedOrder.result.status }, 'Updated order status in database');
+
+        return confirmedOrder;
       };
 
+      // Give 10 seconds for Printful to create pricing
       setTimeout(function () {
-        // submit order to printful
-        // takes a sec for them to create pricing
-        // so we give it 10 seconds
-        retrieve_order();
+        return confirmOrder();
       }, 12000);
-    } catch (err: any) {
-      // On error, log and return the error message
-      parentLogger.error(`❌ Error message: ${err.message}`);
+    } catch (error) {
+      childLogger.error(error);
+
+      return;
     }
   } else {
-    parentLogger.info("order is empty - likely already ordered");
-  }
+    logger.info("Order empty - likely already ordered");
 
-  // add order to database
+    return "Order empty - likely already ordered";
+  }
 }

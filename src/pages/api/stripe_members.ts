@@ -286,6 +286,7 @@ export default async function handler(
                 email: customer.email,
               },
               memberTier,
+              logger,
             );
             logger.debug(order, 'Placed merch order');
 
@@ -361,6 +362,7 @@ export default async function handler(
             email: checkout.customer_details.email,
           },
           mem_tier,
+          logger,
         );
         logger.debug(order, 'Placed merch order');
 
