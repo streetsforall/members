@@ -1,6 +1,11 @@
 "use server";
 
+import pino from "pino";
+
 const client = require("@mailchimp/mailchimp_marketing");
+
+// Used for any loggers not passed as arguments
+const parentLogger = pino();
 
 client.setConfig({
   apiKey: process.env.MAILCHIMP_KEY,
@@ -8,7 +13,7 @@ client.setConfig({
 });
 
 const addMailchimp = async (email: string, merge_fields: any) => {
-  console.log(email, merge_fields);
+  parentLogger.info(merge_fields, email);
 
   const run = async () => {
     const response = await client.lists.setListMember("948112d831", email, {
@@ -17,7 +22,7 @@ const addMailchimp = async (email: string, merge_fields: any) => {
       status: "subscribed",
       tags: ["members_club"],
     });
-    console.log(response);
+    parentLogger.info(response);
   };
 
   run();
