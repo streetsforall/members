@@ -1,26 +1,30 @@
-"use server";
+'use server';
 
 import { Logger } from 'pino';
-import sql from "./db";
+import sql from './db';
 
 /**
  * Create Printful order
  * @param data - Customer information
  * @param tier - Membership tier
- * @returns 
+ * @returns
  */
-export async function new_order(data: {
-  size: 'S' | 'M' | 'L' | 'XL' | '2XL' | 's' | 'm' |'l' | 'xl' | '2xl',
-  name: string,
-  address1: string,
-  address2: string,
-  city: string,
-  state_name: string,
-  country_name: string,
-  zip: string,
-  phone: string,
-  email: string,
-}, tier: number, logger: Logger) {
+export async function new_order(
+  data: {
+    size: 'S' | 'M' | 'L' | 'XL' | '2XL' | 's' | 'm' | 'l' | 'xl' | '2xl';
+    name: string;
+    address1: string;
+    address2: string;
+    city: string;
+    state_name: string;
+    country_name: string;
+    zip: string;
+    phone: string;
+    email: string;
+  },
+  tier: number,
+  logger: Logger,
+) {
   /**
    * Prepare shirt for Printful order
    */
@@ -29,48 +33,48 @@ export async function new_order(data: {
   // Set shirt size variant ID
   let shirtID = 0;
   if (shirt_size == 's') {
-      shirtID = 4433819851
+    shirtID = 4433819851;
   } else if (shirt_size == 'm') {
-      shirtID = 4433819852
+    shirtID = 4433819852;
   } else if (shirt_size == 'l') {
-      shirtID = 4433819853
+    shirtID = 4433819853;
   } else if (shirt_size == 'xl') {
-      shirtID = 4433819854
+    shirtID = 4433819854;
   } else if (shirt_size == '2xl') {
-      shirtID = 4433819855
+    shirtID = 4433819855;
   }
 
   // Create Printful product structure
   const shirt = {
-    "id": 1,
-      "source": 'sync',
-      "sync_variant_id": shirtID,
-      "quantity": 1,
-      "name": "Membership T-Shirt"
-  }
+    id: 1,
+    source: 'sync',
+    sync_variant_id: shirtID,
+    quantity: 1,
+    name: 'Membership T-Shirt',
+  };
 
   const sticker = {
-    "id": 2,
-      "source": 'sync',
-      "sync_variant_id": 4433819998,
-      "quantity": 1,
-      "name": "Members Sticker sheet"
-  }
+    id: 2,
+    source: 'sync',
+    sync_variant_id: 4433819998,
+    quantity: 1,
+    name: 'Members Sticker sheet',
+  };
 
   const hat = {
-    "id": 3,
-      "source": 'sync',
-      "sync_variant_id": 4434444449,
-      "quantity": 1,
-      "name": "Members Dad Hat"
-  }
+    id: 3,
+    source: 'sync',
+    sync_variant_id: 4434444449,
+    quantity: 1,
+    name: 'Members Dad Hat',
+  };
 
   const tote = {
-      "source": 'sync',
-      "sync_variant_id": 3700186093,
-      "quantity": 1,
-      "name": "Streets For All Tote Bag"
-  }
+    source: 'sync',
+    sync_variant_id: 3700186093,
+    quantity: 1,
+    name: 'Streets For All Tote Bag',
+  };
 
   /* NEW
   Create products from Product Template instead of sync product variants
@@ -127,7 +131,13 @@ export async function new_order(data: {
   /**
    * Make sure we aren't re-ordering merch for the same user
    */
-  let childLogger = logger.child({ step: 'check_previous_orders', tier, include_sticker: false, include_shirt: false, include_hat: false });
+  let childLogger = logger.child({
+    step: 'check_previous_orders',
+    tier,
+    include_sticker: false,
+    include_shirt: false,
+    include_hat: false,
+  });
 
   // Retrieve past orders
   const prevOrders = await sql`
@@ -145,61 +155,78 @@ export async function new_order(data: {
   const uniqueOrders = [...new Set(packages)];
 
   // Check if each item has been ordered previously - return undefined unless previously ordered, so we can use as booleans
-  const prevHat = uniqueOrders.find((e) => e == "hat");
-  const prevShirt = uniqueOrders.find((e) => e == "shirt");
-  const prevStick = uniqueOrders.find((e) => e == "sticker");
+  const prevHat = uniqueOrders.find((e) => e == 'hat');
+  const prevShirt = uniqueOrders.find((e) => e == 'shirt');
+  const prevStick = uniqueOrders.find((e) => e == 'sticker');
 
   // Create order packages
-  let orderPackage: Array<{ source: string, sync_variant_id: number, quantity: number, name: string }> = [];
+  let orderPackage: Array<{
+    source: string;
+    sync_variant_id: number;
+    quantity: number;
+    name: string;
+  }> = [];
   let orderList = {};
 
   // This is nasty but how we filter out historic merch orders
   if (tier == 1) {
     if (prevStick) {
-      childLogger.info("Sticker already ordered");
+      childLogger.info('Sticker already ordered');
     } else {
-      childLogger.info({ include_sticker: true }, "Full order");
+      childLogger.info({ include_sticker: true }, 'Full order');
 
-      orderList = ["sticker"];
+      orderList = ['sticker'];
       orderPackage = [sticker];
     }
   } else if (tier == 2) {
     if (prevShirt && prevStick) {
-      childLogger.info("Sticker and shirt ordered");
+      childLogger.info('Sticker and shirt ordered');
     } else if (prevStick) {
-      childLogger.info({ include_shirt: true }, "Sticker already ordered");
+      childLogger.info({ include_shirt: true }, 'Sticker already ordered');
 
-      orderList = ["shirt"];
+      orderList = ['shirt'];
       orderPackage = [shirt];
     } else {
-      childLogger.info({ include_shirt: true, include_sticker: true }, "Full order");
+      childLogger.info(
+        { include_shirt: true, include_sticker: true },
+        'Full order',
+      );
 
-      orderList = ["sticker", "shirt"];
+      orderList = ['sticker', 'shirt'];
       orderPackage = [sticker, shirt];
     }
   } else if (tier == 3) {
     if (prevShirt && prevStick && prevHat) {
-      childLogger.info("Sticker and shirt and hat already ordered");
+      childLogger.info('Sticker and shirt and hat already ordered');
     } else if (prevStick && prevShirt) {
-      childLogger.info({ include_hat: true }, "Sticker and shirt already ordered");
+      childLogger.info(
+        { include_hat: true },
+        'Sticker and shirt already ordered',
+      );
 
-      orderList = ["hat"];
+      orderList = ['hat'];
       orderPackage = [hat];
     } else if (prevStick) {
-      childLogger.info({ include_hat: true, include_shirt: true }, "Sticker already ordered");
+      childLogger.info(
+        { include_hat: true, include_shirt: true },
+        'Sticker already ordered',
+      );
 
-      orderList = ["shirt", "hat"];
+      orderList = ['shirt', 'hat'];
       orderPackage = [shirt, hat];
     } else {
-      childLogger.info({ include_hat: true, include_shirt: true, include_sticker: true }, "Full order");
+      childLogger.info(
+        { include_hat: true, include_shirt: true, include_sticker: true },
+        'Full order',
+      );
 
-      orderList = ["sticker", "shirt", "hat"];
+      orderList = ['sticker', 'shirt', 'hat'];
       orderPackage = [sticker, shirt, hat];
     }
   } else {
-    childLogger.info("No valid orders");
+    childLogger.info('No valid orders');
 
-    return "No valid orders";
+    return 'No valid orders';
   }
 
   /**
@@ -207,24 +234,24 @@ export async function new_order(data: {
    */
   // Don't create empty orders
   if (orderPackage && orderPackage.length) {
-    logger.debug(orderPackage, "Order package");
+    logger.debug(orderPackage, 'Order package');
 
     const body = {
-      external_id: "",
-      shipping: "STANDARD",
+      external_id: '',
+      shipping: 'STANDARD',
       recipient: {
-        name: data.name || "",
-        company: "",
-        address1: data.address1 || "",
-        address2: data.address2 || "",
-        city: data.city || "",
-        state_name: data.state_name || "",
-        state_code: data.state_name || "",
-        country_name: data.country_name || "",
-        country_code: data.country_name || "",
-        zip: data.zip || "",
-        phone: data.phone || "",
-        email: data.email || "",
+        name: data.name || '',
+        company: '',
+        address1: data.address1 || '',
+        address2: data.address2 || '',
+        city: data.city || '',
+        state_name: data.state_name || '',
+        state_code: data.state_name || '',
+        country_name: data.country_name || '',
+        country_code: data.country_name || '',
+        zip: data.zip || '',
+        phone: data.phone || '',
+        email: data.email || '',
       },
       items: orderPackage,
     };
@@ -235,18 +262,15 @@ export async function new_order(data: {
     childLogger = logger.child({ step: 'create_order' });
     try {
       const options = {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${process.env.PRINTFUL_KEY}`,
         },
         body: JSON.stringify(body),
       };
 
-      const response = await fetch(
-        "https://api.printful.com/orders",
-        options
-      );
+      const response = await fetch('https://api.printful.com/orders', options);
       const draftOrder = await response.json();
 
       if (!response.ok) {
@@ -260,14 +284,17 @@ export async function new_order(data: {
       childLogger.info({ order_id: orderId }, 'Created order in Printful');
 
       // Add order to database
-      const date = new Date().toLocaleString("en-US");
+      const date = new Date().toLocaleString('en-US');
       const order_pack = JSON.stringify(orderList);
 
       await sql`
         INSERT INTO merch_orders (email, order_tier, date, order_id, delivered, shirt_size, order_package, order_status)
         VALUES(${data.email}, ${tier}, ${date}, ${orderId}, false, ${shirt_size} , ${order_pack}, ${draftOrder.result.status})
       `;
-      childLogger.info({ order_id: orderId, tier, status: draftOrder.result.status }, 'Added order to database');
+      childLogger.info(
+        { order_id: orderId, tier, status: draftOrder.result.status },
+        'Added order to database',
+      );
     } catch (error) {
       childLogger.error(error);
 
@@ -280,16 +307,16 @@ export async function new_order(data: {
     try {
       const confirmOrder = async () => {
         const options = {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${process.env.PRINTFUL_KEY}`,
           },
         };
-  
+
         const response = await fetch(
           `https://api.printful.com/orders/${orderId}/confirm`,
-          options
+          options,
         );
         const confirmedOrder = await response.json();
 
@@ -299,13 +326,22 @@ export async function new_order(data: {
           throw new Error(message);
         }
 
-        childLogger.info({ order_id: confirmedOrder.result.id }, 'Confirmed order in Printful');
+        childLogger.info(
+          { order_id: confirmedOrder.result.id },
+          'Confirmed order in Printful',
+        );
 
         // Update order status in database
         await sql`
           UPDATE merch_orders set order_status = ${confirmedOrder.result.status} WHERE order_id = ${confirmedOrder.result.id};
         `;
-        childLogger.info({ order_id: confirmedOrder.result.id, status: confirmedOrder.result.status }, 'Updated order status in database');
+        childLogger.info(
+          {
+            order_id: confirmedOrder.result.id,
+            status: confirmedOrder.result.status,
+          },
+          'Updated order status in database',
+        );
 
         return confirmedOrder;
       };
@@ -320,8 +356,8 @@ export async function new_order(data: {
       return;
     }
   } else {
-    logger.info("Order empty - likely already ordered");
+    logger.info('Order empty - likely already ordered');
 
-    return "Order empty - likely already ordered";
+    return 'Order empty - likely already ordered';
   }
 }
