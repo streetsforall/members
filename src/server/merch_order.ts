@@ -1,6 +1,6 @@
 'use server';
 
-import { Logger } from 'pino';
+import { type Logger } from 'pino';
 import sql from './db';
 
 /**

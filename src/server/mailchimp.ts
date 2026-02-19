@@ -1,31 +1,57 @@
 "use server";
 
-import pino from "pino";
+import { type Logger } from "pino";
 
 const client = require("@mailchimp/mailchimp_marketing");
-
-// Used for any loggers not passed as arguments
-const parentLogger = pino();
 
 client.setConfig({
   apiKey: process.env.MAILCHIMP_KEY,
   server: "us4",
 });
 
-const addMailchimp = async (email: string, merge_fields: any) => {
-  parentLogger.info(merge_fields, email);
+/**
+ * Add member to Mailchimp
+ * @param email - Subscriber email
+ * @param merge_fields - Subscriber information
+ * @returns 
+ */
+async function addMailchimp(email: string, merge_fields: {
+  FNAME: string,
+  LNAME: string,
+  ADD_ST: string,
+  ADD_ST_2: string,
+  ADD_CITY: string,
+  ADD_ZIP: string,
+  ADD_COUNTR: string,
+  PHONE: string,
+  MEMBERSHIP: number,
+}, logger: Logger) {
+  const childLogger = logger.child({ step: 'add_to_mailchimp' });
+
+  childLogger.debug(merge_fields, `Adding ${email} to Mailchimp`);
 
   const run = async () => {
-    const response = await client.lists.setListMember("948112d831", email, {
-      email_address: email,
-      merge_fields: merge_fields,
-      status: "subscribed",
-      tags: ["members_club"],
-    });
-    parentLogger.info(response);
+    try {
+      const response = await client.lists.setListMember(process.env.MAILCHIMP_AUDIENCE_ID, email, {
+        email_address: email,
+        merge_fields: merge_fields,
+        status: "subscribed",
+        tags: ["members_club"],
+      });
+
+      childLogger.info({ contact_id: response.contact_id, list_id: response.list_id, status: response.status }, 'Contact added/updated in Mailchimp');
+
+      return;
+    } catch (error) {
+      childLogger.error(error);
+
+      return;
+    }
   };
 
-  run();
+  await run();
+
+  return;
 };
 
 export default addMailchimp;

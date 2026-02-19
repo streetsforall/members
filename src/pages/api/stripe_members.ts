@@ -292,17 +292,21 @@ export default async function handler(
 
             // Update mailchimp with any new info (i.e. upgraded tier)
             try {
-              addMailchimp(customer.email, {
-                FNAME: customer.name.split(' ')[0] || '',
-                LNAME: customer.name.split(' ')[1] || '',
-                ADD_ST: customer.address1 || '',
-                ADD_ST_2: customer.address2 || '',
-                ADD_CITY: customer.city || '',
-                ADD_ZIP: customer.zip || '',
-                ADD_COUNTR: customer.country || '',
-                PHONE: customer.phone || '',
-                MEMBERSHIP: memberTier || '',
-              });
+              addMailchimp(
+                customer.email,
+                {
+                  FNAME: customer.name.split(' ')[0] || '',
+                  LNAME: customer.name.split(' ')[1] || '',
+                  ADD_ST: customer.address1 || '',
+                  ADD_ST_2: customer.address2 || '',
+                  ADD_CITY: customer.city || '',
+                  ADD_ZIP: customer.zip || '',
+                  ADD_COUNTR: customer.country || '',
+                  PHONE: customer.phone || '',
+                  MEMBERSHIP: memberTier,
+                },
+                logger,
+              );
             } catch (error) {
               logger.error(error, 'Error with Mailchimp update');
             }
@@ -383,28 +387,32 @@ export default async function handler(
         dbHelp.setMemberShirt(memberShirtAdd, logger);
 
         try {
-          addMailchimp(checkout.customer_details.email, {
-            FNAME: checkout.customer_details.name.split(' ')[0],
-            LNAME: checkout.customer_details.name.split(' ')[1],
-            ADD_ST: checkout.shipping_details.address.line1
-              ? checkout.shipping_details.address.line1
-              : ' ',
-            ADD_ST_2: checkout.shipping_details.address.line2
-              ? checkout.shipping_details.address.line2
-              : ' ',
-            ADD_CITY: checkout.shipping_details.address.city
-              ? checkout.shipping_details.address.city
-              : ' ',
-            ADD_ZIP: checkout.shipping_details.address.postal_code
-              ? checkout.shipping_details.address.postal_code
-              : ' ',
-            ADD_COUNTR: checkout.shipping_details.address.country
-              ? checkout.shipping_details.address.country
-              : ' ',
+          addMailchimp(
+            checkout.customer_details.email,
+            {
+              FNAME: checkout.customer_details.name.split(' ')[0],
+              LNAME: checkout.customer_details.name.split(' ')[1],
+              ADD_ST: checkout.shipping_details.address.line1
+                ? checkout.shipping_details.address.line1
+                : ' ',
+              ADD_ST_2: checkout.shipping_details.address.line2
+                ? checkout.shipping_details.address.line2
+                : ' ',
+              ADD_CITY: checkout.shipping_details.address.city
+                ? checkout.shipping_details.address.city
+                : ' ',
+              ADD_ZIP: checkout.shipping_details.address.postal_code
+                ? checkout.shipping_details.address.postal_code
+                : ' ',
+              ADD_COUNTR: checkout.shipping_details.address.country
+                ? checkout.shipping_details.address.country
+                : ' ',
 
-            PHONE: checkout.customer_details.phone,
-            MEMBERSHIP: mem_tier,
-          });
+              PHONE: checkout.customer_details.phone,
+              MEMBERSHIP: mem_tier,
+            },
+            logger,
+          );
         } catch (error) {
           logger.error(error, 'error with mailchimp');
         }
