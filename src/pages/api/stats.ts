@@ -1,7 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import pino from "pino";
 import * as dbHelp from '../../server/dbHelpers'
 import { json } from "stream/consumers";
 
+const logger = pino();
 
 // returns total monthly donations
 
@@ -44,7 +46,7 @@ export default async function handler(
             getDB.map((memb) => {
 
 
-                console.log(memb.branch)
+                logger.info(memb.branch)
                 
 
             })
@@ -77,7 +79,7 @@ export default async function handler(
             total[branch] = getBranchTotals(branch);
             });
 
-            console.log(total)
+            logger.info(total)
             
         
 
@@ -86,10 +88,10 @@ export default async function handler(
             const CA_totals = getBranchTotals("CA")
 
 
-            console.log(LA_totals, SF_totals, CA_totals)
+            logger.info({ LA_totals, SF_totals, CA_totals })
 
-            // console.log(tier1, tier2, tier3)
-            // console.log(tier1dollar, tier2dollar, tier3dollar)
+            // logger.info(`${tier1} ${tier2} ${tier3}`)
+            // logger.info(`${tier1dollar} ${tier2dollar} ${tier3dollar}`)
 
             res.status(200).send({
                 // 'estimated yearly income': (tier1dollar + tier2dollar + tier3dollar) * 12,
@@ -114,7 +116,7 @@ export default async function handler(
 
         } catch (error: any) {
             if (error instanceof Error) {
-                console.error(`An error occurred counting members: ${error.message}`);
+                logger.error(`An error occurred counting members: ${error.message}`);
             }
 
             res.status(500).send("An error occurred counting members");
