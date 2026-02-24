@@ -2,9 +2,11 @@
 
 import { NextApiRequest, NextApiResponse } from "next";
 const nodemailer = require("nodemailer");
+import pino from 'pino';
 import sql from "./db";
 import * as dbHelp from './dbHelpers'
 
+const logger = pino();
 
 // this is used to send emails to members
 
@@ -27,7 +29,7 @@ const new_token_email = async (to_email: string) => {
 			WHERE UPPER(email) LIKE UPPER(${to_email})
 			`
 
-  console.log('valid_email', member)
+  logger.info(member, 'valid_email')
 
   const date = (new Date()).toLocaleString("en-US")
 
@@ -35,9 +37,9 @@ const new_token_email = async (to_email: string) => {
 
     const verificationToken = await dbHelp.setEmailVerification(to_email)
 
-    console.log('emailtoken', verificationToken)
+    logger.info('emailtoken ' + verificationToken)
 
-    console.log(member[0].first_name)
+    logger.info(member[0].first_name)
 
     try {
 
@@ -112,7 +114,7 @@ const new_token_email = async (to_email: string) => {
         }],
       })
 
-      console.log('successful email sent to'+to_email)
+      logger.info('successful email sent to ' + to_email)
 
         // log email for troubleshooting
         await sql`
@@ -125,7 +127,7 @@ const new_token_email = async (to_email: string) => {
     } catch (error) {
 
       
-      console.log(error)
+      logger.error(error)
       return (error)
     }
   } else {
@@ -157,7 +159,7 @@ const teir_desc = (tier: number) => {
 
 const new_signup_email = async (to_email: string) => {
 
-  console.log('preparing email')
+  logger.info('preparing email')
   // make sure email is valid
   // this search is not case sensitive
   const member = await sql`
@@ -169,12 +171,12 @@ const new_signup_email = async (to_email: string) => {
 
   const memebrship_tier = teir_desc(member[0].tier)
 
-  console.log('valid_email', member)
+  logger.info(member, 'valid_email')
 
   if (member.length > 0) {
 
     const verificationToken = await dbHelp.setEmailVerification(to_email)
-    console.log('emailtoken', verificationToken)
+    logger.info('emailtoken ' + verificationToken)
 
  
     try {
@@ -252,7 +254,7 @@ const new_signup_email = async (to_email: string) => {
         }],
       })
 
-      console.log('successful email sent to'+to_email)
+      logger.info('successful email sent to ' + to_email)
 
       // log email for troubleshooting
       await sql`
@@ -263,7 +265,7 @@ const new_signup_email = async (to_email: string) => {
       return ("Success: email was sent")
 
     } catch (error) {
-      console.log(error)
+      logger.error(error)
       return (error)
     }
   } else {
