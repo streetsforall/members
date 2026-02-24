@@ -76,7 +76,7 @@ export default async function handler(
       const sfTotals = calculateChapterTotals('SF');
 
       logger.info(
-        { stats: { caTotals, laTotals, sfTotals } },
+        { step: 'calculate_stats', stats: { caTotals, laTotals, sfTotals } },
         'Calculated membership stats',
       );
 
