@@ -49,15 +49,15 @@ export default async function handler(
                 const totalDollarsAnnual = (tier1Dollars + tier2Dollars + tier3Dollars) * 12
 
                 return({
-                    tier1: tier1Members,
-                    tier2: tier2Members,
-                    tier3: tier3Members,
-                    total_count: totalMembers,
-                    tier1dollar: tier1Dollars,
-                    tier2dollar: tier2Dollars,
-                    tier3dollar: tier3Dollars,
-                    total_monthly: totalDollarsMonthly,
-                    total_annual: totalDollarsAnnual
+                    tier1Members,
+                    tier2Members,
+                    tier3Members,
+                    totalMembers,
+                    tier1Dollars,
+                    tier2Dollars,
+                    tier3Dollars,
+                    totalDollarsMonthly,
+                    totalDollarsAnnual
                 })
             }
 
@@ -68,14 +68,14 @@ export default async function handler(
             logger.info({ stats: { caTotals, laTotals, sfTotals }}, 'Calculated membership stats')
 
             return res.status(200).send({
-                'CA': caTotals,
-                'LA': laTotals,
-                'SF': sfTotals,
-                'total monthly': laTotals.total_monthly +  sfTotals.total_monthly + caTotals.total_monthly,
-                'total annual estimate': laTotals.total_annual +  sfTotals.total_annual + caTotals.total_annual,
-                'LA cut monthly': laTotals.total_monthly + (caTotals.total_monthly / 2),
-                'SF cut monthly': sfTotals.total_monthly + (caTotals.total_monthly / 2),
-                'current donations': laTotals.total_count +  sfTotals.total_count + caTotals.total_count,
+                'ca': caTotals,
+                'la': laTotals,
+                'sf': sfTotals,
+                'totalDollarsMonthly': laTotals.totalDollarsMonthly +  sfTotals.totalDollarsMonthly + caTotals.totalDollarsMonthly,
+                'totalDollarsAnnualEstimate': laTotals.totalDollarsAnnual +  sfTotals.totalDollarsAnnual + caTotals.totalDollarsAnnual,
+                'laCutMonthly': laTotals.totalDollarsMonthly + (caTotals.totalDollarsMonthly / 2),
+                'sfCutMonthly': sfTotals.totalDollarsMonthly + (caTotals.totalDollarsMonthly / 2),
+                'currentMembers': laTotals.totalMembers +  sfTotals.totalMembers + caTotals.totalMembers,
             })
         } catch (error) {
             logger.error(error, 'An error occurred calculating membership stats');
