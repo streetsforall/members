@@ -1,15 +1,13 @@
 "use server"
 
-import { NextApiRequest, NextApiResponse } from "next";
 const nodemailer = require("nodemailer");
 import pino from 'pino';
 import sql from "./db";
 import * as dbHelp from './dbHelpers'
 
-const logger = pino();
+const parentLogger = pino();
 
-// this is used to send emails to members
-
+// Instantiate mailer
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_SERVER_HOST,
   port: 465,
@@ -20,131 +18,130 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const new_token_email = async (to_email: string) => {
-
-  // make sure email is valid
-  // this search is not case sensitive
-  const member = await sql`
-			SELECT * FROM members
-			WHERE UPPER(email) LIKE UPPER(${to_email})
-			`
-
-  logger.info(member, 'valid_email')
+/**
+ * Send magic link for member login
+ * @param email - Member's email
+ * @returns 
+ */
+async function new_token_email(email: string) {
+  // Create logger instance for request
+  const logger = parentLogger.child({ step: 'login' });
 
   const date = (new Date()).toLocaleString("en-US")
+ 
+  // Retrieve member from DB
+  const member = (await sql`
+    SELECT * FROM members
+    WHERE UPPER(email) LIKE UPPER(${email})
+	`)[0]
 
-  if (member.length > 0) {
+  // Return immediately if not found
+  if (!member) {
+    logger.debug('Member not found')
 
-    const verificationToken = await dbHelp.setEmailVerification(to_email)
+    // Record email attempt
+    await sql`
+      INSERT INTO emails ( date, type, email_address, success)
+        VALUES( ${date}, 'login request', ${email}, false)
+    `
 
-    logger.info('emailtoken ' + verificationToken)
-
-    logger.info(member[0].first_name)
-
-    try {
-
-      const mail = await transporter.sendMail({
-        from: `"Streets for All Membership" ${process.env.EMAIL_FROM}`,
-        to: to_email,
-        subject: `Your Streets for All Membership Login Request`,
-        html:
-          `
-        <html>
-          <body>
-        <div style=" 
-        font-size: 1.2rem;
-        padding: 1rem 2rem; 
-        max-width: 30rem; 
-        margin: auto; 
-        font-family: Helvetica Neue, Arial, sans-serif;"">
-
-                <a target="_blank"  
-                href="https://members.streetsforall.org/">
-                <img 
-                style="max-width: 50%; 
-                margin: auto;
-                width: 15rem;
-                display: block"  
-                src="cid:logo">
-                </a>
-                
-                <p>Hi ${member[0].name},</p>
-                <p>Use this button to log into your membership page.</p>
-    
-
-                <button style="
-                fontFamily: Helvetica Neue, Arial, sans-serif; 
-                font-size: 1.1rem;
-                padding: 1rem 1.5rem;
-                background-color: #0032ff; 
-                border-color: #183963; 
-                border-radius: 1rem;
-                margin: auto;
-                color: white;
-                display: block;
-                border: none;">
-
-                <a target="_blank" 
-                rel="noopener noreferrer" 
-                style="cursor: pointer; 
-                color: white;
-                text-decoration: none;" 
-                href="${process.env.ROOT_URL}/link/${verificationToken}">
-
-                LOGIN
-
-                <a/>
-
-                </button>
-
-                <p>If the button does not work, try <a target="_blank" rel="noopener noreferrer" href="${process.env.ROOT_URL}/link/${verificationToken}">this link</a> or reach out to membership@streetsforall.org. This link expires in 1 day.</p></br>
-
-                <p>Thank you for supporting our ongoing advocacy, <br/> 
-                Streets for All <br/> 
-                 🚎 🚲 👩🏻‍🦽🚶🏾🌳
-                 </p>
-                </div>
-          </body>
-        </html>
-        `,
-        attachments: [{
-          filename: 'members_club_logo.png',
-          path: `https://members.streetsforall.org/members_club_logo.png`,
-          cid: 'logo'
-        }],
-      })
-
-      logger.info('successful email sent to ' + to_email)
-
-        // log email for troubleshooting
-        await sql`
-        INSERT INTO emails ( date, type, email_address, success)
-          VALUES( ${date}, 'login request', ${to_email}, true)
-      `
-
-      return ("Success: email was sent")
-
-    } catch (error) {
-
-      
-      logger.error(error)
-      return (error)
-    }
-  } else {
-
-        // log email for troubleshooting
-        await sql`
-        INSERT INTO emails ( date, type, email_address, success)
-          VALUES( ${date}, 'login request', ${to_email}, false)
-      `
-  
-
-    return ("COULD NOT SEND MESSAGE")
+    // Empty return to prevent user enumeration
+    return;
   }
 
+  logger.debug({ customer_id: member.customer_id }, 'Retrieved member from database')
+
+  // Generate token
+  const verificationToken = await dbHelp.setEmailVerification(email)
+
+  try {
+    await transporter.sendMail({
+      from: `"Streets for All Membership" ${process.env.EMAIL_FROM}`,
+      to: email,
+      subject: `Your Streets for All Membership Login Request`,
+      html:
+        `
+      <html>
+        <body>
+      <div style=" 
+      font-size: 1.2rem;
+      padding: 1rem 2rem; 
+      max-width: 30rem; 
+      margin: auto; 
+      font-family: Helvetica Neue, Arial, sans-serif;"">
+
+              <a target="_blank"  
+              href="https://members.streetsforall.org/">
+              <img 
+              style="max-width: 50%; 
+              margin: auto;
+              width: 15rem;
+              display: block"  
+              src="cid:logo">
+              </a>
+              
+              <p>Hi ${member.name},</p>
+              <p>Use this button to log into your membership page.</p>
+  
+
+              <button style="
+              fontFamily: Helvetica Neue, Arial, sans-serif; 
+              font-size: 1.1rem;
+              padding: 1rem 1.5rem;
+              background-color: #0032ff; 
+              border-color: #183963; 
+              border-radius: 1rem;
+              margin: auto;
+              color: white;
+              display: block;
+              border: none;">
+
+              <a target="_blank" 
+              rel="noopener noreferrer" 
+              style="cursor: pointer; 
+              color: white;
+              text-decoration: none;" 
+              href="${process.env.ROOT_URL}/link/${verificationToken}">
+
+              LOGIN
+
+              <a/>
+
+              </button>
+
+              <p>If the button does not work, try <a target="_blank" rel="noopener noreferrer" href="${process.env.ROOT_URL}/link/${verificationToken}">this link</a> or reach out to membership@streetsforall.org. This link expires in 1 day.</p></br>
+
+              <p>Thank you for supporting our ongoing advocacy, <br/> 
+              Streets for All <br/> 
+                🚎 🚲 👩🏻‍🦽🚶🏾🌳
+                </p>
+              </div>
+        </body>
+      </html>
+      `,
+      attachments: [{
+        filename: 'members_club_logo.png',
+        path: `https://members.streetsforall.org/members_club_logo.png`,
+        cid: 'logo'
+      }],
+    })
+
+    logger.info({ customer_id: member.customer_id }, 'Login email successfully sent');
+
+    // Record email
+    await sql`
+      INSERT INTO emails ( date, type, email_address, success)
+        VALUES( ${date}, 'login request', ${email}, true)
+    `
+
+    // Empty return to prevent user enumeration
+    return;
+  } catch (error) {
+    logger.error(error);
+
+    throw new Error(error);
+  }
 }
-
-
 
 const teir_desc = (tier: number) => {
   if (tier == 1) {
@@ -156,130 +153,133 @@ const teir_desc = (tier: number) => {
   }
 }
 
-
-const new_signup_email = async (to_email: string) => {
-
-  logger.info('preparing email')
-  // make sure email is valid
-  // this search is not case sensitive
-  const member = await sql`
-			SELECT * FROM members
-			WHERE UPPER(email) LIKE UPPER(${to_email})
-			`
+/**
+ * Send welcome email with magic link for member login
+ * @param email - Member's email
+ * @returns 
+ */
+async function new_signup_email(email: string) {
+  // Create logger instance for request
+  const logger = parentLogger.child({ step: 'signup_email' });
 
   const date = (new Date()).toLocaleString("en-US")
 
-  const memebrship_tier = teir_desc(member[0].tier)
+  // Retrieve member from DB
+  const member = (await sql`
+    SELECT * FROM members
+    WHERE UPPER(email) LIKE UPPER(${email})
+  `)[0]
 
-  logger.info(member, 'valid_email')
+  // Return immediately if not found
+  if (!member) {
+    logger.debug('Member not found')
 
-  if (member.length > 0) {
-
-    const verificationToken = await dbHelp.setEmailVerification(to_email)
-    logger.info('emailtoken ' + verificationToken)
-
- 
-    try {
-
-      const mail = await transporter.sendMail({
-        from: `"Streets for All Membership" ${process.env.EMAIL_FROM}`,
-        to: to_email,
-        subject: `Welcome to the Streets for All Membership Club`,
-        html:
-          `
-        <html>
-          <body>
-        <div style=" 
-        font-size: 1.2rem;
-        padding: 1rem 2rem; 
-        max-width: 30rem; 
-        margin: auto; 
-        font-family: Helvetica Neue, Arial, sans-serif;"">
-                
-                <a target="_blank"  
-                href="https://members.streetsforall.org/">
-                <img 
-                style="max-width: 50%; 
-                margin: auto;
-                width: 15rem;
-                display: block"  
-                src="cid:logo">
-                </a>
-                
-                <p>Hi ${member[0].name},</p>
-                <p>Welcome to the Streets For All Membership Club! Thank you for your support. Your recurring contribution will directly help us continue our mission to make the streets of Los Angeles and California safe for all modes of transportation.
-                </p>
-
-                <p>Be sure to check out all the awesome perks included in your ${memebrship_tier} Tier membership by loging into your membership portal below:</p>
-    
-
-                <a target="_blank" 
-                rel="noopener noreferrer" 
-                style="cursor: pointer; 
-                color: white;
-                text-decoration: none;" 
-                href="${process.env.ROOT_URL}/link/${verificationToken}">
-
-                <button style="
-                fontFamily: Helvetica Neue, Arial, sans-serif; 
-                font-size: 1.1rem;
-                padding: 1rem 1.5rem;
-                background-color: #0032ff; 
-                border-color: #183963; 
-                border-radius: 1rem;
-                margin: auto;
-                color: white;
-                display: block;
-                border: none;">
-
-                LOGIN
-
-                </button>
-
-                <a/>
-
-                <p>If the button does not work, try <a target="_blank" rel="noopener noreferrer" href="${process.env.ROOT_URL}/link/${verificationToken}">this link</a> or reach out to membership@streetsforall.org. The link expires in 1 day.</p></br>
-
-                <p>Thank you for supporting our ongoing advocacy, <br/> 
-                - The Streets For All team <br/> 
-                 🚎 🚲 👩🏻‍🦽🚶🏾🌳
-                </div>
-          </body>
-        </html>
-        `,
-        attachments: [{
-          filename: 'members_club_logo.png',
-          path: `${process.env.ROOT_URL}/members_club_logo.png`,
-          cid: 'logo'
-        }],
-      })
-
-      logger.info('successful email sent to ' + to_email)
-
-      // log email for troubleshooting
-      await sql`
+    // Record email attempt
+    await sql`
       INSERT INTO emails ( date, type, email_address, success)
-        VALUES( ${date}, 'welcome email', ${to_email}, true)
+        VALUES( ${date}, 'welcome email', ${email}, false)
     `
 
-      return ("Success: email was sent")
-
-    } catch (error) {
-      logger.error(error)
-      return (error)
-    }
-  } else {
-
-      // log email for troubleshooting
-      await sql`
-      INSERT INTO emails ( date, type, email_address, success)
-        VALUES( ${date}, "'elcome email', ${to_email}, false)
-    `
-
-    return ("COULD NOT SEND MESSAGE")
+    // Empty return to prevent user enumeration
+    return;
   }
 
-}
+  logger.debug({ customer_id: member.customer_id }, 'Retrieved member from database')
 
+  const tierName = teir_desc(member.tier)
+
+  // Generate token
+  const verificationToken = await dbHelp.setEmailVerification(email)
+ 
+  try {
+    await transporter.sendMail({
+      from: `"Streets for All Membership" ${process.env.EMAIL_FROM}`,
+      to: email,
+      subject: `Welcome to the Streets for All Membership Club`,
+      html:
+        `
+      <html>
+        <body>
+      <div style=" 
+      font-size: 1.2rem;
+      padding: 1rem 2rem; 
+      max-width: 30rem; 
+      margin: auto; 
+      font-family: Helvetica Neue, Arial, sans-serif;"">
+              
+              <a target="_blank"  
+              href="https://members.streetsforall.org/">
+              <img 
+              style="max-width: 50%; 
+              margin: auto;
+              width: 15rem;
+              display: block"  
+              src="cid:logo">
+              </a>
+              
+              <p>Hi ${member.name},</p>
+              <p>Welcome to the Streets For All Membership Club! Thank you for your support. Your recurring contribution will directly help us continue our mission to make the streets of Los Angeles and California safe for all modes of transportation.
+              </p>
+
+              <p>Be sure to check out all the awesome perks included in your ${tierName} Tier membership by loging into your membership portal below:</p>
+  
+
+              <a target="_blank" 
+              rel="noopener noreferrer" 
+              style="cursor: pointer; 
+              color: white;
+              text-decoration: none;" 
+              href="${process.env.ROOT_URL}/link/${verificationToken}">
+
+              <button style="
+              fontFamily: Helvetica Neue, Arial, sans-serif; 
+              font-size: 1.1rem;
+              padding: 1rem 1.5rem;
+              background-color: #0032ff; 
+              border-color: #183963; 
+              border-radius: 1rem;
+              margin: auto;
+              color: white;
+              display: block;
+              border: none;">
+
+              LOGIN
+
+              </button>
+
+              <a/>
+
+              <p>If the button does not work, try <a target="_blank" rel="noopener noreferrer" href="${process.env.ROOT_URL}/link/${verificationToken}">this link</a> or reach out to membership@streetsforall.org. The link expires in 1 day.</p></br>
+
+              <p>Thank you for supporting our ongoing advocacy, <br/> 
+              - The Streets For All team <br/> 
+                🚎 🚲 👩🏻‍🦽🚶🏾🌳
+              </div>
+        </body>
+      </html>
+      `,
+      attachments: [{
+        filename: 'members_club_logo.png',
+        path: `${process.env.ROOT_URL}/members_club_logo.png`,
+        cid: 'logo'
+      }],
+    })
+
+    logger.info({ customer_id: member.customer_id }, 'Welcome email successfully sent');
+
+    // Record email
+    await sql`
+      INSERT INTO emails ( date, type, email_address, success)
+        VALUES( ${date}, 'welcome email', ${email}, true)
+    `
+
+    // Empty return to prevent user enumeration
+    return;
+  } catch (error) {
+    logger.error(error);
+
+    throw new Error(error);
+  }
+}
 
 export { new_token_email, new_signup_email };
