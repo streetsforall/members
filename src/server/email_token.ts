@@ -167,16 +167,6 @@ async function new_token_email(email: string) {
   }
 }
 
-const teir_desc = (tier: number) => {
-  if (tier == 1) {
-    return 'Pedestrian';
-  } else if (tier == 2) {
-    return 'Cargo Bike';
-  } else {
-    return 'Bus';
-  }
-};
-
 /**
  * Send welcome email with magic link for member login
  * @param email - Member's email
@@ -215,7 +205,7 @@ async function new_signup_email(email: string) {
     'Retrieved member from database',
   );
 
-  const tierName = teir_desc(member.tier);
+  const tierName = getTierName(member.tier);
 
   // Generate token
   const verificationToken = await dbHelp.setEmailVerification(email);
@@ -334,6 +324,21 @@ async function new_signup_email(email: string) {
     logger.error(error);
 
     throw new Error(error);
+  }
+}
+
+/**
+ * Get name corresponding to tier level
+ * @param tier - Tier level
+ * @returns Tier name
+ */
+function getTierName(tier: number) {
+  if (tier == 1) {
+    return 'Pedestrian';
+  } else if (tier == 2) {
+    return 'Cargo Bike';
+  } else {
+    return 'Bus';
   }
 }
 
