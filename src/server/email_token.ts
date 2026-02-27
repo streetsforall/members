@@ -61,9 +61,9 @@ async function new_token_email(email: string) {
 
   try {
     await transporter.sendMail({
-      from: `"Streets for All Membership" ${process.env.EMAIL_FROM}`,
+      from: `"Streets For All Membership" ${process.env.EMAIL_FROM}`,
       to: email,
-      subject: `Your Streets for All Membership Login Request`,
+      subject: `Your Streets For All Membership Login Request`,
       html: `
         <html>
           <body>
@@ -131,7 +131,7 @@ async function new_token_email(email: string) {
 
               <p>
                 Thank you for supporting our ongoing advocacy,<br />
-                Streets for All<br />
+                Streets For All<br />
                 🚎 🚲 👩🏻‍🦽🚶🏾🌳
               </p>
             </div>
@@ -212,9 +212,9 @@ async function new_signup_email(email: string) {
 
   try {
     await transporter.sendMail({
-      from: `"Streets for All Membership" ${process.env.EMAIL_FROM}`,
+      from: `"Streets For All Membership" ${process.env.EMAIL_FROM}`,
       to: email,
-      subject: `Welcome to the Streets for All Membership Club`,
+      subject: `Welcome to the Streets For All Membership Club`,
       html: `
         <html>
           <body>
