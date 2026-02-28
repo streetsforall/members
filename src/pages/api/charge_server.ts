@@ -1,7 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import pino from 'pino';
 import * as dbHelp from "../../server/dbHelpers";
 import { ListenMeta } from "postgres";
 import cal_zip from "../../data/CA_ZIP.json";
+
+const logger = pino();
 
 // Define interfaces for better type safety
 interface PrintfulOrderItem {
@@ -150,7 +153,7 @@ export default async function handler(
     });
   }
 
-  console.log(`Processing orders from ${date_in_ob.toISOString()} to ${date_out_ob.toISOString()}`);
+  logger.info(`Processing orders from ${date_in_ob.toISOString()} to ${date_out_ob.toISOString()}`);
 
   const date_in = Math.floor(date_in_ob.getTime() / 1000);
   const date_out = Math.floor(date_out_ob.getTime() / 1000);
@@ -198,7 +201,7 @@ export default async function handler(
       const data: PrintfulApiResponse = await response.json();
       return data;
     } catch (error) {
-      console.error("Error retrieving Printful orders:", error);
+      logger.error(error, "Error retrieving Printful orders:");
       throw error;
     }
   }
@@ -216,7 +219,7 @@ export default async function handler(
     const limit = 100; // Maximum allowed by Printful API
     let hasMoreOrders = true;
     
-    console.log("date", startDate, endDate);
+    logger.info(`date ${startDate} ${endDate}`);
     
     // Validate dates
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
@@ -227,13 +230,13 @@ export default async function handler(
       throw new Error("Start date must be before end date.");
     }
     
-    console.log(
+    logger.info(
       `Collecting orders from ${startDate.toDateString()} to ${endDate.toDateString()}...`
     );
     
     try {
       while (hasMoreOrders) {
-        console.log(`Fetching batch starting at offset ${offset}...`);
+        logger.info(`Fetching batch starting at offset ${offset}...`);
         
         const response = await getPrintfulOrders({
           offset: offset,
@@ -241,11 +244,11 @@ export default async function handler(
         });
         
         if (!response.result || !Array.isArray(response.result)) {
-          console.log("No more results or invalid response structure");
+          logger.info("No more results or invalid response structure");
           break;
         }
         
-        console.log(`Retrieved ${response.result.length} orders from API`);
+        logger.info(`Retrieved ${response.result.length} orders from API`);
         
         // Filter orders by date range
         const ordersInRange = response.result.filter((order: PrintfulOrder) => {
@@ -253,7 +256,7 @@ export default async function handler(
           return orderDate >= startDate && orderDate <= endDate;
         });
         
-        console.log(`${ordersInRange.length} orders match date range`);
+        logger.info(`${ordersInRange.length} orders match date range`);
         allOrders.push(...ordersInRange);
         
         // Check if we have more orders to fetch
@@ -271,21 +274,21 @@ export default async function handler(
         
         if (hasMoreOrders) {
           offset += limit;
-          console.log(`More orders available, next offset: ${offset}`);
+          logger.info(`More orders available, next offset: ${offset}`);
         } else {
-          console.log("Reached end of results");
+          logger.info("Reached end of results");
         }
         
         // Add a small delay to be respectful to the API
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
       
-      console.log(
+      logger.info(
         `Collected ${allOrders.length} orders in the specified date range.`
       );
       return allOrders;
     } catch (error) {
-      console.error("Error collecting orders by date range:", error);
+      logger.error(error, "Error collecting orders by date range:");
       throw error;
     }
   }
@@ -304,7 +307,7 @@ export default async function handler(
       
       // Add pagination parameter if we have a cursor
       if (startingAfter) {
-        console.log("cursor");
+        logger.info("cursor");
         params.starting_after = startingAfter;
       }
       
@@ -317,11 +320,11 @@ export default async function handler(
         // Update pagination variables
         hasMore = charges.has_more;
         if (hasMore && charges.data.length > 0) {
-          console.log("get more charges");
+          logger.info("get more charges");
           startingAfter = charges.data[charges.data.length - 1].id;
         }
       } catch (error) {
-        console.error("Error fetching charges:", error);
+        logger.error(error, "Error fetching charges:");
         throw error;
       }
     }
@@ -473,7 +476,7 @@ export default async function handler(
           // sf profit is the profit for all items, with SF's share of fees subtracted
           merch_body.sf_profits = total_sf_customer - total_sf_printful - sf_share;
 
-          console.log({
+          logger.info({
             'shared_costs (-)': shared_costs,
             "stripe_fee": stripe_fee,
             "shared_fee_income (+)": extra_fees,
@@ -486,7 +489,7 @@ export default async function handler(
             "total_sf_margin_raw": total_sf_customer - total_sf_printful
           });
 
-          console.log(merch_body);
+          logger.info(merch_body);
         }
 
         all_merch_body.push(merch_body);
@@ -498,7 +501,7 @@ export default async function handler(
     res.status(200).json({ memberArray, all_merch_body });
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error(`An error occurred counting members: ${error.message}`);
+      logger.error(`An error occurred counting members: ${error.message}`);
     }
 
     res.status(500).send("An error occurred counting members");
