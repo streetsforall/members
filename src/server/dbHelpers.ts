@@ -82,6 +82,32 @@ export async function retrieveMemberByEmail(email: string) {
 }
 
 /**
+ * Get member based on customer id
+ * @param customerId - Stripe customer id of member in the database
+ * @returns Member record
+ */
+export async function getMemberByCustomerId(customerId: string) {
+  const member = await sql`
+      SELECT
+        name,
+        email,
+        id,
+        last_amount,
+        last_donation,
+        tier,
+        shipping_address,
+        customer_id,
+        joined_date,
+        shirt_size,
+        subscription_id
+      FROM members
+      WHERE customer_id = ${customerId};
+    `;
+
+  return member[0];
+}
+
+/**
  * Get merch orders by email
  * @param email - Email associated with the order in the database
  * @returns All matching order records
@@ -374,6 +400,48 @@ export async function addMember(
         tier,
       },
       'Added member to database',
+    );
+
+    return;
+  } catch (error) {
+    childLogger.error(error);
+
+    return;
+  }
+}
+
+/**
+ * Update subscription information for member
+ * @param data - Member subscription information
+ * @param logger - Instance used for logging
+ * @returns
+ */
+export async function updateMemberSubscription(
+  data: {
+    customerId: string;
+    subscriptionId: string;
+    amount: number;
+    tier: number;
+  },
+  logger: Logger,
+) {
+  const childLogger = logger.child({ step: 'add_member_subscription' });
+
+  const { customerId, subscriptionId, amount, tier } = data;
+
+  try {
+    const date = new Date().toLocaleString('en-US');
+
+    await sql`
+      UPDATE members set subscription_ID = ${subscriptionId}, last_amount = ${amount}, tier = ${tier} WHERE customer_id = ${customerId}
+    `;
+    childLogger.info(
+      {
+        subscription_id: subscriptionId,
+        amount,
+        tier,
+      },
+      'Updated member with subscription information',
     );
 
     return;

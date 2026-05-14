@@ -24,7 +24,7 @@ export const config = {
  * @param logger - Instance used for logging
  * @returns Tier level
  */
-function validateTier(
+export function validateTier(
   payment: number,
   interval: 'month' | 'year',
   logger: Logger,
