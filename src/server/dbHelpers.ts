@@ -326,6 +326,65 @@ export async function setMember(
 }
 
 /**
+ * Create new member
+ * @param member - Member information
+ * @param logger - Instance used for logging
+ * @returns
+ */
+export async function addMember(
+  member: {
+    tier?: number;
+    name: string;
+    phone: string;
+    email: string;
+    address: string;
+    amount?: number;
+    customerId: string;
+    subscriptionId?: string;
+    chapter: 'CA' | 'LA' | 'SF';
+  },
+  logger: Logger,
+) {
+  const childLogger = logger.child({ step: 'add_member' });
+
+  const {
+    tier = 0,
+    name,
+    phone,
+    email,
+    address,
+    amount = null,
+    customerId,
+    subscriptionId = null,
+    chapter,
+  } = member;
+
+  try {
+    const date = new Date().toLocaleString('en-US');
+
+    await sql`
+      INSERT INTO members (name, email, joined_date, tier, last_amount, shipping_address, last_donation, customer_id, phone, subscription_ID, branch)
+        VALUES(${name}, ${email}, ${date}, ${tier}, ${amount}, ${address}, ${date}, ${customerId}, ${phone}, ${subscriptionId}, ${chapter})
+    `;
+    childLogger.info(
+      {
+        amount,
+        chapter,
+        subscription_id: subscriptionId,
+        tier,
+      },
+      'Added member to database',
+    );
+
+    return;
+  } catch (error) {
+    childLogger.error(error);
+
+    return;
+  }
+}
+
+/**
  * Retrieve user session based on cookie
  * @returns User session
  */
