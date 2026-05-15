@@ -74,23 +74,24 @@ export default async function handler(
 
     logger.info({ step: 'incoming_request' }, 'Incoming request');
 
+    const subscription = event.data.object;
+
+    const customerId =
+      typeof subscription.customer === 'string'
+        ? subscription.customer
+        : subscription.customer.id;
+    const member = await getMemberByCustomerId(customerId);
+    const amount = subscription.items.data[0].plan.amount || 0;
+    const interval = subscription.items.data[0].plan.interval as
+      | 'month'
+      | 'year';
+
     // Handle the event
     switch (event.type) {
       /**
        * New subscription
        */
       case 'customer.subscription.created': {
-        const subscription = event.data.object;
-
-        const customerId =
-          typeof subscription.customer === 'string'
-            ? subscription.customer
-            : subscription.customer.id;
-        const member = await getMemberByCustomerId(customerId);
-        const amount = subscription.items.data[0].plan.amount || 0;
-        const interval = subscription.items.data[0].plan.interval as
-          | 'month'
-          | 'year';
         const tier = validateTier(amount, interval, logger);
 
         logger.info(
@@ -121,6 +122,8 @@ export default async function handler(
         };
         setMemberUpdate(memberUpdate, logger);
 
+        // TODO: Create merch order if applicable
+
         return res.status(200).send('Subscription created');
       }
 
@@ -128,21 +131,7 @@ export default async function handler(
        * Subscription changed or canceled
        */
       case 'customer.subscription.updated': {
-        const subscription = event.data.object;
-
-        const customerId =
-          typeof subscription.customer === 'string'
-            ? subscription.customer
-            : subscription.customer.id;
-        const member = await getMemberByCustomerId(customerId);
-        const amount = subscription.items.data[0].plan.amount || 0;
-        const interval = subscription.items.data[0].plan.interval as
-          | 'month'
-          | 'year';
         const tier = validateTier(amount, interval, logger);
-
-        const prevAmount =
-          event.data.previous_attributes?.items?.data[0].plan.amount;
 
         // Future-dated cancelation
         if (subscription.cancel_at) {
@@ -174,6 +163,8 @@ export default async function handler(
         }
 
         // Consider update only if amount actually changes
+        const prevAmount =
+          event.data.previous_attributes?.items?.data[0].plan.amount;
         if (prevAmount && amount != prevAmount) {
           const prevTier = member.tier;
           const size = member.shirt_size;
@@ -261,15 +252,6 @@ export default async function handler(
        * i.e. a canceled member can still access their page until a month after canceling
        */
       case 'customer.subscription.deleted': {
-        const subscription = event.data.object;
-
-        const customerId =
-          typeof subscription.customer === 'string'
-            ? subscription.customer
-            : subscription.customer.id;
-        const member = await getMemberByCustomerId(customerId);
-        const amount = subscription.items.data[0].plan.amount || 0;
-
         logger.info(
           { step: 'end_subscription', amount: amount / 100 },
           'Subscription ended',
@@ -289,7 +271,7 @@ export default async function handler(
         cancelMember(data, logger);
 
         // Record update in DB
-        const update = `${customer.name}'s ${dollar.format(amount / 100)} plan has ended`;
+        const update = `${member.name}'s ${dollar.format(amount / 100)} plan has ended`;
         const memberUpdate = {
           email: member.email,
           newTier: 0,

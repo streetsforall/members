@@ -30,6 +30,9 @@ export async function new_order(
    */
   const shirt_size = data.size;
 
+  // TODO: Check whether size is provided
+  // TODO: Make case insensitive
+
   // Set shirt size variant ID
   let shirtID = 0;
   if (shirt_size == 's') {
