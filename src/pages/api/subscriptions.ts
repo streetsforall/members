@@ -3,6 +3,7 @@ import pino from 'pino';
 import Stripe from 'stripe';
 import { buffer } from 'micro';
 import {
+  cancelMember,
   getMemberByCustomerId,
   setMemberUpdate,
   updateMemberSubscription,
@@ -75,6 +76,9 @@ export default async function handler(
 
     // Handle the event
     switch (event.type) {
+      /**
+       * New subscription
+       */
       case 'customer.subscription.created': {
         const subscription = event.data.object;
 
@@ -119,6 +123,10 @@ export default async function handler(
 
         return res.status(200).send('Subscription created');
       }
+
+      /**
+       * Subscription changed or canceled
+       */
       case 'customer.subscription.updated': {
         const subscription = event.data.object;
 
@@ -246,8 +254,53 @@ export default async function handler(
 
         return res.status(200).send('Subscription updated');
       }
+
+      /**
+       * Subscription ended
+       * Fires not when the member performs a cancel action but when the last billing cycle is complete
+       * i.e. a canceled member can still access their page until a month after canceling
+       */
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object;
+
+        const customerId =
+          typeof subscription.customer === 'string'
+            ? subscription.customer
+            : subscription.customer.id;
+        const member = await getMemberByCustomerId(customerId);
+        const amount = subscription.items.data[0].plan.amount || 0;
+
+        logger.info(
+          { step: 'end_subscription', amount: amount / 100 },
+          'Subscription ended',
+        );
+
+        // Retrieve from Stripe
+        const customer: any = await retrieveCustomer(customerId);
+        logger.debug(customer, 'Retrieved customer');
+
+        // Update member in DB
+        const data = {
+          tier: 0,
+          email: member.email,
+          status: customer.status ? customer.status : 'canceled',
+          amount: 0,
+        };
+        cancelMember(data, logger);
+
+        // Record update in DB
+        const update = `${customer.name}'s ${dollar.format(amount / 100)} plan has ended`;
+        const memberUpdate = {
+          email: member.email,
+          newTier: 0,
+          update,
+        };
+        setMemberUpdate(memberUpdate, logger);
+
+        return res.status(200).send('Subscription ended');
+      }
       default:
-        logger.error(`Unhandled event type ${event.type}`);
+        logger.error('Unhandled event type');
 
         return res.status(400).send('Invalid event type');
     }
