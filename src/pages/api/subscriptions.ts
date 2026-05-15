@@ -7,7 +7,9 @@ import {
   setMemberUpdate,
   updateMemberSubscription,
 } from '@/server/dbHelpers';
-import { validateTier } from './stripe_members';
+import { dollar, retrieveCustomer, validateTier } from './stripe_members';
+import { new_order } from '@/server/merch_order';
+import addMailchimp from '@/server/mailchimp';
 
 const parentLogger = pino();
 
@@ -73,13 +75,14 @@ export default async function handler(
 
     // Handle the event
     switch (event.type) {
-      case 'customer.subscription.created':
+      case 'customer.subscription.created': {
         const subscription = event.data.object;
 
         const customerId =
           typeof subscription.customer === 'string'
             ? subscription.customer
             : subscription.customer.id;
+        const member = await getMemberByCustomerId(customerId);
         const amount = subscription.items.data[0].plan.amount || 0;
         const interval = subscription.items.data[0].plan.interval as
           | 'month'
@@ -106,16 +109,143 @@ export default async function handler(
         updateMemberSubscription(data, logger);
 
         // Record update in DB
-        const member = await getMemberByCustomerId(customerId);
         const update = `${member.name} joined the membership program at tier ${tier}`;
         const memberUpdate = {
           email: member.email,
           newTier: tier,
-          update: update,
+          update,
         };
         setMemberUpdate(memberUpdate, logger);
 
         return res.status(200).send('Subscription created');
+      }
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object;
+
+        const customerId =
+          typeof subscription.customer === 'string'
+            ? subscription.customer
+            : subscription.customer.id;
+        const member = await getMemberByCustomerId(customerId);
+        const amount = subscription.items.data[0].plan.amount || 0;
+        const interval = subscription.items.data[0].plan.interval as
+          | 'month'
+          | 'year';
+        const tier = validateTier(amount, interval, logger);
+
+        const prevAmount =
+          event.data.previous_attributes?.items?.data[0].plan.amount;
+
+        // Future-dated cancelation
+        if (subscription.cancel_at) {
+          const cancelDate = new Date(subscription.cancel_at * 1000);
+          const reason = subscription.cancellation_details?.reason;
+
+          logger.info(
+            { step: 'initiate_cancelation', cancelDate, reason },
+            'Subscription scheduled to cancel',
+          );
+
+          // Update member subscription information in DB
+          const data = {
+            customerId,
+            subscriptionId: subscription.id,
+            amount: amount / 100,
+            tier,
+          };
+          updateMemberSubscription(data, logger);
+
+          // Record update in DB
+          const update = `${member.name} set their membership to end on ${cancelDate} because ${reason}`;
+          const memberUpdate = {
+            email: member.email,
+            newTier: tier,
+            update,
+          };
+          setMemberUpdate(memberUpdate, logger);
+        }
+
+        // Consider update only if amount actually changes
+        if (prevAmount && amount != prevAmount) {
+          const prevTier = member.tier;
+          const size = member.shirt_size;
+
+          logger.info(
+            {
+              step: 'update_subscription',
+              prev_amount: prevAmount / 100,
+              new_amount: amount / 100,
+              prev_tier: prevTier,
+              new_tier: tier,
+            },
+            'Subscription updated',
+          );
+
+          // Update member subscription information in DB
+          const data = {
+            customerId,
+            subscriptionId: subscription.id,
+            amount: amount / 100,
+            tier,
+          };
+          updateMemberSubscription(data, logger);
+
+          // Record update in DB
+          const update = `${member.name} changed their membership from ${dollar.format(prevAmount / 100)} to ${dollar.format(amount / 100)}`;
+          const memberUpdate = {
+            email: member.email,
+            newTier: tier,
+            update,
+          };
+          setMemberUpdate(memberUpdate, logger);
+
+          // Retrieve from Stripe
+          const customer: any = await retrieveCustomer(customerId);
+          logger.debug(customer, 'Retrieved customer');
+
+          // Create merch order
+          const order = await new_order(
+            {
+              size,
+              name: customer.name,
+              address1: customer.address.line1,
+              address2: customer.address.line2,
+              city: customer.address.city,
+              state_name: customer.address.state,
+              country_name: customer.address.country,
+              zip: customer.address.postal_code,
+              phone: customer.phone,
+              email: customer.email,
+            },
+            tier,
+            logger,
+          );
+          logger.debug(order, 'Placed merch order');
+
+          // Update mailchimp with any new info (i.e. upgraded tier)
+          try {
+            addMailchimp(
+              customer.email,
+              {
+                FNAME: customer.name.split(' ')[0] || '',
+                LNAME: customer.name.split(' ')[1] || '',
+                ADD_ST: customer.address1 || '',
+                ADD_ST_2: customer.address2 || '',
+                ADD_CITY: customer.city || '',
+                ADD_ZIP: customer.zip || '',
+                ADD_COUNTR: customer.country || '',
+                PHONE: customer.phone || '',
+                MEMBERSHIP: tier,
+              },
+              logger,
+            );
+          } catch (error) {
+            logger.error(error, 'Error with Mailchimp update');
+          }
+        }
+
+        return res.status(200).send('Subscription updated');
+      }
       default:
         logger.error(`Unhandled event type ${event.type}`);
 

@@ -75,13 +75,13 @@ async function getMember(email: string) {
  * @param customerID - Customer ID in Stripe
  * @returns Stripe customer record
  */
-async function retrieveCustomer(customerID: string) {
+export async function retrieveCustomer(customerID: string) {
   const customer = await stripe.customers.retrieve(customerID);
 
   return customer;
 }
 
-const dollar = new Intl.NumberFormat('en-US', {
+export const dollar = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
 });
