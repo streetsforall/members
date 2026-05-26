@@ -4,7 +4,7 @@ import sql from './db';
 // Used for any loggers not passed as arguments
 const defaultLogger = pino();
 
-type Size = 's' | 'm' | 'l' | 'xl' | '2xl';
+type ShirtSize = 's' | 'm' | 'l' | 'xl' | '2xl';
 
 /**
  * Create Printful order
@@ -15,10 +15,10 @@ type Size = 's' | 'm' | 'l' | 'xl' | '2xl';
  */
 async function createOrder(
   data: {
-    size: Size;
+    shirtSize: ShirtSize;
     name: string;
     address1: string;
-    address2: string;
+    address2?: string | null;
     city: string;
     stateCode: string;
     countryCode: string;
@@ -32,22 +32,22 @@ async function createOrder(
   /**
    * Prepare shirt for Printful order
    */
-  const shirt_size = data.size;
+  const { shirtSize } = data;
 
   // TODO: Check whether size is provided
   // TODO: Make case insensitive
 
   // Set shirt size variant ID
   let shirtID = 0;
-  if (shirt_size == 's') {
+  if (shirtSize == 's') {
     shirtID = 4433819851;
-  } else if (shirt_size == 'm') {
+  } else if (shirtSize == 'm') {
     shirtID = 4433819852;
-  } else if (shirt_size == 'l') {
+  } else if (shirtSize == 'l') {
     shirtID = 4433819853;
-  } else if (shirt_size == 'xl') {
+  } else if (shirtSize == 'xl') {
     shirtID = 4433819854;
-  } else if (shirt_size == '2xl') {
+  } else if (shirtSize == '2xl') {
     shirtID = 4433819855;
   }
 
@@ -307,7 +307,7 @@ async function createOrder(
 
       await sql`
         INSERT INTO merch_orders (email, order_tier, date, order_id, delivered, shirt_size, order_package, order_status)
-        VALUES(${data.email}, ${tier}, ${date}, ${orderId}, false, ${shirt_size} , ${order_pack}, ${draftOrder.result.status})
+        VALUES(${data.email}, ${tier}, ${date}, ${orderId}, false, ${shirtSize} , ${order_pack}, ${draftOrder.result.status})
       `;
       childLogger.info(
         { order_id: orderId, tier, status: draftOrder.result.status },
@@ -381,4 +381,4 @@ async function createOrder(
   }
 }
 
-export { createOrder, type Size };
+export { createOrder, type ShirtSize };

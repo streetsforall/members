@@ -170,7 +170,7 @@ export default async function handler(
           event.data.previous_attributes?.items?.data[0].plan.amount;
         if (prevAmount && amount != prevAmount) {
           const prevTier = member.tier;
-          const size = member.shirt_size;
+          const shirtSize = member.shirt_size;
 
           logger.info(
             {
@@ -208,7 +208,7 @@ export default async function handler(
           // Create merch order
           const order = await createOrder(
             {
-              size,
+              shirtSize,
               name: customer.name,
               address1: customer.address.line1,
               address2: customer.address.line2,

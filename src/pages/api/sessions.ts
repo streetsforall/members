@@ -2,14 +2,11 @@ import { type NextApiRequest, type NextApiResponse } from 'next';
 import pino from 'pino';
 import Stripe from 'stripe';
 import { buffer } from 'micro';
-import {
-  setMemberShirt,
-  setMemberUpdate,
-} from '@/server/dbHelpers';
+import { setMemberShirt, setMemberUpdate } from '@/server/dbHelpers';
 import { validateTier } from './stripe_members';
-import { getSubscription } from '@/server/stripe';
+import { getCustomer, getSubscription } from '@/server/stripe';
 import { sendWelcomeEmail } from '@/server/email';
-import { createOrder, Size } from '@/server/printful';
+import { createOrder, ShirtSize } from '@/server/printful';
 import { addToMailingList } from '@/server/mailchimp';
 
 const parentLogger = pino();
@@ -63,14 +60,23 @@ export default async function handler(
 
     const session = event.data.object;
 
+    // Make sure checkout is a subscription
+    if (
+      session.mode !== 'subscription' ||
+      !session.subscription ||
+      !session.customer
+    ) {
+      return res.status(200).send('Not a member subscription');
+    }
+
     const customerId =
       typeof session.customer === 'string'
         ? session.customer
-        : session.customer?.id;
+        : session.customer.id;
     const subscriptionId =
       typeof session.subscription === 'string'
         ? session.subscription
-        : session.subscription?.id;
+        : session.subscription.id;
 
     // Create logger instance for request
     const logger = parentLogger.child({
@@ -91,24 +97,29 @@ export default async function handler(
        * This is when the shirt size is set for new members (weirdly the only Stipe API call that forwards custom fields).
        */
       case 'checkout.session.completed': {
-        // Make sure checkout is a subscription
-        if (session.mode !== 'subscription' || !session.subscription) {
-          return res.status(200).send('Not a member subscription');
-        }
-
-        // Get subscription details from Stripe
-        const subscriptionId =
-          typeof session.subscription === 'string'
-            ? session.subscription
-            : session.subscription.id;
+        // Get customer and subscription details from Stripe
+        const customer = (await getCustomer(customerId)) as Stripe.Customer;
         const subscription = await getSubscription(subscriptionId, logger);
+
+        // Prepare data
+        const name = customer.name as string;
+        const email = customer.email as string;
+        const phone = customer.phone as string;
+        const address1 = customer.shipping?.address?.line1 as string;
+        const address2 = customer.shipping?.address?.line2;
+        const city = customer.shipping?.address?.city as string;
+        const stateCode = customer.shipping?.address?.state as string;
+        const zip = customer.shipping?.address?.postal_code as string;
+        const countryCode = customer.shipping?.address?.country as string;
 
         const amount = subscription?.items.data[0].plan.amount || 0;
         const interval = subscription?.items.data[0].plan.interval as
           | 'month'
           | 'year';
-
         const tier = validateTier(amount, interval, logger);
+
+        const shirtSize = (session?.custom_fields?.[0]?.dropdown?.value ||
+          'l') as ShirtSize;
 
         logger.info(
           {
@@ -130,27 +141,9 @@ export default async function handler(
         );
 
         // Create merch order
-        const name = session.customer_details?.name as string;
-        const email = session.customer_details?.phone as string;
-        const phone = session.customer_details?.email as string;
-        const shirtSize = (session?.custom_fields?.[0]?.dropdown?.value ||
-          'l') as Size;
-        const address1 = session.collected_information?.shipping_details
-          ?.address.line1 as string;
-        const address2 =
-          session.collected_information?.shipping_details?.address.line2 || '';
-        const city = session.collected_information?.shipping_details?.address
-          .city as string;
-        const stateCode = session.collected_information?.shipping_details
-          ?.address.state as string;
-        const countryCode = session.collected_information?.shipping_details
-          ?.address.country as string;
-        const zip = session.collected_information?.shipping_details?.address
-          .postal_code as string;
-
         await createOrder(
           {
-            size: shirtSize,
+            shirtSize,
             name,
             address1,
             address2,

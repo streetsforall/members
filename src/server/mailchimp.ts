@@ -88,7 +88,7 @@ async function addToMailingList(
     FNAME: string;
     LNAME: string;
     ADD_ST: string;
-    ADD_ST_2: string;
+    ADD_ST_2?: string | null;
     ADD_CITY: string;
     ADD_ZIP: string;
     ADD_COUNTR: string;
