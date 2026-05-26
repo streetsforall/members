@@ -9,8 +9,8 @@ import {
   updateMemberSubscription,
 } from '@/server/dbHelpers';
 import { dollar, retrieveCustomer, validateTier } from './stripe_members';
-import { new_order } from '@/server/merch_order';
-import addMailchimp from '@/server/mailchimp';
+import { addToMailingList } from '@/server/mailchimp';
+import { createOrder } from '@/server/printful';
 
 const parentLogger = pino();
 
@@ -64,22 +64,25 @@ export default async function handler(
       return res.status(400).send('Webhook signature verification failed');
     }
 
-    // Create logger instance for request
-    const logger = parentLogger.child({
-      request_id: event.request?.id,
-      event_id: event.id,
-      event_type: event.type,
-      customer_id: event.data.object.id,
-    });
-
-    logger.info({ step: 'incoming_request' }, 'Incoming request');
-
     const subscription = event.data.object;
 
     const customerId =
       typeof subscription.customer === 'string'
         ? subscription.customer
         : subscription.customer.id;
+
+    // Create logger instance for request
+    const logger = parentLogger.child({
+      request_id: event.request?.id,
+      event_id: event.id,
+      event_type: event.type,
+      customer_id: customerId,
+      subscription_id: event.data.object.id,
+    });
+
+    logger.info({ step: 'incoming_request' }, 'Incoming request');
+
+    // TODO: Can't depend on this; get straight from Stripe
     const member = await getMemberByCustomerId(customerId);
     const amount = subscription.items.data[0].plan.amount || 0;
     const interval = subscription.items.data[0].plan.interval as
@@ -203,15 +206,15 @@ export default async function handler(
           logger.debug(customer, 'Retrieved customer');
 
           // Create merch order
-          const order = await new_order(
+          const order = await createOrder(
             {
               size,
               name: customer.name,
               address1: customer.address.line1,
               address2: customer.address.line2,
               city: customer.address.city,
-              state_name: customer.address.state,
-              country_name: customer.address.country,
+              stateCode: customer.address.state,
+              countryCode: customer.address.country,
               zip: customer.address.postal_code,
               phone: customer.phone,
               email: customer.email,
@@ -223,7 +226,7 @@ export default async function handler(
 
           // Update mailchimp with any new info (i.e. upgraded tier)
           try {
-            addMailchimp(
+            addToMailingList(
               customer.email,
               {
                 FNAME: customer.name.split(' ')[0] || '',
