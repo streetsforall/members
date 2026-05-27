@@ -12,7 +12,7 @@ import { validateTier } from './stripe_members';
 const parentLogger = pino();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
-const endpointSecret = process.env.STRIPE_HOOK_SECRET as string;
+const endpointSecret = process.env.STRIPE_SESSIONS_HOOK_SECRET as string;
 
 export const config = {
   api: {
