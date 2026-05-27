@@ -342,4 +342,4 @@ function getTierName(tier: number) {
   }
 }
 
-export { new_token_email, new_signup_email };
+export { getTierName, new_token_email, new_signup_email };
