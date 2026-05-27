@@ -77,36 +77,47 @@ async function addMailchimp(
 
 /**
  * Add member to Mailchimp
- * @param email - Subscriber email
- * @param merge_fields - Subscriber information
+ * @param data - Subscriber information
  * @param logger - Instance used for logging
  * @returns
  */
 async function addToMailingList(
-  email: string,
-  mergeFields: {
-    FNAME: string;
-    LNAME: string;
-    ADD_ST: string;
-    ADD_ST_2?: string | null;
-    ADD_CITY: string;
-    ADD_ZIP: string;
-    ADD_COUNTR: string;
-    PHONE: string;
-    MEMBERSHIP: number;
+  data: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    address1: string;
+    address2?: string;
+    city: string;
+    zip: string;
+    countryCode: string;
+    phone?: string;
+    tier: number;
   },
   logger: Logger = defaultLogger,
 ) {
   const childLogger = logger.child({ step: 'add_to_mailchimp' });
 
-  childLogger.debug(mergeFields, `Adding ${email} to Mailchimp`);
+  const mergeFields = {
+    FNAME: data.firstName,
+    LNAME: data.lastName,
+    ADD_ST: data.address1,
+    ...(data.address2 && { ADD_ST_2: data.address2 }), // Only include property if value exists
+    ADD_CITY: data.city,
+    ADD_ZIP: data.zip,
+    ADD_COUNTR: data.countryCode,
+    ...(data.phone && { PHONE: data.phone }), // Only include property if value exists
+    MEMBERSHIP: data.tier,
+  };
+
+  childLogger.debug(mergeFields, `Adding ${data.email} to Mailchimp`);
 
   try {
     const response = await client.lists.setListMember(
       MAILCHIMP_AUDIENCE_ID,
-      email,
+      data.email,
       {
-        email_address: email,
+        email_address: data.email,
         merge_fields: mergeFields,
         status: 'subscribed',
         tags: ['members_club'],

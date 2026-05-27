@@ -3,14 +3,17 @@ import pino from 'pino';
 import Stripe from 'stripe';
 import { buffer } from 'micro';
 import {
+  addMember,
   cancelMember,
   getMemberByCustomerId,
   setMemberUpdate,
   updateMemberSubscription,
 } from '@/server/dbHelpers';
-import { dollar, retrieveCustomer, validateTier } from './stripe_members';
 import { addToMailingList } from '@/server/mailchimp';
 import { createOrder } from '@/server/printful';
+import { getCustomer } from '@/server/stripe';
+import { getChapterFromZip } from '@/server/zipUtils';
+import { dollar, retrieveCustomer, validateTier } from './stripe_members';
 
 const parentLogger = pino();
 
@@ -70,6 +73,7 @@ export default async function handler(
       typeof subscription.customer === 'string'
         ? subscription.customer
         : subscription.customer.id;
+    const subscriptionId = subscription.id;
 
     // Create logger instance for request
     const logger = parentLogger.child({
@@ -77,17 +81,38 @@ export default async function handler(
       event_id: event.id,
       event_type: event.type,
       customer_id: customerId,
-      subscription_id: event.data.object.id,
+      subscription_id: subscriptionId,
     });
 
     logger.info({ step: 'incoming_request' }, 'Incoming request');
 
-    // TODO: Can't depend on this; get straight from Stripe
-    const member = await getMemberByCustomerId(customerId);
+    // Get customer and subscription details from Stripe
+    const customer = (await getCustomer(customerId)) as Stripe.Customer;
+
+    // Prepare data
+    const name = customer.name as string;
+    const email = customer.email as string;
+    const phone = customer.phone as string;
+
+    // Prefer shipping address, fall back to billing address
+    const billingAddress = customer.address;
+    const shippingAddress = customer.shipping?.address;
+    const address = shippingAddress || billingAddress;
+
+    const address1 = address?.line1 as string;
+    const address2 = address?.line2;
+    const city = address?.city as string;
+    const stateCode = address?.state as string;
+    const zip = address?.postal_code as string;
+    const countryCode = address?.country as string;
+
+    const chapter = getChapterFromZip(zip);
+
     const amount = subscription.items.data[0].plan.amount || 0;
     const interval = subscription.items.data[0].plan.interval as
       | 'month'
       | 'year';
+    const tier = validateTier(amount, interval, logger);
 
     // Handle the event
     switch (event.type) {
@@ -95,8 +120,6 @@ export default async function handler(
        * New subscription
        */
       case 'customer.subscription.created': {
-        const tier = validateTier(amount, interval, logger);
-
         logger.info(
           {
             step: 'initiate_new_subscription',
@@ -107,19 +130,24 @@ export default async function handler(
           'New subscription received',
         );
 
-        // Add member subscription information to DB
-        const data = {
+        // Add member to DB
+        const member = {
           customerId,
-          subscriptionId: subscription.id,
+          subscriptionId,
+          name,
+          phone,
+          email,
+          address: JSON.stringify(address),
+          chapter,
           amount: amount / 100,
           tier,
         };
-        updateMemberSubscription(data, logger);
+        addMember(member, logger);
 
         // Record update in DB
-        const update = `${member.name} joined the membership program at tier ${tier}`;
+        const update = `${name} joined the membership program at tier ${tier}`;
         const memberUpdate = {
-          email: member.email,
+          email,
           newTier: tier,
           update,
         };
@@ -134,8 +162,6 @@ export default async function handler(
        * Subscription changed or canceled
        */
       case 'customer.subscription.updated': {
-        const tier = validateTier(amount, interval, logger);
-
         // Future-dated cancelation
         if (subscription.cancel_at) {
           const cancelDate = new Date(subscription.cancel_at * 1000);
@@ -149,16 +175,16 @@ export default async function handler(
           // Update member subscription information in DB
           const data = {
             customerId,
-            subscriptionId: subscription.id,
+            subscriptionId,
             amount: amount / 100,
             tier,
           };
           updateMemberSubscription(data, logger);
 
           // Record update in DB
-          const update = `${member.name} set their membership to end on ${cancelDate} because ${reason}`;
+          const update = `${name} set their membership to end on ${cancelDate} because ${reason}`;
           const memberUpdate = {
-            email: member.email,
+            email,
             newTier: tier,
             update,
           };
@@ -169,6 +195,8 @@ export default async function handler(
         const prevAmount =
           event.data.previous_attributes?.items?.data[0].plan.amount;
         if (prevAmount && amount != prevAmount) {
+          const member = await getMemberByCustomerId(customerId);
+
           const prevTier = member.tier;
           const shirtSize = member.shirt_size;
 
@@ -186,38 +214,34 @@ export default async function handler(
           // Update member subscription information in DB
           const data = {
             customerId,
-            subscriptionId: subscription.id,
+            subscriptionId,
             amount: amount / 100,
             tier,
           };
           updateMemberSubscription(data, logger);
 
           // Record update in DB
-          const update = `${member.name} changed their membership from ${dollar.format(prevAmount / 100)} to ${dollar.format(amount / 100)}`;
+          const update = `${name} changed their membership from ${dollar.format(prevAmount / 100)} to ${dollar.format(amount / 100)}`;
           const memberUpdate = {
-            email: member.email,
+            email,
             newTier: tier,
             update,
           };
           setMemberUpdate(memberUpdate, logger);
 
-          // Retrieve from Stripe
-          const customer: any = await retrieveCustomer(customerId);
-          logger.debug(customer, 'Retrieved customer');
-
           // Create merch order
           const order = await createOrder(
             {
               shirtSize,
-              name: customer.name,
-              address1: customer.address.line1,
-              address2: customer.address.line2,
-              city: customer.address.city,
-              stateCode: customer.address.state,
-              countryCode: customer.address.country,
-              zip: customer.address.postal_code,
-              phone: customer.phone,
-              email: customer.email,
+              name,
+              address1,
+              address2,
+              city,
+              stateCode,
+              countryCode,
+              zip,
+              phone,
+              email,
             },
             tier,
             logger,
@@ -225,25 +249,21 @@ export default async function handler(
           logger.debug(order, 'Placed merch order');
 
           // Update mailchimp with any new info (i.e. upgraded tier)
-          try {
-            addToMailingList(
-              customer.email,
-              {
-                FNAME: customer.name.split(' ')[0] || '',
-                LNAME: customer.name.split(' ')[1] || '',
-                ADD_ST: customer.address1 || '',
-                ADD_ST_2: customer.address2 || '',
-                ADD_CITY: customer.city || '',
-                ADD_ZIP: customer.zip || '',
-                ADD_COUNTR: customer.country || '',
-                PHONE: customer.phone || '',
-                MEMBERSHIP: tier,
-              },
-              logger,
-            );
-          } catch (error) {
-            logger.error(error, 'Error with Mailchimp update');
-          }
+          addToMailingList(
+            {
+              email,
+              firstName: name.split(' ')[0],
+              lastName: name.split(' ')[1],
+              address1,
+              address2: address2 ?? undefined,
+              city,
+              zip,
+              countryCode,
+              phone,
+              tier,
+            },
+            logger,
+          );
         }
 
         return res.status(200).send('Subscription updated');
@@ -267,16 +287,16 @@ export default async function handler(
         // Update member in DB
         const data = {
           tier: 0,
-          email: member.email,
+          email,
           status: customer.status ? customer.status : 'canceled',
           amount: 0,
         };
         cancelMember(data, logger);
 
         // Record update in DB
-        const update = `${member.name}'s ${dollar.format(amount / 100)} plan has ended`;
+        const update = `${name}'s ${dollar.format(amount / 100)} plan has ended`;
         const memberUpdate = {
-          email: member.email,
+          email,
           newTier: 0,
           update,
         };

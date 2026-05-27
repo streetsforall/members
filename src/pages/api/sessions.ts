@@ -3,11 +3,11 @@ import pino from 'pino';
 import Stripe from 'stripe';
 import { buffer } from 'micro';
 import { setMemberShirt, setMemberUpdate } from '@/server/dbHelpers';
-import { validateTier } from './stripe_members';
-import { getCustomer, getSubscription } from '@/server/stripe';
 import { sendWelcomeEmail } from '@/server/email';
 import { createOrder, ShirtSize } from '@/server/printful';
 import { addToMailingList } from '@/server/mailchimp';
+import { getCustomer, getSubscription } from '@/server/stripe';
+import { validateTier } from './stripe_members';
 
 const parentLogger = pino();
 
@@ -105,12 +105,14 @@ export default async function handler(
         const name = customer.name as string;
         const email = customer.email as string;
         const phone = customer.phone as string;
-        const address1 = customer.shipping?.address?.line1 as string;
-        const address2 = customer.shipping?.address?.line2;
-        const city = customer.shipping?.address?.city as string;
-        const stateCode = customer.shipping?.address?.state as string;
-        const zip = customer.shipping?.address?.postal_code as string;
-        const countryCode = customer.shipping?.address?.country as string;
+
+        const address = session.collected_information?.shipping_details?.address;
+        const address1 = address?.line1 as string;
+        const address2 = address?.line2;
+        const city = address?.city as string;
+        const stateCode = address?.state as string;
+        const zip = address?.postal_code as string;
+        const countryCode = address?.country as string;
 
         const amount = subscription?.items.data[0].plan.amount || 0;
         const interval = subscription?.items.data[0].plan.interval as
@@ -133,8 +135,8 @@ export default async function handler(
         // Send welcome email
         await sendWelcomeEmail(
           {
-            email: session.customer_details?.email as string,
-            name: session.customer_details?.name as string,
+            email,
+            name,
             tier,
           },
           logger,
@@ -161,7 +163,7 @@ export default async function handler(
         // Record update in DB
         const update = `Merch ordered for ${session.customer_details?.name}`;
         const memberUpdate = {
-          email: session.customer_details?.email as string,
+          email,
           newTier: tier,
           update,
         };
@@ -169,23 +171,23 @@ export default async function handler(
 
         // Update member's shirt size in DB
         const memberShirtAdd = {
-          email: session.customer_details?.email as string,
+          email,
           size: shirtSize,
         };
         setMemberShirt(memberShirtAdd, logger);
 
         addToMailingList(
-          email,
           {
-            FNAME: name.split(' ')[0],
-            LNAME: name.split(' ')[1],
-            ADD_ST: address1,
-            ADD_ST_2: address2,
-            ADD_CITY: city,
-            ADD_ZIP: zip,
-            ADD_COUNTR: countryCode,
-            PHONE: phone,
-            MEMBERSHIP: tier,
+            email,
+            firstName: name.split(' ')[0],
+            lastName: name.split(' ')[1],
+            address1,
+            address2: address2 ?? undefined,
+            city,
+            zip,
+            countryCode,
+            phone,
+            tier,
           },
           logger,
         );
