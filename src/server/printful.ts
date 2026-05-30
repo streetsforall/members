@@ -9,7 +9,6 @@ type ShirtSize = 's' | 'm' | 'l' | 'xl' | '2xl';
 /**
  * Create Printful order
  * @param data - Customer information
- * @param tier - Membership tier
  * @param logger - Instance used for logging
  * @returns
  */
@@ -25,14 +24,26 @@ async function createOrder(
     zip: string;
     phone: string;
     email: string;
+    tier: number;
   },
-  tier: number,
   logger: Logger = defaultLogger,
 ) {
   /**
    * Prepare shirt for Printful order
    */
-  const { shirtSize } = data;
+  const {
+    shirtSize,
+    name,
+    address1,
+    address2,
+    city,
+    stateCode,
+    countryCode,
+    zip,
+    phone,
+    email,
+    tier,
+  } = data;
 
   // TODO: Check whether size is provided
   // TODO: Make case insensitive
@@ -155,7 +166,7 @@ async function createOrder(
       order_tier,
       order_package
     FROM merch_orders
-    WHERE email = ${data.email};
+    WHERE email = ${email};
   `;
     childLogger.debug(prevOrders, 'Retrieved previous orders');
   } catch (error) {
@@ -255,18 +266,18 @@ async function createOrder(
       external_id: '',
       shipping: 'STANDARD',
       recipient: {
-        name: data.name || '',
+        name: name || '',
         company: '',
-        address1: data.address1 || '',
-        address2: data.address2 || '',
-        city: data.city || '',
-        state_name: data.stateCode || '',
-        state_code: data.stateCode || '',
-        country_name: data.countryCode || '',
-        country_code: data.countryCode || '',
-        zip: data.zip || '',
-        phone: data.phone || '',
-        email: data.email || '',
+        address1: address1 || '',
+        address2: address2 || '',
+        city: city || '',
+        state_name: stateCode || '',
+        state_code: stateCode || '',
+        country_name: countryCode || '',
+        country_code: countryCode || '',
+        zip: zip || '',
+        phone: phone || '',
+        email: email || '',
       },
       items: orderPackage,
     };
@@ -277,7 +288,7 @@ async function createOrder(
     childLogger = logger.child({ step: 'create_order' });
 
     childLogger.debug(body, 'Creating order in Printful');
-    
+
     try {
       const options = {
         method: 'POST',
@@ -307,7 +318,7 @@ async function createOrder(
 
       await sql`
         INSERT INTO merch_orders (email, order_tier, date, order_id, delivered, shirt_size, order_package, order_status)
-        VALUES(${data.email}, ${tier}, ${date}, ${orderId}, false, ${shirtSize} , ${order_pack}, ${draftOrder.result.status})
+        VALUES(${email}, ${tier}, ${date}, ${orderId}, false, ${shirtSize} , ${order_pack}, ${draftOrder.result.status})
       `;
       childLogger.info(
         { order_id: orderId, tier, status: draftOrder.result.status },

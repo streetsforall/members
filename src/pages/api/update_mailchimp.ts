@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import * as dbHelp from '../../server/dbHelpers'
-import addMailchimp from "@/server/mailchimp";
+import { getValidMembers } from '../../server/dbHelpers'
+import addToMailingList from "@/server/mailchimp";
 
 
 // 
@@ -12,7 +12,7 @@ export default async function handler(
 
     if (req.method === "GET") {
         try {
-            const members = await dbHelp.retrieveValidMembers()
+            const members = await getValidMembers()
 
             members.map((member, id) => {
 
@@ -30,21 +30,18 @@ export default async function handler(
                     country: parsed_address.county,
                   }} : ''
 
-                // addMailchimp(
-                //     member.email,
+                // addToMailingList(
                 //     {
-                //       FNAME:  member.name.split(" ")[0],
-                //       LNAME:  member.name.split(" ")[1],
-                //       ADDRESSYU: {
-                //         addr1: parsed_address ? parsed_address.line1 : null,
-                //         addr2: parsed_address ? parsed_address.line2 : null,
-                //         city: parsed_address ? parsed_address.city : null,
-                //         state: parsed_address ? parsed_address.state : null,
-                //         zip: parsed_address ? parsed_address.postal_code :  null,
-                //         country: parsed_address ? parsed_address.county : null
-                //       },
-                //       PHONE: member.phone,
-                //       MEMBERSHIP: member.tier
+                //       email: member.email,
+                //       firstName:  member.name.split(" ")[0],
+                //       lastName:  member.name.split(" ")[1],
+                //       address1: parsed_address ? parsed_address.line1 : null,
+                //       address2: parsed_address ? parsed_address.line2 : null,
+                //       city: parsed_address ? parsed_address.city : null,
+                //       zip: parsed_address ? parsed_address.postal_code :  null,
+                //       countryCode: parsed_address ? parsed_address.county : null
+                //       phone: member.phone,
+                //       tier: member.tier,
                 //     }
                 //   )
             })

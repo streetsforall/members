@@ -1,7 +1,9 @@
+'use server'
+
 import pino, { type Logger } from 'pino';
 import sql from './db';
-import { getTierName } from './email_token';
-import { setEmailVerification } from './dbHelpers';
+import { getMemberByEmail, setEmailVerification } from './dbHelpers';
+import { getTierName } from './utils';
 
 const nodemailer = require('nodemailer');
 
@@ -154,4 +156,153 @@ async function sendWelcomeEmail(
   }
 }
 
-export { sendWelcomeEmail };
+/**
+ * Send magic link for member login
+ * @param email - Member's email
+ * @returns
+ */
+async function sendLoginEmail(
+  data: { email: string },
+  logger: Logger = defaultLogger,
+) {
+  // Create logger instance for request
+  const childLogger = logger.child({ step: 'send_login_email' });
+
+  const { email } = data;
+
+  const date = new Date().toLocaleString('en-US');
+
+  // Retrieve member from db
+  const member = await getMemberByEmail(email);
+
+  // Return immediately if not found
+  if (!member) {
+    childLogger.debug('Member not found');
+
+    // Record email attempt
+    await sql`
+      INSERT INTO emails ( date, type, email_address, success)
+        VALUES( ${date}, 'login request', ${email}, false)
+    `;
+
+    // Empty return to prevent user enumeration
+    return;
+  }
+
+  childLogger.debug(
+    { customer_id: member.customer_id },
+    'Retrieved member from database',
+  );
+
+  // Generate token
+  const verificationToken = await setEmailVerification(email);
+
+  try {
+    await transporter.sendMail({
+      from: `"Streets For All Membership" ${process.env.EMAIL_FROM}`,
+      to: email,
+      subject: `Your Streets For All Membership Login Request`,
+      html: `
+        <html>
+          <body>
+            <div
+              style="
+                font-size: 1.2rem;
+                padding: 1rem 2rem;
+                max-width: 30rem;
+                margin: auto;
+                font-family:
+                  Helvetica Neue,
+                  Arial,
+                  sans-serif;
+              "
+            >
+              <a href="https://members.streetsforall.org" target="_blank">
+                <img
+                  style="max-width: 50%; margin: auto; width: 15rem; display: block"
+                  src="cid:logo"
+                />
+              </a>
+
+              <p>Hi ${member.name},</p>
+              <p>Use this button to log into your membership page.</p>
+
+              <button
+                style="
+                  font-family:
+                    Helvetica Neue,
+                    Arial,
+                    sans-serif;
+                  font-size: 1.1rem;
+                  padding: 1rem 1.5rem;
+                  background-color: #0032ff;
+                  border-color: #183963;
+                  border-radius: 1rem;
+                  margin: auto;
+                  color: white;
+                  display: block;
+                  border: none;
+                "
+              >
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style="cursor: pointer; color: white; text-decoration: none"
+                  href="${process.env.ROOT_URL}/link/${verificationToken}"
+                >
+                  LOGIN
+                </a>
+              </button>
+
+              <p>
+                If the button does not work, try
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href="${process.env.ROOT_URL}/link/${verificationToken}"
+                  >this link</a
+                >
+                or reach out to membership@streetsforall.org. This link expires in 1
+                day.
+              </p>
+              <br />
+
+              <p>
+                Thank you for supporting our ongoing advocacy,<br />
+                Streets For All<br />
+                🚎 🚲 👩🏻‍🦽🚶🏾🌳
+              </p>
+            </div>
+          </body>
+        </html>
+      `,
+      attachments: [
+        {
+          filename: 'members_club_logo.png',
+          path: `https://members.streetsforall.org/members_club_logo.png`,
+          cid: 'logo',
+        },
+      ],
+    });
+
+    childLogger.info(
+      { customer_id: member.customer_id },
+      'Login email successfully sent',
+    );
+
+    // Record email
+    await sql`
+      INSERT INTO emails ( date, type, email_address, success)
+        VALUES( ${date}, 'login request', ${email}, true)
+    `;
+
+    // Empty return to prevent user enumeration
+    return;
+  } catch (error) {
+    childLogger.error(error);
+
+    throw new Error(error);
+  }
+}
+
+export { sendWelcomeEmail, sendLoginEmail };

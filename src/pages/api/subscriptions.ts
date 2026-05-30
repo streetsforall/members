@@ -12,8 +12,7 @@ import {
 import { addToMailingList } from '@/server/mailchimp';
 import { createOrder } from '@/server/printful';
 import { getCustomer } from '@/server/stripe';
-import { getChapterFromZip } from '@/server/zipUtils';
-import { dollar, retrieveCustomer, validateTier } from './stripe_members';
+import { calculateTier, dollar, getChapterFromZip } from '@/server/utils';
 
 const parentLogger = pino();
 
@@ -87,7 +86,7 @@ export default async function handler(
     logger.info({ step: 'incoming_request' }, 'Incoming request');
 
     // Get customer and subscription details from Stripe
-    const customer = (await getCustomer(customerId)) as Stripe.Customer;
+    const customer = (await getCustomer({ customerId })) as Stripe.Customer;
 
     // Prepare data
     const name = customer.name as string;
@@ -112,7 +111,7 @@ export default async function handler(
     const interval = subscription.items.data[0].plan.interval as
       | 'month'
       | 'year';
-    const tier = validateTier(amount, interval, logger);
+    const tier = calculateTier({ amount, interval }, logger);
 
     // Handle the event
     switch (event.type) {
@@ -142,7 +141,7 @@ export default async function handler(
           amount: amount / 100,
           tier,
         };
-        addMember(member, logger);
+        await addMember(member, logger);
 
         // Record update in DB
         const update = `${name} joined the membership program at tier ${tier}`;
@@ -151,9 +150,7 @@ export default async function handler(
           newTier: tier,
           update,
         };
-        setMemberUpdate(memberUpdate, logger);
-
-        // TODO: Create merch order if applicable
+        await setMemberUpdate(memberUpdate, logger);
 
         return res.status(200).send('Subscription created');
       }
@@ -179,7 +176,7 @@ export default async function handler(
             amount: amount / 100,
             tier,
           };
-          updateMemberSubscription(data, logger);
+          await updateMemberSubscription(data, logger);
 
           // Record update in DB
           const update = `${name} set their membership to end on ${cancelDate} because ${reason}`;
@@ -188,7 +185,7 @@ export default async function handler(
             newTier: tier,
             update,
           };
-          setMemberUpdate(memberUpdate, logger);
+          await setMemberUpdate(memberUpdate, logger);
         }
 
         // Consider update only if amount actually changes
@@ -218,7 +215,7 @@ export default async function handler(
             amount: amount / 100,
             tier,
           };
-          updateMemberSubscription(data, logger);
+          await updateMemberSubscription(data, logger);
 
           // Record update in DB
           const update = `${name} changed their membership from ${dollar.format(prevAmount / 100)} to ${dollar.format(amount / 100)}`;
@@ -227,10 +224,10 @@ export default async function handler(
             newTier: tier,
             update,
           };
-          setMemberUpdate(memberUpdate, logger);
+          await setMemberUpdate(memberUpdate, logger);
 
           // Create merch order
-          const order = await createOrder(
+          await createOrder(
             {
               shirtSize,
               name,
@@ -242,14 +239,13 @@ export default async function handler(
               zip,
               phone,
               email,
+              tier,
             },
-            tier,
             logger,
           );
-          logger.debug(order, 'Placed merch order');
 
           // Update mailchimp with any new info (i.e. upgraded tier)
-          addToMailingList(
+          await addToMailingList(
             {
               email,
               firstName: name.split(' ')[0],
@@ -280,18 +276,14 @@ export default async function handler(
           'Subscription ended',
         );
 
-        // Retrieve from Stripe
-        const customer: any = await retrieveCustomer(customerId);
-        logger.debug(customer, 'Retrieved customer');
-
         // Update member in DB
         const data = {
           tier: 0,
           email,
-          status: customer.status ? customer.status : 'canceled',
+          status: 'canceled',
           amount: 0,
         };
-        cancelMember(data, logger);
+        await cancelMember(data, logger);
 
         // Record update in DB
         const update = `${name}'s ${dollar.format(amount / 100)} plan has ended`;
@@ -300,7 +292,7 @@ export default async function handler(
           newTier: 0,
           update,
         };
-        setMemberUpdate(memberUpdate, logger);
+        await setMemberUpdate(memberUpdate, logger);
 
         return res.status(200).send('Subscription ended');
       }

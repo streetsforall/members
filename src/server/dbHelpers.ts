@@ -1,20 +1,18 @@
 'use server';
 
-import { cookies } from 'next/headers';
 import { generateIdFromEntropySize } from 'lucia';
 import { TimeSpan, createDate } from 'oslo';
 import pino, { type Logger } from 'pino';
-import * as auth from './auth';
 import sql from './db';
 
 // Used for any loggers not passed as arguments
-const parentLogger = pino();
+const defaultLogger = pino();
 
 /**
  * Get members in Tiers 1-3
  * @returns Member record
  */
-export async function retrieveValidMembers() {
+async function getValidMembers() {
   const users = await sql`
       SELECT
         name,
@@ -32,11 +30,11 @@ export async function retrieveValidMembers() {
 }
 
 /**
- * Get member based on ID
- * @param id - ID of member in the database
+ * Get member based on id
+ * @param id - Id of member in the database
  * @returns Member record
  */
-export async function retrieveMemberByID(id: string) {
+async function getMemberById(id: string) {
   const user = await sql`
       SELECT
         name,
@@ -57,10 +55,10 @@ export async function retrieveMemberByID(id: string) {
 
 /**
  * Get member based on email
- * @param email - Email of member in the database
+ * @param email - Email of member
  * @returns Member record
  */
-export async function retrieveMemberByEmail(email: string) {
+async function getMemberByEmail(email: string) {
   const user = await sql`
       SELECT
         name,
@@ -83,10 +81,10 @@ export async function retrieveMemberByEmail(email: string) {
 
 /**
  * Get member based on customer id
- * @param customerId - Stripe customer id of member in the database
+ * @param customerId - Stripe customer id of member
  * @returns Member record
  */
-export async function getMemberByCustomerId(customerId: string) {
+async function getMemberByCustomerId(customerId: string) {
   const member = await sql`
       SELECT
         name,
@@ -112,7 +110,7 @@ export async function getMemberByCustomerId(customerId: string) {
  * @param email - Email associated with the order in the database
  * @returns All matching order records
  */
-export async function retrieveMerchOrders(email: string) {
+async function getMerchOrders(email: string) {
   const orders = await sql`
       SELECT
         order_id,
@@ -131,10 +129,10 @@ export async function retrieveMerchOrders(email: string) {
 
 /**
  * Generate unique session token
- * @param email - Email to be associated with the sessionsetEmailVerification
+ * @param email - Email to be associated with the session
  * @returns Generated token
  */
-export async function setEmailVerification(email: string) {
+async function setEmailVerification(email: string) {
   const date = new Date().toLocaleString('en-US');
 
   // 40 characters long
@@ -147,7 +145,7 @@ export async function setEmailVerification(email: string) {
     INSERT INTO email_verification_token (id, user_id, email, expires_at, created)
       VALUES( ${tokenId}, ${email}, ${email}, ${expiration}, ${date})
   `;
-  parentLogger.debug(`New login token for ${email}`);
+  defaultLogger.debug(`New login token for ${email}`);
 
   return tokenId;
 }
@@ -157,7 +155,7 @@ export async function setEmailVerification(email: string) {
  * @param canceledMember - Member subscription information
  * @param logger - Instance used for logging
  */
-export async function cancelMember(
+async function cancelMember(
   canceledMember: {
     tier: number;
     email: string;
@@ -199,7 +197,7 @@ export async function cancelMember(
  * @param logger - Instance used for logging
  * @returns
  */
-export async function setMemberUpdate(
+async function setMemberUpdate(
   memberUpdate: {
     email: string;
     newTier: number;
@@ -259,7 +257,7 @@ export async function setMemberUpdate(
  * @param logger - Instance used for logging
  * @returns
  */
-export async function setMemberShirt(
+async function setMemberShirt(
   memberObj: {
     email: string;
     size: string;
@@ -289,75 +287,12 @@ export async function setMemberShirt(
 }
 
 /**
- * Create new member or update if email exists
- * @param memberObj - Member information
- * @param logger - Instance used for logging
- * @returns
- */
-export async function setMember(
-  memberObj: {
-    tier: number;
-    name: string;
-    phone: string;
-    email: string;
-    status: string;
-    shipping_address: string;
-    amount: number;
-    customer_id: string;
-    newMember: boolean;
-    subID: string;
-    branch: 'CA' | 'LA' | 'SF';
-  },
-  logger: Logger,
-) {
-  const childLogger = logger.child({ step: 'set_member' });
-
-  try {
-    const date = new Date().toLocaleString('en-US');
-
-    await sql`
-      INSERT INTO members (name, email, tier, last_amount, shipping_address, last_donation, customer_id, phone, subscription_ID, branch)
-        VALUES(${memberObj.name}, ${memberObj.email}, ${memberObj.tier}, ${memberObj.amount}, ${memberObj.shipping_address}, ${date}, ${memberObj.customer_id}, ${memberObj.phone},  ${memberObj.subID}, ${memberObj.branch})
-        ON CONFLICT (email)
-	      DO UPDATE SET tier = ${memberObj.tier}, last_amount = ${memberObj.amount}, last_donation = ${date}, shipping_address = ${memberObj.shipping_address}, customer_id = ${memberObj.customer_id},  subscription_ID = ${memberObj.subID}, branch = ${memberObj.branch}
-    `;
-    childLogger.info(
-      {
-        amount: memberObj.amount,
-        chapter: memberObj.branch,
-        status: memberObj.status,
-        subscription_id: memberObj.subID,
-        tier: memberObj.tier,
-      },
-      'Set member in database',
-    );
-
-    // If new member, add join date
-    if (memberObj.newMember) {
-      await sql`
-        INSERT INTO members (joined_date, email)
-          VALUES(${date}, ${memberObj.email})
-          ON CONFLICT (email) 
-          DO UPDATE SET joined_date = ${date}
-      `;
-      childLogger.info('Added join date for new member');
-    }
-
-    return;
-  } catch (error) {
-    childLogger.error(error);
-
-    return;
-  }
-}
-
-/**
  * Create new member
  * @param member - Member information
  * @param logger - Instance used for logging
  * @returns
  */
-export async function addMember(
+async function addMember(
   member: {
     tier?: number;
     name: string;
@@ -369,7 +304,7 @@ export async function addMember(
     subscriptionId?: string;
     chapter: 'CA' | 'LA' | 'SF';
   },
-  logger: Logger,
+  logger: Logger = defaultLogger,
 ) {
   const childLogger = logger.child({ step: 'add_member' });
 
@@ -416,14 +351,14 @@ export async function addMember(
  * @param logger - Instance used for logging
  * @returns
  */
-export async function updateMemberSubscription(
+async function updateMemberSubscription(
   data: {
     customerId: string;
     subscriptionId: string;
     amount: number;
     tier: number;
   },
-  logger: Logger,
+  logger: Logger = defaultLogger,
 ) {
   const childLogger = logger.child({ step: 'add_member_subscription' });
 
@@ -453,27 +388,12 @@ export async function updateMemberSubscription(
 }
 
 /**
- * Retrieve user session based on cookie
- * @returns User session
- */
-export async function getSessionCookie() {
-  const cookieStore = await cookies();
-  const sessionId = cookieStore.get('auth_session');
-
-  if (sessionId) {
-    const { session, user } = await auth.lucia.validateSession(sessionId.value);
-
-    return { session, user };
-  }
-}
-
-/**
  * Retrieve most recently activated Peak Design promo code
  * @param email - Member email
  * @returns Promo code
  */
-export async function getCurrentPeakCode(email: string) {
-  const childLogger = parentLogger.child({ step: 'get_current_peak_code' });
+async function getCurrentPeakCode(email: string) {
+  const childLogger = defaultLogger.child({ step: 'get_current_peak_code' });
 
   try {
     const activatedCodes = await sql`
@@ -501,8 +421,8 @@ export async function getCurrentPeakCode(email: string) {
  * @param email - Member email
  * @returns Promo code
  */
-export async function getNextPeakCode(email: string) {
-  const childLogger = parentLogger.child({ step: 'activate_peak_code' });
+async function getNextPeakCode(email: string) {
+  const childLogger = defaultLogger.child({ step: 'activate_peak_code' });
 
   try {
     const newCodes = await sql`
@@ -531,3 +451,19 @@ export async function getNextPeakCode(email: string) {
     return 'No more codes';
   }
 }
+
+export {
+  getValidMembers,
+  getMemberById,
+  getMemberByEmail,
+  getMemberByCustomerId,
+  getMerchOrders,
+  setEmailVerification,
+  cancelMember,
+  setMemberUpdate,
+  setMemberShirt,
+  addMember,
+  updateMemberSubscription,
+  getCurrentPeakCode,
+  getNextPeakCode,
+};

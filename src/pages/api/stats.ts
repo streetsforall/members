@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import pino from 'pino';
-import { retrieveValidMembers } from '../../server/dbHelpers';
+import { getValidMembers } from '../../server/dbHelpers';
 
 const parentLogger = pino();
 
@@ -13,7 +13,7 @@ const chapters = ['LA', 'SF', 'CA'] as const;
  * @returns Subscriber counts and dollar amounts
  */
 async function calculateChapterTotals(chapter: (typeof chapters)[number]) {
-  const validMembers = await retrieveValidMembers();
+  const validMembers = await getValidMembers();
 
   // Count members in each tier for the specified chapter
   const tier1Members = validMembers.reduce(

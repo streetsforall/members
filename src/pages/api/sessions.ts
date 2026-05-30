@@ -7,7 +7,7 @@ import { sendWelcomeEmail } from '@/server/email';
 import { createOrder, ShirtSize } from '@/server/printful';
 import { addToMailingList } from '@/server/mailchimp';
 import { getCustomer, getSubscription } from '@/server/stripe';
-import { validateTier } from './stripe_members';
+import { calculateTier } from '@/server/utils';
 
 const parentLogger = pino();
 
@@ -98,15 +98,16 @@ export default async function handler(
        */
       case 'checkout.session.completed': {
         // Get customer and subscription details from Stripe
-        const customer = (await getCustomer(customerId)) as Stripe.Customer;
-        const subscription = await getSubscription(subscriptionId, logger);
+        const customer = (await getCustomer({ customerId })) as Stripe.Customer;
+        const subscription = await getSubscription({ subscriptionId }, logger);
 
         // Prepare data
         const name = customer.name as string;
         const email = customer.email as string;
         const phone = customer.phone as string;
 
-        const address = session.collected_information?.shipping_details?.address;
+        const address =
+          session.collected_information?.shipping_details?.address;
         const address1 = address?.line1 as string;
         const address2 = address?.line2;
         const city = address?.city as string;
@@ -118,7 +119,7 @@ export default async function handler(
         const interval = subscription?.items.data[0].plan.interval as
           | 'month'
           | 'year';
-        const tier = validateTier(amount, interval, logger);
+        const tier = calculateTier({ amount, interval }, logger);
 
         const shirtSize = (session?.custom_fields?.[0]?.dropdown?.value ||
           'l') as ShirtSize;
@@ -155,8 +156,8 @@ export default async function handler(
             zip,
             phone,
             email,
+            tier,
           },
-          tier,
           logger,
         );
 
@@ -167,16 +168,16 @@ export default async function handler(
           newTier: tier,
           update,
         };
-        setMemberUpdate(memberUpdate, logger);
+        await setMemberUpdate(memberUpdate, logger);
 
         // Update member's shirt size in DB
         const memberShirtAdd = {
           email,
           size: shirtSize,
         };
-        setMemberShirt(memberShirtAdd, logger);
+        await setMemberShirt(memberShirtAdd, logger);
 
-        addToMailingList(
+        await addToMailingList(
           {
             email,
             firstName: name.split(' ')[0],
