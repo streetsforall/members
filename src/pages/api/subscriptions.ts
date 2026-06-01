@@ -8,7 +8,7 @@ import {
   getMemberByCustomerId,
   setMemberUpdate,
   updateMemberSubscription,
-} from '@/server/dbHelpers';
+} from '@/server/db';
 import { addToMailingList } from '@/server/mailchimp';
 import { createOrder } from '@/server/printful';
 import { getCustomer } from '@/server/stripe';
@@ -159,6 +159,17 @@ export default async function handler(
        * Subscription changed or canceled
        */
       case 'customer.subscription.updated': {
+        // Update member subscription information in DB
+        const data = {
+            customerId,
+            subscriptionId,
+            address: JSON.stringify(address),
+            amount: amount / 100,
+            tier,
+          };
+        await updateMemberSubscription(data, logger);
+
+
         // Future-dated cancelation
         if (subscription.cancel_at) {
           const cancelDate = new Date(subscription.cancel_at * 1000);
@@ -168,15 +179,6 @@ export default async function handler(
             { step: 'initiate_cancelation', cancelDate, reason },
             'Subscription scheduled to cancel',
           );
-
-          // Update member subscription information in DB
-          const data = {
-            customerId,
-            subscriptionId,
-            amount: amount / 100,
-            tier,
-          };
-          await updateMemberSubscription(data, logger);
 
           // Record update in DB
           const update = `${name} set their membership to end on ${cancelDate} because ${reason}`;
@@ -194,8 +196,8 @@ export default async function handler(
         if (prevAmount && amount != prevAmount) {
           const member = await getMemberByCustomerId(customerId);
 
-          const prevTier = member.tier;
-          const shirtSize = member.shirt_size;
+          const prevTier = member?.tier;
+          const shirtSize = member?.shirt_size;
 
           logger.info(
             {
@@ -207,15 +209,6 @@ export default async function handler(
             },
             'Subscription updated',
           );
-
-          // Update member subscription information in DB
-          const data = {
-            customerId,
-            subscriptionId,
-            amount: amount / 100,
-            tier,
-          };
-          await updateMemberSubscription(data, logger);
 
           // Record update in DB
           const update = `${name} changed their membership from ${dollar.format(prevAmount / 100)} to ${dollar.format(amount / 100)}`;

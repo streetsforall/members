@@ -1,6 +1,6 @@
 'use client';
 
-import { getNextPeakCode, getCurrentPeakCode } from '../../server/dbHelpers';
+import { getNextPeakCode, getCurrentPeakCode } from '../../server/db';
 import { useEffect, useState } from "react";
 import Tooltip from './tooltip';
 

@@ -1,5 +1,5 @@
 import pino, { type Logger } from 'pino';
-import sql from './db';
+import { addOrder, getOrders, updateOrderStatus } from './db';
 
 // Used for any loggers not passed as arguments
 const defaultLogger = pino();
@@ -160,14 +160,8 @@ async function createOrder(
   // Retrieve past orders
   let prevOrders;
   try {
-    prevOrders = await sql`
-    SELECT
-      email,
-      order_tier,
-      order_package
-    FROM merch_orders
-    WHERE email = ${email};
-  `;
+    prevOrders = await getOrders(email);
+
     childLogger.debug(prevOrders, 'Retrieved previous orders');
   } catch (error) {
     childLogger.error(error);
@@ -177,7 +171,7 @@ async function createOrder(
   }
 
   // Get any unique items ordered
-  let packages = prevOrders.flatMap((a) => JSON.parse(a.order_package));
+  let packages = prevOrders?.flatMap((a) => JSON.parse(a.order_package));
   const uniqueOrders = [...new Set(packages)];
 
   // Check if each item has been ordered previously - return undefined unless previously ordered, so we can use as booleans
@@ -316,13 +310,18 @@ async function createOrder(
       const date = new Date().toLocaleString('en-US');
       const order_pack = JSON.stringify(orderList);
 
-      await sql`
-        INSERT INTO merch_orders (email, order_tier, date, order_id, delivered, shirt_size, order_package, order_status)
-        VALUES(${email}, ${tier}, ${date}, ${orderId}, false, ${shirtSize} , ${order_pack}, ${draftOrder.result.status})
-      `;
-      childLogger.info(
-        { order_id: orderId, tier, status: draftOrder.result.status },
-        'Added order to database',
+      await addOrder(
+        {
+          email,
+          tier,
+          date,
+          orderId,
+          isDelivered: false,
+          shirtSize,
+          orderPackage: order_pack,
+          status: draftOrder.result.status,
+        },
+        childLogger,
       );
     } catch (error) {
       childLogger.error(error);
@@ -362,15 +361,15 @@ async function createOrder(
         );
 
         // Update order status in database
-        await sql`
-          UPDATE merch_orders set order_status = ${confirmedOrder.result.status} WHERE order_id = ${confirmedOrder.result.id};
-        `;
-        childLogger.info(
+        await updateOrderStatus(
           {
-            order_id: confirmedOrder.result.id,
+            orderId: confirmedOrder.result.id,
             status: confirmedOrder.result.status,
+            deliveryStatus: confirmedOrder.result.shipments[0]
+              ? confirmedOrder.result.shipments[0].tracking_url
+              : '',
           },
-          'Updated order status in database',
+          childLogger,
         );
 
         return confirmedOrder;

@@ -1,8 +1,7 @@
-'use server'
+'use server';
 
 import pino, { type Logger } from 'pino';
-import sql from './db';
-import { getMemberByEmail, setEmailVerification } from './dbHelpers';
+import { getMemberByEmail, recordEmail, setSessionToken } from './db';
 import { getTierName } from './utils';
 
 const nodemailer = require('nodemailer');
@@ -40,7 +39,7 @@ async function sendWelcomeEmail(
   const tierName = getTierName(tier);
 
   // Generate token
-  const verificationToken = await setEmailVerification(email);
+  const verificationToken = await setSessionToken({ email }, childLogger);
 
   try {
     await transporter.sendMail({
@@ -141,11 +140,10 @@ async function sendWelcomeEmail(
 
     childLogger.info('Welcome email successfully sent');
 
-    // Record email
-    await sql`
-      INSERT INTO emails ( date, type, email_address, success)
-        VALUES( ${date}, 'welcome email', ${email}, true)
-    `;
+    await recordEmail(
+      { date, type: 'welcome email', email, isSuccessful: true },
+      childLogger,
+    );
 
     // Empty return to prevent user enumeration
     return;
@@ -179,11 +177,10 @@ async function sendLoginEmail(
   if (!member) {
     childLogger.debug('Member not found');
 
-    // Record email attempt
-    await sql`
-      INSERT INTO emails ( date, type, email_address, success)
-        VALUES( ${date}, 'login request', ${email}, false)
-    `;
+    await recordEmail(
+      { date, type: 'login request', email, isSuccessful: false },
+      childLogger,
+    );
 
     // Empty return to prevent user enumeration
     return;
@@ -195,7 +192,7 @@ async function sendLoginEmail(
   );
 
   // Generate token
-  const verificationToken = await setEmailVerification(email);
+  const verificationToken = await setSessionToken({ email }, childLogger);
 
   try {
     await transporter.sendMail({
@@ -290,11 +287,12 @@ async function sendLoginEmail(
       'Login email successfully sent',
     );
 
-    // Record email
-    await sql`
-      INSERT INTO emails ( date, type, email_address, success)
-        VALUES( ${date}, 'login request', ${email}, true)
-    `;
+    await recordEmail({
+      date,
+      type: 'login request',
+      email,
+      isSuccessful: true,
+    });
 
     // Empty return to prevent user enumeration
     return;

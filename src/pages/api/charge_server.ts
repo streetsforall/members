@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import pino from 'pino';
-import * as dbHelp from "../../server/dbHelpers";
+import * as dbHelp from "../../server/db";
 import { ListenMeta } from "postgres";
 import cal_zip from "../../data/CA_ZIP.json";
 

@@ -2,7 +2,7 @@ import { type NextApiRequest, type NextApiResponse } from 'next';
 import pino from 'pino';
 import Stripe from 'stripe';
 import { buffer } from 'micro';
-import { setMemberShirt, setMemberUpdate } from '@/server/dbHelpers';
+import { setMemberShirt, setMemberUpdate } from '@/server/db';
 import { sendWelcomeEmail } from '@/server/email';
 import { createOrder, ShirtSize } from '@/server/printful';
 import { addToMailingList } from '@/server/mailchimp';

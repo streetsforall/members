@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { getValidMembers } from '../../server/dbHelpers'
-import addToMailingList from "@/server/mailchimp";
+import { getValidMembers } from '../../server/db'
+import { addToMailingList } from "@/server/mailchimp";
 
 
 // 
@@ -14,7 +14,7 @@ export default async function handler(
         try {
             const members = await getValidMembers()
 
-            members.map((member, id) => {
+            members?.map((member, id) => {
 
                 const parsed_address = JSON.parse(member.shipping_address)
 

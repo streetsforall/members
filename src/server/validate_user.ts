@@ -4,7 +4,7 @@ import * as auth from './auth'
 import { cookies } from "next/headers";
 import { cache } from 'react';
 import { redirect } from "next/navigation";
-import { getMemberById } from "./dbHelpers"
+import { getMemberById } from "./db"
 
 
 // validate user session cookie for login

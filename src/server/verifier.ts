@@ -3,7 +3,7 @@
 import { isWithinExpirationDate } from "oslo";
 import { cookies } from 'next/headers'
 import * as auth from './auth'
-import sql from './db'
+import { getMemberByEmail, getSessionToken, updateMemberEmailVerification } from "./db";
 
 
 // verify email token for user login
@@ -18,14 +18,9 @@ export async function verify_token(token: string) {
 	console.log('token', token)
 
 	// check if token in URL is equal to a saved email token
-	const check_token = await sql`
-		SELECT * FROM email_verification_token
-		WHERE id = ${token}
-	`
+	const check_token = await getSessionToken({id: token});
 
-	const first_token = check_token[0]
-
-	if (!first_token) {
+	if (!check_token) {
 		return ('Invalid Token. Please request a new email link')
 	}
 
@@ -43,17 +38,13 @@ export async function verify_token(token: string) {
 
 
 
-	if (!token || !isWithinExpirationDate(first_token.expires_at)) {
+	if (!token || !isWithinExpirationDate(check_token.expires_at)) {
 		return ('Token expired. Please request a new email link.')
 	}
 
 
-	const select_users = await sql`
-		SELECT * FROM members
-		WHERE UPPER(email) LIKE UPPER(${first_token.user_id})
-		`
+	const user = await getMemberByEmail(check_token.user_id);
 
-	const user = select_users[0]
 	console.log('logging in', user)
 
 
@@ -65,11 +56,7 @@ export async function verify_token(token: string) {
 	await auth.lucia.invalidateUserSessions(user.id);
 
 	// update member with a validated email
-	await sql `
-	UPDATE members
-	SET email_verified = TRUE
-	WHERE id = ${user.id};
-	`
+	await updateMemberEmailVerification({ id: user.id, isEmailVerified: true });
 
 	const session = await auth.lucia.createSession(user.id, {});
 	const sessionCookie = auth.lucia.createSessionCookie(session.id);

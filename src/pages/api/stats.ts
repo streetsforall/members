@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import pino from 'pino';
-import { getValidMembers } from '../../server/dbHelpers';
+import { getValidMembers } from '../../server/db';
 
 const parentLogger = pino();
 
@@ -16,18 +16,18 @@ async function calculateChapterTotals(chapter: (typeof chapters)[number]) {
   const validMembers = await getValidMembers();
 
   // Count members in each tier for the specified chapter
-  const tier1Members = validMembers.reduce(
+  const tier1Members = validMembers?.reduce(
     (a, b) => (b.tier == 1 && b.branch == chapter ? a + 1 : a),
     0,
-  );
-  const tier2Members = validMembers.reduce(
+  ) || 0;
+  const tier2Members = validMembers?.reduce(
     (a, b) => (b.tier == 2 && b.branch == chapter ? a + 1 : a),
     0,
-  );
-  const tier3Members = validMembers.reduce(
+  ) || 0;
+  const tier3Members = validMembers?.reduce(
     (a, b) => (b.tier == 3 && b.branch == chapter ? a + 1 : a),
     0,
-  );
+  ) || 0;
 
   // Calculate equivalent cdollar amounts
   const tier1Dollars = tier1Members * 12;

@@ -1,8 +1,7 @@
 import { Lucia, generateIdFromEntropySize } from "lucia";
 import { TimeSpan, createDate } from "oslo";
 import { PostgresJsAdapter } from "@lucia-auth/adapter-postgresql";
-import postgres from "postgres";
-import sql from "./db"
+import { sql } from "./db";
 
 // we are using Lucia for user authentication
 
