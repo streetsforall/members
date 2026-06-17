@@ -57,8 +57,8 @@ A Zapier webhook is used for triggering notifications. For development purposes,
    **subscriptions**|https://test.members.streetsforall.org/api/subscriptions|`customer.subscription.created`,`customer.subscription.deleted`,`customer.subscription.updated`
    **sessions**|https://test.members.streetsforall.org/api/sessions|`checkout.sessions.completed`
 
-   > [!NOTE]
-   > The `test` subdomain isn't actually real. But we use it in the sandbox to make sure no webhook calls affect our production instance. (They will be redirected in a subsequent step.)
+> [!NOTE]
+> The `test` subdomain isn't actually real. But we use it in the sandbox to make sure no webhook calls affect our production instance. (They will be redirected in a subsequent step.)
 
 6. For the **subscriptions** and **sessions** webhooks, get the **Signing secret** from the Developer Workbench and update the `STRIPE_SUBSCRIPTIONS_HOOK_SECRET` and `STRIPE_SESSIONS_HOOK_SECRET` environment variables, respectively.
 
@@ -70,8 +70,8 @@ A Zapier webhook is used for triggering notifications. For development purposes,
 
    This will route requests in the sandbox to the `/api/subscriptions` and `/api/sessions` endpoints to your local machine. And your local machine will appear as a new destination in developer workbench.
 
-   > [!IMPORTANT]
-   > You will need to keep this running to forward the requests, so it's best to do so in a separate terminal window.
+> [!IMPORTANT]
+> You will need to keep this running to forward the requests, so it's best to do so in a separate terminal window.
 
 ### Next.js
 
