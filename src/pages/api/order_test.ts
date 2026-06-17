@@ -18,7 +18,7 @@ export default async function handler(
 
 //   // check user order tier
 //   const getMember = async (email: string) => {
-//     const member = await dbHelp.retrieveMemberByEmail(email);
+//     const member = await getMemberByEmail(email);
 //     return member;
 //   };
 

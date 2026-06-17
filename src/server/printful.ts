@@ -1,46 +1,64 @@
-'use server';
+import pino, { type Logger } from 'pino';
+import { addOrder, getOrders, updateOrderStatus } from './db';
 
-import { type Logger } from 'pino';
-import sql from './db';
+// Used for any loggers not passed as arguments
+const defaultLogger = pino();
+
+type ShirtSize = 's' | 'm' | 'l' | 'xl' | '2xl';
 
 /**
  * Create Printful order
  * @param data - Customer information
- * @param tier - Membership tier
+ * @param logger - Instance used for logging
  * @returns
  */
-export async function new_order(
+async function createOrder(
   data: {
-    size: 'S' | 'M' | 'L' | 'XL' | '2XL' | 's' | 'm' | 'l' | 'xl' | '2xl';
+    shirtSize: ShirtSize;
     name: string;
     address1: string;
-    address2: string;
+    address2?: string | null;
     city: string;
-    state_name: string;
-    country_name: string;
+    stateCode: string;
+    countryCode: string;
     zip: string;
     phone: string;
     email: string;
+    tier: number;
   },
-  tier: number,
-  logger: Logger,
+  logger: Logger = defaultLogger,
 ) {
   /**
    * Prepare shirt for Printful order
    */
-  const shirt_size = data.size;
+  const {
+    shirtSize,
+    name,
+    address1,
+    address2,
+    city,
+    stateCode,
+    countryCode,
+    zip,
+    phone,
+    email,
+    tier,
+  } = data;
+
+  // TODO: Check whether size is provided
+  // TODO: Make case insensitive
 
   // Set shirt size variant ID
   let shirtID = 0;
-  if (shirt_size == 's') {
+  if (shirtSize == 's') {
     shirtID = 4433819851;
-  } else if (shirt_size == 'm') {
+  } else if (shirtSize == 'm') {
     shirtID = 4433819852;
-  } else if (shirt_size == 'l') {
+  } else if (shirtSize == 'l') {
     shirtID = 4433819853;
-  } else if (shirt_size == 'xl') {
+  } else if (shirtSize == 'xl') {
     shirtID = 4433819854;
-  } else if (shirt_size == '2xl') {
+  } else if (shirtSize == '2xl') {
     shirtID = 4433819855;
   }
 
@@ -140,18 +158,20 @@ export async function new_order(
   });
 
   // Retrieve past orders
-  const prevOrders = await sql`
-    SELECT
-      email,
-      order_tier,
-      order_package
-    FROM merch_orders
-    WHERE email = ${data.email};
-  `;
-  childLogger.debug(prevOrders, 'Retrieved previous orders');
+  let prevOrders;
+  try {
+    prevOrders = await getOrders(email);
+
+    childLogger.debug(prevOrders, 'Retrieved previous orders');
+  } catch (error) {
+    childLogger.error(error);
+
+    // Stop subsequent step if this one fails
+    return;
+  }
 
   // Get any unique items ordered
-  let packages = prevOrders.flatMap((a) => JSON.parse(a.order_package));
+  let packages = prevOrders?.flatMap((a) => JSON.parse(a.order_package));
   const uniqueOrders = [...new Set(packages)];
 
   // Check if each item has been ordered previously - return undefined unless previously ordered, so we can use as booleans
@@ -240,18 +260,18 @@ export async function new_order(
       external_id: '',
       shipping: 'STANDARD',
       recipient: {
-        name: data.name || '',
+        name: name || '',
         company: '',
-        address1: data.address1 || '',
-        address2: data.address2 || '',
-        city: data.city || '',
-        state_name: data.state_name || '',
-        state_code: data.state_name || '',
-        country_name: data.country_name || '',
-        country_code: data.country_name || '',
-        zip: data.zip || '',
-        phone: data.phone || '',
-        email: data.email || '',
+        address1: address1 || '',
+        address2: address2 || '',
+        city: city || '',
+        state_name: stateCode || '',
+        state_code: stateCode || '',
+        country_name: countryCode || '',
+        country_code: countryCode || '',
+        zip: zip || '',
+        phone: phone || '',
+        email: email || '',
       },
       items: orderPackage,
     };
@@ -260,6 +280,9 @@ export async function new_order(
 
     // Create draft order in Printful
     childLogger = logger.child({ step: 'create_order' });
+
+    childLogger.debug(body, 'Creating order in Printful');
+
     try {
       const options = {
         method: 'POST',
@@ -287,13 +310,18 @@ export async function new_order(
       const date = new Date().toLocaleString('en-US');
       const order_pack = JSON.stringify(orderList);
 
-      await sql`
-        INSERT INTO merch_orders (email, order_tier, date, order_id, delivered, shirt_size, order_package, order_status)
-        VALUES(${data.email}, ${tier}, ${date}, ${orderId}, false, ${shirt_size} , ${order_pack}, ${draftOrder.result.status})
-      `;
-      childLogger.info(
-        { order_id: orderId, tier, status: draftOrder.result.status },
-        'Added order to database',
+      await addOrder(
+        {
+          email,
+          tier,
+          date,
+          orderId,
+          isDelivered: false,
+          shirtSize,
+          orderPackage: order_pack,
+          status: draftOrder.result.status,
+        },
+        childLogger,
       );
     } catch (error) {
       childLogger.error(error);
@@ -304,6 +332,7 @@ export async function new_order(
 
     // Confirm order in Printful for fulfillment
     childLogger = logger.child({ step: 'confirm_order' });
+
     try {
       const confirmOrder = async () => {
         const options = {
@@ -332,15 +361,15 @@ export async function new_order(
         );
 
         // Update order status in database
-        await sql`
-          UPDATE merch_orders set order_status = ${confirmedOrder.result.status} WHERE order_id = ${confirmedOrder.result.id};
-        `;
-        childLogger.info(
+        await updateOrderStatus(
           {
-            order_id: confirmedOrder.result.id,
+            orderId: confirmedOrder.result.id,
             status: confirmedOrder.result.status,
+            deliveryStatus: confirmedOrder.result.shipments[0]
+              ? confirmedOrder.result.shipments[0].tracking_url
+              : '',
           },
-          'Updated order status in database',
+          childLogger,
         );
 
         return confirmedOrder;
@@ -361,3 +390,5 @@ export async function new_order(
     return 'Order empty - likely already ordered';
   }
 }
+
+export { createOrder, type ShirtSize };
