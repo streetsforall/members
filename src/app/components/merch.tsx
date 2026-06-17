@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { merch_status } from "@/server/merch_status";
-import { retrieveMerchOrders } from '@/server/dbHelpers'
+import { getOrders } from '@/server/db'
 import { Row } from "postgres";
 
 
@@ -17,8 +17,8 @@ const Merch = (member: any) => {
     useEffect(() => {
 
         const retrieveAllMerch = async (email: string) => {
-            const order = await retrieveMerchOrders(email)
-            setMerch(order)
+            const order = await getOrders(email)
+            setMerch(order || [])
         }
 
         const merch = retrieveAllMerch(member.member.email)
@@ -33,8 +33,8 @@ const Merch = (member: any) => {
         merch_status(member.member.email)
 
         const retrieveAllMerch = async (email: string) => {
-            const order = await retrieveMerchOrders(email)
-            setMerch(order)
+            const order = await getOrders(email)
+            setMerch(order || [])
         }
 
         const merch = retrieveAllMerch(member.member.email)

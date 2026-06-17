@@ -1,4 +1,4 @@
-import { getChapterFromZip } from "../../src/server/dbHelpers";
+import { getChapterFromZip } from "@/server/utils";
 
 describe("getChapterFromZip", () => {
   it("should return 'LA' for Los Angeles area ZIP codes", () => {

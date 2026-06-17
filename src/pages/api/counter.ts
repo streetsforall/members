@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import * as dbHelp from '../../server/dbHelpers'
+import { getValidMembers } from "../../server/db";
 
 
 // returns number of active members
@@ -11,8 +11,8 @@ export default async function handler(
   
   if (req.method === "GET") {
     try {
-        dbHelp.retrieveValidMembers()
-            .then(response =>  res.status(200).json(response.length ));
+        getValidMembers()
+            .then(response =>  res.status(200).json(response?.length ));
     } catch (error: any) {
       if (error instanceof Error) {
         console.error(`An error occurred counting members: ${error.message}`);

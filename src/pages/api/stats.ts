@@ -1,123 +1,112 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import * as dbHelp from '../../server/dbHelpers'
-import { json } from "stream/consumers";
+import { NextApiRequest, NextApiResponse } from 'next';
+import pino from 'pino';
+import { getValidMembers } from '../../server/db';
 
+const parentLogger = pino();
 
-// returns total monthly donations
+// TODO: Refactor into centralized string literal type
+const chapters = ['LA', 'SF', 'CA'] as const;
 
+/**
+ * Calculate stats for a particular chapter
+ * @param chapter - The chapter to calculate
+ * @returns Subscriber counts and dollar amounts
+ */
+async function calculateChapterTotals(chapter: (typeof chapters)[number]) {
+  const validMembers = await getValidMembers();
+
+  // Count members in each tier for the specified chapter
+  const tier1Members = validMembers?.reduce(
+    (a, b) => (b.tier == 1 && b.branch == chapter ? a + 1 : a),
+    0,
+  ) || 0;
+  const tier2Members = validMembers?.reduce(
+    (a, b) => (b.tier == 2 && b.branch == chapter ? a + 1 : a),
+    0,
+  ) || 0;
+  const tier3Members = validMembers?.reduce(
+    (a, b) => (b.tier == 3 && b.branch == chapter ? a + 1 : a),
+    0,
+  ) || 0;
+
+  // Calculate equivalent cdollar amounts
+  const tier1Dollars = tier1Members * 12;
+  const tier2Dollars = tier2Members * 24;
+  const tier3Dollars = tier3Members * 48;
+
+  // Calculate totals
+  const totalMembers = tier1Members + tier2Members + tier3Members;
+  const totalDollarsMonthly = tier1Dollars + tier2Dollars + tier3Dollars;
+  const totalDollarsAnnual = (tier1Dollars + tier2Dollars + tier3Dollars) * 12;
+
+  return {
+    tier1Members,
+    tier2Members,
+    tier3Members,
+    totalMembers,
+    tier1Dollars,
+    tier2Dollars,
+    tier3Dollars,
+    totalDollarsMonthly,
+    totalDollarsAnnual,
+  };
+}
+
+/**
+ * Main request handler - returns total monthly donations
+ * @param req - Request object
+ * @param res - Response object
+ */
 export default async function handler(
-    req: NextApiRequest,
-    res: NextApiResponse
+  req: NextApiRequest,
+  res: NextApiResponse,
 ) {
+  if (req.method === 'GET') {
+    // Create logger instance for request
+    const logger = parentLogger.child({
+      request_type: 'stats',
+    });
 
-    
+    logger.info({ step: 'incoming_request' }, 'Incoming request');
 
+    try {
+      const caTotals = await calculateChapterTotals('CA');
+      const laTotals = await calculateChapterTotals('LA');
+      const sfTotals = await calculateChapterTotals('SF');
 
-// const getCoords = async (address: string): Promise<void> => {
-//     const body = {
-//         string: address,
-//     };
-//     const jsonBody = JSON.stringify(body);
-//     const response = await fetch(
-//         "https://plaza.streetsforall.org/api/geo",
-//         {
-//             method: "POST",
-//             body: jsonBody,
-//             headers: {
-//                 "Content-Type": "application/json",
-//             },
-//         },
-//     );
-//     const potentialAddresses = await response.json();
+      logger.info(
+        { step: 'calculate_stats', stats: { caTotals, laTotals, sfTotals } },
+        'Calculated membership stats',
+      );
 
-//     return(potentialAddresses);
-// };
+      return res.status(200).send({
+        ca: caTotals,
+        la: laTotals,
+        sf: sfTotals,
+        totalDollarsMonthly:
+          laTotals.totalDollarsMonthly +
+          sfTotals.totalDollarsMonthly +
+          caTotals.totalDollarsMonthly,
+        totalDollarsAnnualEstimate:
+          laTotals.totalDollarsAnnual +
+          sfTotals.totalDollarsAnnual +
+          caTotals.totalDollarsAnnual,
+        laCutMonthly:
+          laTotals.totalDollarsMonthly + caTotals.totalDollarsMonthly / 2,
+        sfCutMonthly:
+          sfTotals.totalDollarsMonthly + caTotals.totalDollarsMonthly / 2,
+        currentMembers:
+          laTotals.totalMembers + sfTotals.totalMembers + caTotals.totalMembers,
+      });
+    } catch (error) {
+      logger.error(error, 'An error occurred calculating membership stats');
 
-
-    if (req.method === "GET") {
-        try {
-            const getDB = await dbHelp.retrieveValidMembers()
-
-           
-
-
-            getDB.map((memb) => {
-
-
-                console.log(memb.branch)
-                
-
-            })
-
-
-            // const sum = getDB.reduce((a, b) => a + b.last_amount, 0)
-
-
-            const branches = ["LA", "SF", "CA"]
-
-            const getBranchTotals = (branch : string) => {
-                const tier1 = getDB.reduce((a, b) => b.tier == 1 && b.branch == branch ? a + 1 : a, 0)
-                const tier2 = getDB.reduce((a, b) => b.tier == 2 && b.branch == branch ? a + 1 : a, 0)
-                const tier3 = getDB.reduce((a, b) => b.tier == 3 && b.branch == branch ? a + 1 : a, 0)
-  
-                const tier1dollar = tier1 * 12
-                const tier2dollar = tier2 * 24
-                const tier3dollar = tier3 * 48
-
-                const total_count= tier1 + tier2 + tier3
-                const total_monthly = tier1dollar + tier2dollar + tier3dollar
-                const total_annual = (tier1dollar + tier2dollar + tier3dollar) * 12
-
-                return({'tier1': tier1, 'tier2': tier2, 'tier3': tier3, 'total_count': total_count, 'tier1dollar': tier1dollar, 'tier2dollar': tier2dollar, 'tier3dollar': tier3dollar, 'total_monthly':total_monthly, 'total_annual': total_annual})
-            }
-
-            var total: any = {};
-
-            branches.map((branch) => {
-            total[branch] = getBranchTotals(branch);
-            });
-
-            console.log(total)
-            
-        
-
-            const LA_totals = getBranchTotals("LA")
-            const SF_totals = getBranchTotals("SF")
-            const CA_totals = getBranchTotals("CA")
-
-
-            console.log(LA_totals, SF_totals, CA_totals)
-
-            // console.log(tier1, tier2, tier3)
-            // console.log(tier1dollar, tier2dollar, tier3dollar)
-
-            res.status(200).send({
-                // 'estimated yearly income': (tier1dollar + tier2dollar + tier3dollar) * 12,
-                // 'current donations': getDB.length,
-                // 'average donation': Math.trunc((tier1dollar + tier2dollar + tier3dollar) /  getDB.length),
-                // 'tier 1 donors': tier1,
-                // 'tier 2 donors': tier2,
-                // 'tier 3 donors': tier3,
-                // 'tier 1 income': tier1dollar,
-                // 'tier 2 income': tier2dollar,
-                // 'tier 3 income': tier3dollar,
-                'LA': LA_totals,
-                'SF': SF_totals,
-                'CA': CA_totals,
-
-                'total monthly': LA_totals.total_monthly +  SF_totals.total_monthly + CA_totals.total_monthly,
-                'total annual estimate': LA_totals.total_annual +  SF_totals.total_annual + CA_totals.total_annual,
-                'SF cut monthly': SF_totals.total_monthly + CA_totals.total_monthly/2,
-                'LA cut monthly': LA_totals.total_monthly + CA_totals.total_monthly/2,
-                'current donations': LA_totals.total_count +  SF_totals.total_count + CA_totals.total_count,
-        })
-
-        } catch (error: any) {
-            if (error instanceof Error) {
-                console.error(`An error occurred counting members: ${error.message}`);
-            }
-
-            res.status(500).send("An error occurred counting members");
-        }
+      return res
+        .status(500)
+        .send('An error occurred calculating membership stats');
     }
+  } else {
+    res.setHeader('Allow', 'POST');
+    return res.status(405).send('Method Not Allowed');
+  }
 }
