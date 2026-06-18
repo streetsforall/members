@@ -29,11 +29,11 @@ function calculateTier(
       tier = 1;
     }
   } else if (interval == 'year') {
-    if (amount >= 55000) {
+    if (amount >= 48000) {
       tier = 3;
-    } else if (amount >= 27000) {
+    } else if (amount >= 24000) {
       tier = 2;
-    } else if (amount >= 14000) {
+    } else if (amount >= 12000) {
       tier = 1;
     }
   }
