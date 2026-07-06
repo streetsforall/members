@@ -76,6 +76,15 @@ async function sendWelcomeEmail(
                 modes of transportation.
               </p>
 
+                 <p>
+                You can
+                <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://join.slack.com/t/streetsforall/shared_invite/zt-2z6ln58iu-6hoV9qILXMLptFaKaTWIeg"
+              >join the Streets for All slack here.</a>
+              </p>
+
               <p>
                 Be sure to check out all the awesome perks included in your ${tierName}
                 Tier membership by loging into your membership portal below:
