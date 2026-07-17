@@ -1,9 +1,9 @@
 'use server';
 
 import { redirect } from 'next/navigation'
-import * as dbHelp from '../../../server/db'
-import { validate_user, sign_out_user } from '../../../server/validate_user'
-import Discounts from '../../components/discounts'
+import * as dbHelp from '../../../../server/db'
+import { validate_user, sign_out_user } from '../../../../server/validate_user'
+import Discounts from '../../../components/discounts'
 import Merch from '@/app/components/merch';
 import { Billing_button } from '@/app/components/billing_button';
 import { Upgrade_button } from '@/app/components/upgrade_button'

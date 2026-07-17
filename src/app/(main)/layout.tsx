@@ -1,6 +1,6 @@
-import Footer from "./components/footer"
-import Header from "./components/header"
-import './global.css'
+import Footer from "../components/footer"
+import Header from "../components/header"
+import '../global.css'
 import { Courier_Prime } from 'next/font/google'
 
 export const metadata = {

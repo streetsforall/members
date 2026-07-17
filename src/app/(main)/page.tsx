@@ -3,7 +3,7 @@
 import { useRouter } from 'next/router'
 import { useState, useEffect } from "react";
 
-import { validate_user } from '../server/validate_user'
+import { validate_user } from '../../server/validate_user'
 import { sendLoginEmail } from '@/server/email';
 
 export default function LoginPage() {
