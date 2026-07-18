@@ -3,8 +3,8 @@
 
 import { use, useEffect, useState } from "react";
 import { useRouter } from 'next/navigation'
-import { verify_token } from '../../../server/verifier'
-import LoginPage from '@/app/page'
+import { verify_token } from '../../../../server/verifier'
+import LoginPage from '@/app/(main)/page'
 
 
 export default function Validate({ params }: { params: Promise<{ slug: string }> }) {
