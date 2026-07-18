@@ -3,7 +3,7 @@
 
 import { use, useEffect, useState } from "react";
 import { useRouter } from 'next/navigation'
-import { verify_token } from '../../../server/verifier'
+import { verify_token } from '../../../../server/verifier'
 import LoginPage from '@/app/(main)/page'
 
 
