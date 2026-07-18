@@ -1,4 +1,5 @@
 import { getSession } from '@/server/stripe';
+import Umami from './Umami';
 
 export default async function Page({
   searchParams,
@@ -6,41 +7,55 @@ export default async function Page({
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
   const sessionId = (await searchParams).session;
+  const { utm_source, utm_medium, utm_campaign, utm_term, utm_content } =
+    await searchParams;
 
   if (sessionId) {
     const session = await getSession({ sessionId });
 
     if (session?.status === 'complete') {
       return (
-        <div
-          style={{
-            backgroundColor: 'white',
-            borderRadius: '1rem',
-            maxWidth: '480px',
-            margin: '0 auto',
-            padding: '2rem',
-          }}
-        >
-          <h1
+        <>
+          <Umami
+            utm={{
+              source: utm_source,
+              medium: utm_medium,
+              campaign: utm_campaign,
+              term: utm_term,
+              content: utm_content,
+            }}
+          />
+
+          <div
             style={{
-              color: 'var(--blue)',
-              fontFamily: 'serif',
-              fontStyle: 'italic',
-              marginTop: 0,
+              backgroundColor: 'white',
+              borderRadius: '1rem',
+              maxWidth: '480px',
+              margin: '0 auto',
+              padding: '2rem',
             }}
           >
-            You're in the club!
-          </h1>
-          <p
-            style={{
-              marginBottom: 0,
-            }}
-          >
-            Thank you for supporting Streets For All. You should receive a
-            confirmation email shortly with a link to log into the membership
-            portal.
-          </p>
-        </div>
+            <h1
+              style={{
+                color: 'var(--blue)',
+                fontFamily: 'serif',
+                fontStyle: 'italic',
+                marginTop: 0,
+              }}
+            >
+              You're in the club!
+            </h1>
+            <p
+              style={{
+                marginBottom: 0,
+              }}
+            >
+              Thank you for supporting Streets For All. You should receive a
+              confirmation email shortly with a link to log into the membership
+              portal.
+            </p>
+          </div>
+        </>
       );
     }
   }

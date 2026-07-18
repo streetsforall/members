@@ -30,11 +30,11 @@ export default function RootLayout({
           defer
           src="https://cloud.umami.is/script.js"
           data-website-id={UMAMI_WEBSITE_ID}
+          data-auto-track="false"
         ></script>
         <link rel="icon" href="/favicon.png" sizes="any" />
       </head>
       <body>
-        hi
         <Header />
         {children}
         <Footer />
