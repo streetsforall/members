@@ -1,4 +1,5 @@
 import { getSession } from '@/server/stripe';
+import GoogleAnalytics from './GoogleAnalytics';
 import Umami from './Umami';
 
 export default async function Page({
@@ -14,8 +15,18 @@ export default async function Page({
     const session = await getSession({ sessionId });
 
     if (session?.status === 'complete') {
+      // Only register analytics if session is validated
       return (
         <>
+          <GoogleAnalytics
+            utm={{
+              source: utm_source,
+              medium: utm_medium,
+              campaign: utm_campaign,
+              term: utm_term,
+              content: utm_content,
+            }}
+          />
           <Umami
             utm={{
               source: utm_source,
