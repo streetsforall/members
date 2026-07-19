@@ -1,6 +1,6 @@
 'use client';
 
-import Script from 'next/script';
+import { useEffect } from 'react';
 
 interface UTM {
   source?: string;
@@ -15,17 +15,15 @@ interface UmamiProps {
 }
 
 export default function Umami({ utm }: UmamiProps) {
-  return (
-    <Script>
-      {
-        /* Register visit and UTM query params */
-        `umami.track();`
-      }
+  useEffect(() => {
+    // Register visit and UTM query params
+    window.umami.track();
 
-      {
-        /* Register event with UTM properties */
-        `umami.track('new-subscription', ${JSON.stringify(utm)});`
-      }
-    </Script>
-  );
+    // Register event with UTM properties
+    utm
+      ? window.umami.track('new-subscription', utm)
+      : window.umami.track('new-subscription');
+  }, []);
+
+  return <></>;
 }

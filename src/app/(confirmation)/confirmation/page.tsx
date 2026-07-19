@@ -1,6 +1,7 @@
 import { getSession } from '@/server/stripe';
 import GoogleAnalytics from './GoogleAnalytics';
 import Umami from './Umami';
+import MetaPixel from './MetaPixel';
 
 export default async function Page({
   searchParams,
@@ -19,6 +20,15 @@ export default async function Page({
       return (
         <>
           <GoogleAnalytics
+            utm={{
+              source: utm_source,
+              medium: utm_medium,
+              campaign: utm_campaign,
+              term: utm_term,
+              content: utm_content,
+            }}
+          />
+          <MetaPixel
             utm={{
               source: utm_source,
               medium: utm_medium,
