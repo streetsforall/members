@@ -1,6 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import Script from 'next/script';
+
+const UMAMI_WEBSITE_ID = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID || '';
 
 interface UTM {
   source?: string;
@@ -15,15 +19,29 @@ interface UmamiProps {
 }
 
 export default function Umami({ utm }: UmamiProps) {
+  const [loaded, setLoaded] = useState(false);
+  const pathName = usePathname();
+
   useEffect(() => {
-    // Register visit and UTM query params
-    window.umami.track();
+    if (UMAMI_WEBSITE_ID) {
+      if (!loaded) return;
 
-    // Register event with UTM properties
-    utm
-      ? window.umami.track('new-subscription', utm)
-      : window.umami.track('new-subscription');
-  }, []);
+      // Register visit and UTM query params
+      window.umami.track();
 
-  return <></>;
+      // Register event with UTM properties
+      utm
+        ? window.umami.track('new-subscription', utm)
+        : window.umami.track('new-subscription');
+    }
+  }, [loaded, pathName]);
+
+  return (
+    <Script
+      src="https://cloud.umami.is/script.js"
+      data-website-id={UMAMI_WEBSITE_ID}
+      data-auto-track="false"
+      onLoad={() => setLoaded(true)}
+    />
+  );
 }

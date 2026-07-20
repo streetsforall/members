@@ -21,7 +21,7 @@ interface MetaPixelProps {
 // From https://github.com/vercel/next.js/tree/canary/examples/with-facebook-pixel
 export default function MetaPixel({ utm }: MetaPixelProps) {
   const [loaded, setLoaded] = useState(false);
-  const pathname = usePathname();
+  const pathName = usePathname();
 
   useEffect(() => {
     if (META_PIXEL_ID) {
@@ -33,7 +33,7 @@ export default function MetaPixel({ utm }: MetaPixelProps) {
         ? window.fbq('track', 'Subscribe', utm)
         : window.fbq('track', 'Subscribe');
     }
-  }, [pathname, loaded]);
+  }, [loaded, pathName]);
 
   if (META_PIXEL_ID) {
     return (

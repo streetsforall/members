@@ -1,3 +1,4 @@
+import Script from 'next/script';
 import Footer from '../components/footer';
 import Header from '../components/header';
 import '../global.css';
@@ -16,7 +17,7 @@ const courier = Courier_Prime({
   subsets: ['latin'],
 });
 
-const UMAMI_WEBSITE_ID = process.env.UMAMI_WEBSITE_ID || '';
+const UMAMI_WEBSITE_ID = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID || '';
 
 export default function RootLayout({
   children,
@@ -26,12 +27,12 @@ export default function RootLayout({
   return (
     <html className={courier.className} lang="en">
       <head>
-        <script
+        <Script
           defer
           src="https://cloud.umami.is/script.js"
           data-website-id={UMAMI_WEBSITE_ID}
           data-auto-track="false"
-        ></script>
+        />
         <link rel="icon" href="/favicon.png" sizes="any" />
       </head>
       <body>
