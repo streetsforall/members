@@ -27,12 +27,15 @@ export default function Umami({ utm }: UmamiProps) {
       if (!loaded) return;
 
       // Register visit and UTM query params
-      window.umami.track();
+      // @ts-ignore
+      umami.track();
 
       // Register event with UTM properties
       utm
-        ? window.umami.track('new-subscription', utm)
-        : window.umami.track('new-subscription');
+        // @ts-ignore
+        ? umami.track('new-subscription', utm)
+        // @ts-ignore
+        : umami.track('new-subscription');
     }
   }, [loaded, pathName]);
 

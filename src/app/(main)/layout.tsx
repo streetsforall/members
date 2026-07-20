@@ -28,7 +28,6 @@ export default function RootLayout({
     <html className={courier.className} lang="en">
       <head>
         <Script
-          defer
           src="https://cloud.umami.is/script.js"
           data-website-id={UMAMI_WEBSITE_ID}
         />
