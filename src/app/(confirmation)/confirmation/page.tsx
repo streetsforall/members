@@ -71,9 +71,8 @@ export default async function Page({
                 marginBottom: 0,
               }}
             >
-              Thank you for supporting Streets For All. You should receive a
-              confirmation email shortly with a link to log into the membership
-              portal.
+              Thank you for supporting Streets For All. Check your email for a
+              unique login link for the membership portal.
             </p>
           </div>
         </>
