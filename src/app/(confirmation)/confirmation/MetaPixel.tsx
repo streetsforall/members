@@ -18,6 +18,7 @@ interface MetaPixelProps {
   utm?: UTM;
 }
 
+// From https://github.com/vercel/next.js/tree/canary/examples/with-facebook-pixel
 export default function MetaPixel({ utm }: MetaPixelProps) {
   const [loaded, setLoaded] = useState(false);
   const pathname = usePathname();

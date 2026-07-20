@@ -103,6 +103,62 @@ This will send the event to the sandbox, which should then forward it back to yo
 > [!CAUTION]
 > We currently do not have non-production environments for Printful or Mailchimp. So be sure to immediately cancel any orders that are created in Printful, and archive any contacts that are created in Mailchimp.
 
+## Analytics
+
+In order to track metrics about subscriptions, analytics are collected when a new member signs up. To faciliate this, there is a custom `/confirmation` page that Stripe redirects the user to after the checkout process is complete.
+
+> [!TIP]
+> This is configured on the Stripe side in the dashboard, under **Payments**, on the **Payment Links** page. The confirmation page is set by editing a link and going to the **After payment** tab. Refer to the [Stripe documentation](https://docs.stripe.com/payment-links/url-parameters#track-campaigns-with-utm-codes) for more information.
+
+The analytics are only registered if the checkout session is validated. This is done by a calling the Stripe API to retreive the session information. To cover all our bases currently, both a page view and an event trigger is registered in both Google Analytics and Umami. (This may change as we refine the process in the future.) Since Umami is also used at the app level to track general page visits, there are two different root `layout.tsx` files:
+
+1. Under `(confirmation)/`: This is only used for the confirmation page Stripe redirects to after checkout is complete.
+2. Under `(main)/`: This is used for all other pages.
+
+_(These parentheses-wrapped folders are Next.js [route groups](https://nextjs.org/docs/app/getting-started/project-structure#creating-multiple-root-layouts).)_
+
+The only difference between these two is that `(confirmation)/layout.tsx` initializes Umami _without_ automatically registering _all_ page views. This allows them to be registered programatically (only when the checkout session has been validated). (This isn't necessary for the Google Analytics, because it isn't used in the rest of the app.)
+
+### Viewing metrics
+
+#### Google Analytics
+
+Real-time information is useful for live sanity checks or testing. But after about a day or so, Google processes data into more extensive metrics, which are useful for more holistic reporting.
+
+##### Real-time
+
+Navigate to **Reports** &rarr; **Realtime overview**. In the `Event count by Event name` section, click either `page_view` or `new_subcription` to drill down into the properties
+
+##### Processed
+
+- **Page views:** Navigate to **Reports** &rarr; **Lifecycle** &rarr; **Acquisition** &rarr; **Traffic acquisition**. In the header of the first column of the table, select the appropriate option corresponding the UTM tag you're interested in.
+- **Events:** Navigate to **Reports** &rarr; **Lifecycle** &rarr; **Engagement** &rarr; **Events**. In the first column of the table, click `new_subscription`.
+
+#### Meta Pixel
+
+Meta doesn't automatically register UTM parameters with page views, so they are only available in events. Meta's real-time information is meant more for testing purposes, but processed metrics are available almost instantaneously.
+
+##### Real-time
+
+Navigate to the [Events Manager](https://eventsmanager.facebook.com) and select the appropriate dataset. Go to the **Test events** tab.
+
+##### Processed
+
+Navigate to the [Events Manager](https://eventsmanager.facebook.com) and select the appropriate dataset. The table at the bottom of the **Overview** tab should display both `PageView` and `Subscribe` events.
+
+#### Umami
+
+Umami doesn't display detailed properties about page views or events in real-time. However, processed metrics with this information are available almost instantaneously.
+
+##### Real-time
+
+Navigate to **Traffic** &rarr; **Realtime**.
+
+##### Processed
+
+- **Page views:** Navigate to **Growth** &rarr; **UTM**.
+- **Events:** Navigate to **Traffic** &rarr; **Events**. Select the `new-subscription` **Event** and the apporiate **Property** option corresponding the UTM tag you're interested in.
+
 ## Critical checklist for testing any code changes
 - does the members table receive update?
 - does the member_updates table receive changes?
