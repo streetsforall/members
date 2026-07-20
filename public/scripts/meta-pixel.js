@@ -1,6 +1,6 @@
 const PIXEL_ID = document.currentScript.getAttribute('data-pixel-id');
 
-function initializeFacebookPixel(f, b, e, v, n, t, s) {
+function initializeMetaPixel(f, b, e, v, n, t, s) {
   if (f.fbq) return;
   n = f.fbq = function () {
     n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
@@ -17,7 +17,7 @@ function initializeFacebookPixel(f, b, e, v, n, t, s) {
   s.parentNode.insertBefore(t, s);
 }
 
-initializeFacebookPixel(
+initializeMetaPixel(
   window,
   document,
   'script',
