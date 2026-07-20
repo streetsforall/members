@@ -19,14 +19,16 @@ interface GoogleAnalyticsProps {
 
 export default function GoogleAnalytics({ utm }: GoogleAnalyticsProps) {
   useEffect(() => {
-    utm
-      ? sendGAEvent('event', 'new_subscription', utm)
-      : sendGAEvent('event', 'new_subscription');
+    if (GA_MEASUREMENT_ID) {
+      utm
+        ? sendGAEvent('event', 'new_subscription', utm)
+        : sendGAEvent('event', 'new_subscription');
+    }
   }, []);
 
-  return (
-    <>
-      <GA gaId={GA_MEASUREMENT_ID} />
-    </>
-  );
+  if (GA_MEASUREMENT_ID) {
+    return <GA gaId={GA_MEASUREMENT_ID} />;
+  } else {
+    return <></>;
+  }
 }

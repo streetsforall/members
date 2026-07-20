@@ -24,22 +24,28 @@ export default function MetaPixel({ utm }: MetaPixelProps) {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!loaded) return;
+    if (META_PIXEL_ID) {
+      if (!loaded) return;
 
-    window.fbq('track', 'PageView');
+      window.fbq('track', 'PageView');
 
-    utm
-      ? window.fbq('track', 'Subscribe', utm)
-      : window.fbq('track', 'Subscribe');
+      utm
+        ? window.fbq('track', 'Subscribe', utm)
+        : window.fbq('track', 'Subscribe');
+    }
   }, [pathname, loaded]);
 
-  return (
-    <Script
-      id="meta-pixel"
-      src="/scripts/meta-pixel.js"
-      strategy="afterInteractive"
-      onLoad={() => setLoaded(true)}
-      data-pixel-id={META_PIXEL_ID}
-    />
-  );
+  if (META_PIXEL_ID) {
+    return (
+      <Script
+        id="meta-pixel"
+        src="/scripts/meta-pixel.js"
+        strategy="afterInteractive"
+        onLoad={() => setLoaded(true)}
+        data-pixel-id={META_PIXEL_ID}
+      />
+    );
+  } else {
+    return <></>;
+  }
 }

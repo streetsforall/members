@@ -16,7 +16,7 @@ const courier = Courier_Prime({
   subsets: ['latin'],
 });
 
-const UMAMI_WEBSITE_ID = process.env.UMAMI_WEBSITE_ID || '';
+const UMAMI_WEBSITE_ID = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID || '';
 
 export default function RootLayout({
   children,
