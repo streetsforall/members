@@ -1,4 +1,5 @@
-import { getSession } from '@/server/stripe';
+import { getSession, getSubscription } from '@/server/stripe';
+import { calculateTier } from '@/server/utils';
 import GoogleAnalytics from './GoogleAnalytics';
 import Umami from './Umami';
 import MetaPixel from './MetaPixel';
@@ -15,11 +16,24 @@ export default async function Page({
   if (sessionId) {
     const session = await getSession({ sessionId });
 
-    if (session?.status === 'complete') {
+    if (session && session.status === 'complete') {
+      const subscriptionId = session.subscription as string;
+      const subscription = await getSubscription({ subscriptionId });
+
+      const amount = subscription?.items.data[0].plan.amount || 0;
+      const currency = subscription?.items.data[0].plan.currency.toUpperCase();
+      const interval = subscription?.items.data[0].plan.interval as
+        | 'month'
+        | 'year';
+      const tier = `Tier ${calculateTier({ amount, interval })}`;
+
       // Only register analytics if session is validated
       return (
         <>
           <GoogleAnalytics
+            currency={currency}
+            subscriptionTier={tier}
+            transactionId={sessionId}
             utm={{
               source: utm_source,
               medium: utm_medium,
@@ -27,8 +41,12 @@ export default async function Page({
               term: utm_term,
               content: utm_content,
             }}
+            value={amount}
           />
           <MetaPixel
+            currency={currency}
+            subscriptionTier={tier}
+            transactionId={sessionId}
             utm={{
               source: utm_source,
               medium: utm_medium,
@@ -36,8 +54,12 @@ export default async function Page({
               term: utm_term,
               content: utm_content,
             }}
+            value={amount}
           />
           <Umami
+            currency={currency}
+            subscriptionTier={tier}
+            transactionId={sessionId}
             utm={{
               source: utm_source,
               medium: utm_medium,
@@ -45,6 +67,7 @@ export default async function Page({
               term: utm_term,
               content: utm_content,
             }}
+            value={amount}
           />
 
           <div

@@ -15,11 +15,21 @@ interface UTM {
 }
 
 interface MetaPixelProps {
+  currency?: string;
+  subscriptionTier: string;
+  transactionId: string;
   utm?: UTM;
+  value?: number;
 }
 
 // From https://github.com/vercel/next.js/tree/canary/examples/with-facebook-pixel
-export default function MetaPixel({ utm }: MetaPixelProps) {
+export default function MetaPixel({
+  currency,
+  subscriptionTier,
+  transactionId,
+  utm,
+  value,
+}: MetaPixelProps) {
   const [loaded, setLoaded] = useState(false);
   const pathName = usePathname();
 
@@ -30,8 +40,19 @@ export default function MetaPixel({ utm }: MetaPixelProps) {
       window.fbq('track', 'PageView');
 
       utm
-        ? window.fbq('track', 'Subscribe', utm)
-        : window.fbq('track', 'Subscribe');
+        ? window.fbq('track', 'Subscribe', {
+            currency,
+            subscription_tier: subscriptionTier,
+            transaction_id: transactionId,
+            ...utm,
+            value,
+          })
+        : window.fbq('track', 'Subscribe', {
+            currency,
+            subscription_tier: subscriptionTier,
+            transaction_id: transactionId,
+            value,
+          });
     }
   }, [loaded, pathName]);
 

@@ -15,10 +15,20 @@ interface UTM {
 }
 
 interface UmamiProps {
+  currency?: string;
+  subscriptionTier: string;
+  transactionId: string;
   utm?: UTM;
+  value?: number;
 }
 
-export default function Umami({ utm }: UmamiProps) {
+export default function Umami({
+  currency,
+  subscriptionTier,
+  transactionId,
+  utm,
+  value,
+}: UmamiProps) {
   const [loaded, setLoaded] = useState(false);
   const pathName = usePathname();
 
@@ -32,10 +42,21 @@ export default function Umami({ utm }: UmamiProps) {
 
       // Register event with UTM properties
       utm
-        // @ts-ignore
-        ? umami.track('new-subscription', utm)
-        // @ts-ignore
-        : umami.track('new-subscription');
+        ? // @ts-ignore
+          umami.track('new-subscription', {
+            currency,
+            subscription_tier: subscriptionTier,
+            transaction_id: transactionId,
+            ...utm,
+            value,
+          })
+        : // @ts-ignore
+          umami.track('new-subscription', {
+            currency,
+            subscription_tier: subscriptionTier,
+            transaction_id: transactionId,
+            value,
+          });
     }
   }, [loaded, pathName]);
 
