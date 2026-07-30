@@ -1,6 +1,5 @@
 import { getSession, getSubscription } from '@/server/stripe';
 import { calculateTier } from '@/server/utils';
-import GoogleAnalytics from './GoogleAnalytics';
 import Umami from './Umami';
 import MetaPixel from './MetaPixel';
 
@@ -32,19 +31,6 @@ export default async function Page({
       // Only register analytics if session is validated
       return (
         <>
-          <GoogleAnalytics
-            currency={currency}
-            subscriptionTier={tier}
-            transactionId={sessionId}
-            utm={{
-              source: utm_source,
-              medium: utm_medium,
-              campaign: utm_campaign,
-              term: utm_term,
-              content: utm_content,
-            }}
-            value={amount}
-          />
           <MetaPixel
             currency={currency}
             subscriptionTier={tier}
