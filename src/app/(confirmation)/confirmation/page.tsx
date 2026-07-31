@@ -1,6 +1,5 @@
 import { getSession, getSubscription } from '@/server/stripe';
 import { calculateTier } from '@/server/utils';
-import GoogleAnalytics from './GoogleAnalytics';
 import Umami from './Umami';
 import MetaPixel from './MetaPixel';
 
@@ -20,9 +19,7 @@ export default async function Page({
       const subscriptionId = session.subscription as string;
       const subscription = await getSubscription({ subscriptionId });
 
-      const amount = subscription?.items.data[0].plan.amount
-        ? subscription.items.data[0].plan.amount / 100
-        : 0;
+      const amount = subscription?.items.data[0].plan.amount || 0;
       const currency = subscription?.items.data[0].plan.currency.toUpperCase();
       const interval = subscription?.items.data[0].plan.interval as
         | 'month'
@@ -32,19 +29,6 @@ export default async function Page({
       // Only register analytics if session is validated
       return (
         <>
-          <GoogleAnalytics
-            currency={currency}
-            subscriptionTier={tier}
-            transactionId={sessionId}
-            utm={{
-              source: utm_source,
-              medium: utm_medium,
-              campaign: utm_campaign,
-              term: utm_term,
-              content: utm_content,
-            }}
-            value={amount}
-          />
           <MetaPixel
             currency={currency}
             subscriptionTier={tier}
@@ -56,7 +40,7 @@ export default async function Page({
               term: utm_term,
               content: utm_content,
             }}
-            value={amount}
+            value={amount / 100}
           />
           <Umami
             currency={currency}
@@ -69,7 +53,7 @@ export default async function Page({
               term: utm_term,
               content: utm_content,
             }}
-            value={amount}
+            revenue={amount / 100}
           />
 
           <div

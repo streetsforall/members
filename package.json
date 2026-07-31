@@ -13,7 +13,6 @@
   "dependencies": {
     "@lucia-auth/adapter-postgresql": "^3.1.2",
     "@mailchimp/mailchimp_marketing": "^3.0.80",
-    "@next/third-parties": "^16.2.10",
     "@stripe/react-stripe-js": "^5.4.1",
     "@stripe/stripe-js": "^8.5.3",
     "atob": "^2.1.2",
