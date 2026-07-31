@@ -19,7 +19,7 @@ interface UmamiProps {
   subscriptionTier: string;
   transactionId: string;
   utm?: UTM;
-  value?: number;
+  revenue?: number;
 }
 
 export default function Umami({
@@ -27,7 +27,7 @@ export default function Umami({
   subscriptionTier,
   transactionId,
   utm,
-  value,
+  revenue,
 }: UmamiProps) {
   const [loaded, setLoaded] = useState(false);
   const pathName = usePathname();
@@ -48,14 +48,14 @@ export default function Umami({
             subscription_tier: subscriptionTier,
             transaction_id: transactionId,
             ...utm,
-            value,
+            revenue,
           })
         : // @ts-ignore
           umami.track('new-subscription', {
             currency,
             subscription_tier: subscriptionTier,
             transaction_id: transactionId,
-            value,
+            revenue,
           });
     }
   }, [loaded, pathName]);

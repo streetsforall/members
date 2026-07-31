@@ -53,7 +53,7 @@ export default async function Page({
               term: utm_term,
               content: utm_content,
             }}
-            value={amount / 100}
+            revenue={amount / 100}
           />
 
           <div
