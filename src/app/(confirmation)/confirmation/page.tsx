@@ -19,9 +19,7 @@ export default async function Page({
       const subscriptionId = session.subscription as string;
       const subscription = await getSubscription({ subscriptionId });
 
-      const amount = subscription?.items.data[0].plan.amount
-        ? subscription.items.data[0].plan.amount / 100
-        : 0;
+      const amount = subscription?.items.data[0].plan.amount || 0;
       const currency = subscription?.items.data[0].plan.currency.toUpperCase();
       const interval = subscription?.items.data[0].plan.interval as
         | 'month'
@@ -42,7 +40,7 @@ export default async function Page({
               term: utm_term,
               content: utm_content,
             }}
-            value={amount}
+            value={amount / 100}
           />
           <Umami
             currency={currency}
@@ -55,7 +53,7 @@ export default async function Page({
               term: utm_term,
               content: utm_content,
             }}
-            value={amount}
+            value={amount / 100}
           />
 
           <div
