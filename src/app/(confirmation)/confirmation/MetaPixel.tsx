@@ -37,17 +37,20 @@ export default function MetaPixel({
     if (META_PIXEL_ID) {
       if (!loaded) return;
 
+      // @ts-ignore
       window.fbq('track', 'PageView');
 
       utm
-        ? window.fbq('track', 'Subscribe', {
+        ? // @ts-ignore
+          window.fbq('track', 'Subscribe', {
             currency,
             subscription_tier: subscriptionTier,
             transaction_id: transactionId,
             ...utm,
             value,
           })
-        : window.fbq('track', 'Subscribe', {
+        : // @ts-ignore
+          window.fbq('track', 'Subscribe', {
             currency,
             subscription_tier: subscriptionTier,
             transaction_id: transactionId,
