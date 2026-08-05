@@ -540,6 +540,8 @@ async function addMember(
     await sql`
       INSERT INTO members (name, email, joined_date, tier, last_amount, shipping_address, last_donation, customer_id, phone, subscription_ID, branch)
         VALUES(${name}, ${email}, ${date}, ${tier}, ${amount}, ${address}, ${date}, ${customerId}, ${phone}, ${subscriptionId}, ${chapter})
+        ON CONFLICT (email)
+          DO UPDATE SET name = ${name}, joined_date = ${date}, tier = ${tier}, last_amount = ${amount}, shipping_address = ${address}, last_donation = ${date}, customer_id = ${customerId}, phone = ${phone}, subscription_id = ${subscriptionId}, branch = ${chapter}
     `;
     childLogger.info(
       {
