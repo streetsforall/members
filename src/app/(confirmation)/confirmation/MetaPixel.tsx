@@ -42,20 +42,30 @@ export default function MetaPixel({
 
       utm
         ? // @ts-ignore
-          window.fbq('track', 'Subscribe', {
-            currency,
-            subscription_tier: subscriptionTier,
-            transaction_id: transactionId,
-            ...utm,
-            value,
-          })
+          window.fbq(
+            'track',
+            'Subscribe',
+            {
+              currency,
+              subscription_tier: subscriptionTier,
+              transaction_id: transactionId,
+              ...utm,
+              value,
+            },
+            { eventID: transactionId },
+          )
         : // @ts-ignore
-          window.fbq('track', 'Subscribe', {
-            currency,
-            subscription_tier: subscriptionTier,
-            transaction_id: transactionId,
-            value,
-          });
+          window.fbq(
+            'track',
+            'Subscribe',
+            {
+              currency,
+              subscription_tier: subscriptionTier,
+              transaction_id: transactionId,
+              value,
+            },
+            { eventID: transactionId },
+          );
     }
   }, [loaded, pathName]);
 
