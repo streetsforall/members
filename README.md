@@ -65,7 +65,7 @@ A Zapier webhook is used for triggering notifications. For development purposes,
 7. Start the listener to redirect webooks requests to your local machine:
 
    ```sh
-   stripe listen --load-from-webhooks-api --forward-to localhost:3000
+   stripe listen --load-from-webhooks-api --all-snapshot --forward-to localhost:3000
    ```
 
    This will route requests in the sandbox to the `/api/subscriptions` and `/api/sessions` endpoints to your local machine. And your local machine will appear as a new destination in developer workbench.
