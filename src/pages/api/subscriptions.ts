@@ -161,33 +161,35 @@ export default async function handler(
       case 'customer.subscription.updated': {
         // Update member subscription information in DB
         const data = {
-            customerId,
-            subscriptionId,
-            address: JSON.stringify(address),
-            amount: amount / 100,
-            tier,
-          };
+          customerId,
+          subscriptionId,
+          address: JSON.stringify(address),
+          amount: amount / 100,
+          tier,
+        };
         await updateMemberSubscription(data, logger);
-
 
         // Future-dated cancelation
         if (subscription.cancel_at) {
-          const cancelDate = new Date(subscription.cancel_at * 1000);
-          const reason = subscription.cancellation_details?.reason;
+          // Only catch first call to prevent duplicate updates
+          if (event.data.previous_attributes?.cancel_at === null) {
+            const cancelDate = new Date(subscription.cancel_at * 1000);
+            const reason = subscription.cancellation_details?.reason;
 
-          logger.info(
-            { step: 'initiate_cancelation', cancelDate, reason },
-            'Subscription scheduled to cancel',
-          );
+            logger.info(
+              { step: 'initiate_cancelation', cancelDate, reason },
+              'Subscription scheduled to cancel',
+            );
 
-          // Record update in DB
-          const update = `${name} set their Tier ${tier} membership to end on ${cancelDate} because ${reason}`;
-          const memberUpdate = {
-            email,
-            newTier: tier,
-            update,
-          };
-          await setMemberUpdate(memberUpdate, logger);
+            // Record update in DB
+            const update = `${name} set their Tier ${tier} membership to end on ${cancelDate} because ${reason}`;
+            const memberUpdate = {
+              email,
+              newTier: tier,
+              update,
+            };
+            await setMemberUpdate(memberUpdate, logger);
+          }
         }
 
         // Consider update only if amount actually changes
