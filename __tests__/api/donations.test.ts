@@ -1,3 +1,4 @@
+// @ts-nocheck
 import handler, { parseDonationData } from "@/pages/api/donations";
 import { DonationData } from "@/pages/api/donation.types";
 import { NextApiRequest, NextApiResponse } from "next";

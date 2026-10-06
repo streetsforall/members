@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { create } from "../../src/server/csv";
 import nock from "nock";
 

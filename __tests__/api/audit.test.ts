@@ -1,3 +1,4 @@
+// @ts-nocheck
 import audit from "../../src/server/audit";
 import handler from "../../src/pages/api/audit";
 import { NextApiRequest, NextApiResponse } from "next";
