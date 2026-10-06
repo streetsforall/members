@@ -144,7 +144,7 @@ export default async function handler(
         await addMember(member, logger);
 
         // Record update in DB
-        const update = `${name} joined the membership program at Tier ${tier}`;
+        const update = `**${name}** joined the membership program at **Tier ${tier}**.`;
         const memberUpdate = {
           email,
           newTier: tier,
@@ -182,7 +182,7 @@ export default async function handler(
             );
 
             // Record update in DB
-            const update = `${name} set their Tier ${tier} membership to end on ${cancelDate} because ${reason}`;
+            const update = `**${name}** set their **Tier ${tier}** membership to end on \`${cancelDate}\` because \`${reason}\``;
             const memberUpdate = {
               email,
               newTier: tier,
@@ -213,7 +213,7 @@ export default async function handler(
           );
 
           // Record update in DB
-          const update = `${name} changed their membership from ${dollar.format(prevAmount / 100)} to ${dollar.format(amount / 100)}`;
+          const update = `**${name}** changed their membership from \`${dollar.format(prevAmount / 100)}\` to \`${dollar.format(amount / 100)}\`.`;
           const memberUpdate = {
             email,
             newTier: tier,
@@ -281,7 +281,7 @@ export default async function handler(
         await cancelMember(data, logger);
 
         // Record update in DB
-        const update = `${name}'s ${dollar.format(amount / 100)} plan has ended`;
+        const update = `**${name}'s** \`${dollar.format(amount / 100)}\` plan has ended.`;
         const memberUpdate = {
           email,
           newTier: 0,
