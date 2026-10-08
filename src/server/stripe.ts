@@ -91,4 +91,36 @@ async function getSubscription(
   }
 }
 
-export { getCustomer, getSession, getSubscription };
+/**
+ * Update subscription in Stripe
+ * @param subscriptionId - Stripe subscription id
+ * @param data - Stripe subscription data
+ * @param logger - Instance used for logging
+ * @returns Stripe subscription record
+ */
+async function updateSubscription(
+  subscriptionId: string,
+  data: Stripe.SubscriptionUpdateParams,
+  logger: Logger = defaultLogger,
+) {
+  const childLogger = logger.child({ step: 'update_stripe_subscription' });
+
+  const { metadata } = data;
+
+  try {
+    childLogger.debug('Updating subscription in Stripe');
+
+    const subscription = await stripe.subscriptions.update(subscriptionId, {
+      metadata,
+    });
+    childLogger.debug(subscription, 'Updated subscription');
+
+    return subscription;
+  } catch (error) {
+    childLogger.error(error);
+
+    return;
+  }
+}
+
+export { getCustomer, getSession, getSubscription, updateSubscription };

@@ -1,4 +1,8 @@
-import { getSession, getSubscription } from '@/server/stripe';
+import {
+  getSession,
+  getSubscription,
+  updateSubscription,
+} from '@/server/stripe';
 import { calculateTier } from '@/server/utils';
 import Umami from './Umami';
 import MetaPixel from './MetaPixel';
@@ -25,6 +29,27 @@ export default async function Page({
         | 'month'
         | 'year';
       const tier = `Tier ${calculateTier({ amount, interval })}`;
+
+      const metadata = subscription?.metadata;
+
+      // Add metadata to subscription in Stripe only if it has not already been set (eliminates the effect of page refreshes)
+      if (
+        !metadata?.utm_source &&
+        !metadata?.utm_medium &&
+        !metadata?.utm_campaign &&
+        !metadata?.utm_term &&
+        !metadata?.utm_content
+      ) {
+        await updateSubscription(subscriptionId, {
+          metadata: {
+            utm_source: utm_source || null,
+            utm_medium: utm_medium || null,
+            utm_campaign: utm_campaign || null,
+            utm_term: utm_term || null,
+            utm_content: utm_content || null,
+          },
+        });
+      }
 
       // Only register analytics if session is validated
       return (
