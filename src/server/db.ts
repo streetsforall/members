@@ -640,6 +640,68 @@ async function recordEmail(
 }
 
 /**
+ * Retrieve logged subscriptions from db to track analytics
+ * @param subscriptionId - Stripe subscription id
+ * @param logger - Instance used for logging
+ * @returns subscription
+ */
+async function getSubscriptionLog(
+  subscriptionId: string,
+  logger: Logger = defaultLogger,
+) {
+  const childLogger = logger.child({ step: 'get_subscription_log' });
+
+  try {
+    const subscriptionLog = await sql`
+      SELECT * FROM subscription_log
+      WHERE subscription_id = ${subscriptionId}
+    `;
+
+    if (subscriptionLog.length) {
+      childLogger.debug('Retrieved subscription log');
+
+      return subscriptionLog[0];
+    } else {
+      childLogger.debug('Subscription log not found');
+
+      return null;
+    }
+  } catch (error) {
+    childLogger.error(error);
+
+    return;
+  }
+}
+
+/**
+ * Log new subscriptions in db to track analytics
+ * @param subscriptionId - Stripe subscription id
+ * @param logger - Instance used for logging
+ * @returns
+ */
+async function setSubscriptionLog(
+  subscriptionId: string,
+  logger: Logger = defaultLogger,
+) {
+  const childLogger = logger.child({ step: 'set_subscription_log' });
+
+  try {
+    await sql`
+      INSERT INTO subscription_log (subscription_id)
+      VALUES( ${subscriptionId})
+    `;
+
+    childLogger.debug('Created subscription log in database');
+
+    return;
+  } catch (error) {
+    childLogger.error(error);
+
+    return;
+  }
+}
+
+/**
  * Retrieve most recently activated Peak Design promo code
  * @param email - Member email
  * @returns Promo code
@@ -722,6 +784,8 @@ export {
   addMember,
   updateMemberSubscription,
   recordEmail,
+  getSubscriptionLog,
+  setSubscriptionLog,
   getCurrentPeakCode,
   getNextPeakCode,
 };

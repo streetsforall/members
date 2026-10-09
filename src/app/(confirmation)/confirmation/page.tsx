@@ -1,4 +1,9 @@
-import { getSession, getSubscription } from '@/server/stripe';
+import { getSubscriptionLog, setSubscriptionLog } from '@/server/db';
+import {
+  getSession,
+  getSubscription,
+  updateSubscription,
+} from '@/server/stripe';
 import { calculateTier } from '@/server/utils';
 import Umami from './Umami';
 import MetaPixel from './MetaPixel';
@@ -15,6 +20,7 @@ export default async function Page({
   if (sessionId) {
     const session = await getSession({ sessionId });
 
+    // Only register analytics if session is validated
     if (session && session.status === 'complete') {
       const subscriptionId = session.subscription as string;
       const subscription = await getSubscription({ subscriptionId });
@@ -26,35 +32,60 @@ export default async function Page({
         | 'year';
       const tier = `Tier ${calculateTier({ amount, interval })}`;
 
-      // Only register analytics if session is validated
+      // Add metadata to subscription in Stripe if not already logged (eliminates effect of page refreshes)
+      const subscriptionLog = await getSubscriptionLog(subscriptionId);
+
+      if (!subscriptionLog) {
+        await updateSubscription(subscriptionId, {
+          metadata: {
+            utm_source: utm_source || null,
+            utm_medium: utm_medium || null,
+            utm_campaign: utm_campaign || null,
+            utm_term: utm_term || null,
+            utm_content: utm_content || null,
+          },
+        });
+
+        await setSubscriptionLog(subscriptionId);
+      }
+
       return (
         <>
-          <MetaPixel
-            currency={currency}
-            subscriptionTier={tier}
-            transactionId={sessionId}
-            utm={{
-              source: utm_source,
-              medium: utm_medium,
-              campaign: utm_campaign,
-              term: utm_term,
-              content: utm_content,
-            }}
-            value={amount / 100}
-          />
-          <Umami
-            currency={currency}
-            subscriptionTier={tier}
-            transactionId={sessionId}
-            utm={{
-              source: utm_source,
-              medium: utm_medium,
-              campaign: utm_campaign,
-              term: utm_term,
-              content: utm_content,
-            }}
-            revenue={amount / 100}
-          />
+          {
+            /* Only register analytics if subscription not already logged */
+            !subscriptionLog && (
+              <>
+                <MetaPixel
+                  currency={currency}
+                  subscriptionId={subscriptionId}
+                  subscriptionTier={tier}
+                  transactionId={sessionId}
+                  utm={{
+                    source: utm_source,
+                    medium: utm_medium,
+                    campaign: utm_campaign,
+                    term: utm_term,
+                    content: utm_content,
+                  }}
+                  value={amount / 100}
+                />
+                <Umami
+                  currency={currency}
+                  subscriptionId={subscriptionId}
+                  subscriptionTier={tier}
+                  transactionId={sessionId}
+                  utm={{
+                    source: utm_source,
+                    medium: utm_medium,
+                    campaign: utm_campaign,
+                    term: utm_term,
+                    content: utm_content,
+                  }}
+                  revenue={amount / 100}
+                />
+              </>
+            )
+          }
 
           <div
             style={{

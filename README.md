@@ -110,7 +110,7 @@ In order to track metrics about subscriptions, analytics are collected when a ne
 > [!TIP]
 > This is configured on the Stripe side in the dashboard, under **Payments**, on the **Payment Links** page. The confirmation page is set by editing a link and going to the **After payment** tab. Refer to the [Stripe documentation](https://docs.stripe.com/payment-links/url-parameters#track-campaigns-with-utm-codes) for more information.
 
-The analytics are only registered if the checkout session is validated. This is done by a calling the Stripe API to retreive the session information. To cover all our bases currently, both a page view and an event trigger is registered in both Meta and Umami. (This may change as we refine the process in the future.) Since Umami is also used at the app level to track general page visits, there are two different root `layout.tsx` files:
+The analytics are only registered if the checkout session is validated and if the subscription hadn't already been logged in the database. (This is to prevent duplicate events being registered due to page refreshes.) This is done by a calling the Stripe API to retreive the session information. To cover all our bases currently, both a page view and an event trigger is registered in both Meta and Umami. (This may change as we refine the process in the future.) Since Umami is also used at the app level to track general page visits, there are two different root `layout.tsx` files:
 
 1. Under `(confirmation)/`: This is only used for the confirmation page Stripe redirects to after checkout is complete.
 2. Under `(main)/`: This is used for all other pages.

@@ -16,6 +16,7 @@ interface UTM {
 
 interface UmamiProps {
   currency?: string;
+  subscriptionId: string;
   subscriptionTier: string;
   transactionId: string;
   utm?: UTM;
@@ -24,6 +25,7 @@ interface UmamiProps {
 
 export default function Umami({
   currency,
+  subscriptionId,
   subscriptionTier,
   transactionId,
   utm,
@@ -45,6 +47,7 @@ export default function Umami({
         ? // @ts-ignore
           umami.track('new-subscription', {
             currency,
+            subscription_id: subscriptionId,
             subscription_tier: subscriptionTier,
             transaction_id: transactionId,
             ...utm,
@@ -53,6 +56,7 @@ export default function Umami({
         : // @ts-ignore
           umami.track('new-subscription', {
             currency,
+            subscription_id: subscriptionId,
             subscription_tier: subscriptionTier,
             transaction_id: transactionId,
             revenue,
