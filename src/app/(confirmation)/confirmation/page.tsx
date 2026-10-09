@@ -57,6 +57,7 @@ export default async function Page({
               <>
                 <MetaPixel
                   currency={currency}
+                  subscriptionId={subscriptionId}
                   subscriptionTier={tier}
                   transactionId={sessionId}
                   utm={{
@@ -70,6 +71,7 @@ export default async function Page({
                 />
                 <Umami
                   currency={currency}
+                  subscriptionId={subscriptionId}
                   subscriptionTier={tier}
                   transactionId={sessionId}
                   utm={{

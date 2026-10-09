@@ -16,6 +16,7 @@ interface UTM {
 
 interface MetaPixelProps {
   currency?: string;
+  subscriptionId: string;
   subscriptionTier: string;
   transactionId: string;
   utm?: UTM;
@@ -25,6 +26,7 @@ interface MetaPixelProps {
 // From https://github.com/vercel/next.js/tree/canary/examples/with-facebook-pixel
 export default function MetaPixel({
   currency,
+  subscriptionId,
   subscriptionTier,
   transactionId,
   utm,
@@ -47,6 +49,7 @@ export default function MetaPixel({
             'Subscribe',
             {
               currency,
+              subscription_id: subscriptionId,
               subscription_tier: subscriptionTier,
               transaction_id: transactionId,
               ...utm,
@@ -60,6 +63,7 @@ export default function MetaPixel({
             'Subscribe',
             {
               currency,
+              subscription_id: subscriptionId,
               subscription_tier: subscriptionTier,
               transaction_id: transactionId,
               value,
