@@ -173,7 +173,14 @@ export default async function handler(
         if (subscription.cancel_at) {
           // Only catch first call to prevent duplicate updates
           if (event.data.previous_attributes?.cancel_at === null) {
-            const cancelDate = new Date(subscription.cancel_at * 1000);
+            const cancelDate = new Date(
+              subscription.cancel_at * 1000,
+            ).toLocaleDateString('en-US', {
+              timeZone: 'America/Los_Angeles',
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            });
             const reason = subscription.cancellation_details?.reason;
 
             logger.info(
