@@ -81,7 +81,7 @@ async function sendWelcomeEmail(
                 <a
                 target="_blank"
                 rel="noopener noreferrer"
-                href="https://join.slack.com/t/streetsforall/shared_invite/zt-2z6ln58iu-6hoV9qILXMLptFaKaTWIeg"
+                href="https://join.slack.com/t/streetsforall/shared_invite/zt-2zx6u45eb-6IUBHyCFy1NS8ZeTH2otBg"
               >join the Streets for All slack here.</a>
               </p>
 
