@@ -53,7 +53,8 @@ export async function verify_token(token: string) {
 		return ('not a matching email')
 	}
 
-	await auth.lucia.invalidateUserSessions(user.id);
+	// Not invalidating existing sessions - opening the link in multiple
+	// browsers (e.g. in-app browser then Safari) would log out the others
 
 	// update member with a validated email
 	await updateMemberEmailVerification({ id: user.id, isEmailVerified: true });

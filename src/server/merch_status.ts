@@ -33,7 +33,8 @@ export async function merch_status(email: string) {
       // iterate through each merch order
       // return status
 
-      const order_packages = await orders.map(async (order, id) => {
+      // wait for every order update to finish so callers can re-read fresh statuses
+      const order_packages = await Promise.all(orders.map(async (order, id) => {
         const order_details = await getMerch(order.order_id);
 
         // console.log('order_details', order_details)
@@ -66,7 +67,7 @@ export async function merch_status(email: string) {
             status: '',
           },
         ];
-      });
+      }));
 
       return order_packages;
     } catch (error) {

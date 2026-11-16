@@ -8,7 +8,7 @@ import Merch from '@/app/components/merch';
 import { Billing_button } from '@/app/components/billing_button';
 import { Upgrade_button } from '@/app/components/upgrade_button'
 import { SignOut } from '@/app/components/signout'
-import Events from '@/app/components/events';
+import Events, { type event as memberEvent } from '@/app/components/events';
 
 import Card from './card' 
 
@@ -34,6 +34,9 @@ const updateViews = async ({ params }: { params: Promise<{ slug: string }> }) =>
 
     // retrieve member data
     const member = (JSON.parse(JSON.stringify(memberData)))
+
+    // only active members see events
+    const events = member.tier > 0 ? await dbHelp.getEvents() : null
 
     const teir_desc = (tier: number) => {
         if (tier == 10) {
@@ -80,7 +83,7 @@ const updateViews = async ({ params }: { params: Promise<{ slug: string }> }) =>
             {/* only show discounts on tier 2 and 3 */}
             {member.tier > 1  &&  member.tier != 10 ? <Discounts member={member} /> : ''}
 
-            {member.tier > 0 ? < Events /> : ''}
+            {member.tier > 0 ? <Events events={events as unknown as memberEvent[] | null | undefined} /> : ''}
 
             {member.tier < 3 &&  member.tier > 0?
 

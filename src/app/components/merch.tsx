@@ -6,6 +6,16 @@ import { getOrders } from '@/server/db'
 import { Row } from "postgres";
 
 
+// order_package should be a JSON array like ["shirt","hat"]
+// skip rows that aren't valid JSON instead of crashing the whole member page
+const parsePackage = (order_package: string): string[] => {
+    try {
+        const pack = JSON.parse(order_package)
+        return Array.isArray(pack) ? pack : []
+    } catch {
+        return []
+    }
+}
 
 
 
@@ -30,7 +40,8 @@ const Merch = (member: any) => {
 
         setMerch([])
 
-        merch_status(member.member.email)
+        // wait for statuses to update from Printful before re-reading orders
+        await merch_status(member.member.email)
 
         const retrieveAllMerch = async (email: string) => {
             const order = await getOrders(email)
@@ -64,7 +75,7 @@ const Merch = (member: any) => {
                             <div className="merch_grid">
 
 
-                            { JSON.parse(item.order_package).length > 0 ? JSON.parse(item.order_package).map((pack : any) => {
+                            { parsePackage(item.order_package).length > 0 ? parsePackage(item.order_package).map((pack : any) => {
                                 
                                 console.log('pack', pack )
 
