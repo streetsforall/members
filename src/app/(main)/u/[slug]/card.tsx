@@ -22,8 +22,14 @@ const Card = async () => {
     const date = new Date(member.joined_date) as any
     const today = new Date() as any
 
-    var diff_month = today.getMonth() - date.getMonth();
-    var diff_days = today.getDate() - date.getDate();
+    // full days since joining
+    var diff_days = Math.floor((today.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+
+    // full months since joining, across years (not counting the current month until its day is reached)
+    var diff_month = (today.getFullYear() - date.getFullYear()) * 12 + (today.getMonth() - date.getMonth());
+    if (today.getDate() < date.getDate()) {
+        diff_month -= 1;
+    }
 
     var elapsed = ''
     if (diff_days <= 1) {
@@ -32,8 +38,12 @@ const Card = async () => {
         elapsed = `SUPPORTER FOR ${diff_days} DAYS`
     } else if (diff_month == 1) {
         elapsed = `SUPPORTER FOR 1 MONTH`
+    } else if (diff_month < 12) {
+        elapsed = `SUPPORTER FOR ${diff_month} MONTHS`
+    } else if (diff_month < 24) {
+        elapsed = `SUPPORTER FOR 1 YEAR`
     } else {
-        elapsed = `SUPPORTER FOR ${diff_month}  MONTHS`
+        elapsed = `SUPPORTER FOR ${Math.floor(diff_month / 12)} YEARS`
     }
 
 
