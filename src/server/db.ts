@@ -766,6 +766,31 @@ async function getNextPeakCode(email: string) {
   }
 }
 
+/**
+ * Get active member events (toggle `active` to hide old or upcoming events)
+ * @param logger - Instance used for logging
+ * @returns Event records
+ */
+async function getEvents(logger: Logger = defaultLogger) {
+  const childLogger = logger.child({ step: 'get_events' });
+
+  try {
+    // Order by id so events show in the order they were added
+    const events = await sql`
+      SELECT id, date, link, description FROM events
+      WHERE active
+      ORDER BY id
+    `;
+    childLogger.debug(`Retrieved ${events.length} events`);
+
+    return events;
+  } catch (error) {
+    childLogger.error(error);
+
+    return;
+  }
+}
+
 export {
   sql,
   getValidMembers,
@@ -788,4 +813,5 @@ export {
   setSubscriptionLog,
   getCurrentPeakCode,
   getNextPeakCode,
+  getEvents,
 };

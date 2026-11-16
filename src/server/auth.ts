@@ -24,7 +24,7 @@ export const lucia = new Lucia(adapter, {
 			email: attributes.email
 		};
 	},
-	sessionExpiresIn: new TimeSpan(2, "w") 
+	sessionExpiresIn: new TimeSpan(90, "d")
 });
 
 // IMPORTANT!
