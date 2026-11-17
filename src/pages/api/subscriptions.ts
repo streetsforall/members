@@ -169,10 +169,18 @@ export default async function handler(
         };
         await updateMemberSubscription(data, logger);
 
-        // Future-dated cancelation
+        // Future-dated cancellation
         if (subscription.cancel_at) {
           // Only catch first call to prevent duplicate updates
           if (event.data.previous_attributes?.cancel_at === null) {
+            const createdDate = new Date(
+              subscription.created * 1000,
+            ).toLocaleDateString('en-US', {
+              timeZone: 'America/Los_Angeles',
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            });
             const cancelDate = new Date(
               subscription.cancel_at * 1000,
             ).toLocaleDateString('en-US', {
@@ -184,12 +192,17 @@ export default async function handler(
             const reason = subscription.cancellation_details?.reason;
 
             logger.info(
-              { step: 'initiate_cancelation', cancelDate, reason },
+              { step: 'initiate_cancellation', cancelDate, reason },
               'Subscription scheduled to cancel',
             );
 
-            // Record update in DB
-            const update = `*${name}* set their *Tier ${tier}* membership to end on \`${cancelDate}\` because \`${reason}\``;
+            // Record update in DB; remove indents
+            const update =
+              `*${name}* set their *Tier ${tier}* membership to end.
+              *Start date:* ${createdDate}
+              *End date:* ${cancelDate} 
+              *Reason:* \`${reason}\`
+            `.replace(/^ +/gm, '');
             const memberUpdate = {
               email,
               newTier: tier,
@@ -197,6 +210,8 @@ export default async function handler(
             };
             await setMemberUpdate(memberUpdate, logger);
           }
+
+          return res.status(200).send('Subscription canceled');
         }
 
         // Consider update only if amount actually changes
@@ -262,9 +277,9 @@ export default async function handler(
             },
             logger,
           );
-        }
 
-        return res.status(200).send('Subscription updated');
+          return res.status(200).send('Subscription updated');
+        }
       }
 
       /**
