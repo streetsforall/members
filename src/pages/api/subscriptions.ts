@@ -280,6 +280,8 @@ export default async function handler(
 
           return res.status(200).send('Subscription updated');
         }
+
+        return res.status(200).send('Subscription renewed');
       }
 
       /**
@@ -313,6 +315,7 @@ export default async function handler(
 
         return res.status(200).send('Subscription ended');
       }
+
       default:
         logger.error('Unhandled event type');
 
